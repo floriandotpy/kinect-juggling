@@ -18,7 +18,7 @@ def replaceBackground(rgb, depth, background_src, depth_threshold=100):
 
 def discoMode(rgb):
     """
-        Adds nyan cat mode to your life, therefor enhancing it by factor 1000.
+        Adds nyan cat mode to your life, therefore enhancing it by factor 1000.
     """
     # Shuffle RGB channels for every pixel
     l = [0, 1, 2]
@@ -38,6 +38,29 @@ def parallaxCorrect(depth, x, y):
     depth[:y, :] = True
     return depth
 
+def saveImg(rgb, filename):
+    img = Image.fromarray(rgb)
+    img.save(filename, "PNG")
+
+def getDummyImg(filename):
+    img = np.asarray(Image.open(filename))
+    return (img, None)
+
+
+class BallDetector(object):
+    """docstring for BallDetector """
+    def __init__(self, ballcolor, threshold):
+        self.ballcolorarray = np.empty(shape=(480, 640, 3), dtype=np.uint8)
+        self.ballcolorarray[:, :] = np.array(ballcolor)
+        self.threshold = threshold
+
+    def detect(self, rgb):
+        b = abs(rgb - self.ballcolorarray) < self.threshold
+        b = np.logical_and(np.logical_and(b[:,:,0], b[:,:,1]), b[:,:,2])
+        rgb = np.zeros(shape=(480, 640, 3), dtype=np.uint8)
+        rgb[b] = np.array([255, 0, 255])
+        return rgb
+        
 
 class SmoothBuffer(object):
     """Reduces noise on the depth image. """
