@@ -15,7 +15,7 @@ import imgtools
 
 class Kinector(object):
     """ Does awesome stuff with the Kinect. """
-    def __init__(self, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False):
+    def __init__(self, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False):
         self.running = True
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
         self.swapbackground = swapbackground
@@ -25,27 +25,37 @@ class Kinector(object):
         self.threshold = np.empty(shape=(480, 640, 3)).fill(50)
         self.detectball = detectball
         self.balldetector = imgtools.BallDetector([180, 30, 30], threshold=100)
+        self.record = record
+        self.depth_0 = np.load("frames/frame-1368712006486-depth.npy")
+        self.rgb_0 = np.load("frames/frame-1368712006486-rgb.npy")
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
         while self.running:
-            self._step()
+            if self.record:
+                self.snapshot()
+            else:
+                self._step()
             key = cv.WaitKey(5)
             self.running = key in (-1, 32)
             if key == 32: # space bar
                 self.snapshot()
 
     def snapshot(self):
-        filename = "snapshot-%d.png" % int(time.time()*1000)
         (rgb, _) = get_video()
-        imgtools.saveImg(rgb, filename)
+        (depth,_) = get_depth(format=4)
+        imgtools.snapshot(rgb, depth)
+        # filename = "snapshot-%d.png" % int(time.time()*1000)
+        # imgtools.saveImg(rgb, filename)
         
 
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
-        (depth,_) = get_depth(format=4)
-        (rgb,_) = imgtools.getDummyImg("snapshot-1367500340985.png") if self.dummymode else get_video()
+        # (depth,_) = get_depth(format=4)
+        # (rgb,_) = imgtools.getDummyImg("snapshot-1367500340985.png") if self.dummymode else get_video()
+        depth = self.depth_0
+        rgb = self.rgb_0
 
         # Normalize depth values to be 0..255 instead of 0..2047
         depth = depth / 8
@@ -69,7 +79,7 @@ class Kinector(object):
             rgb[240, 320] = np.array([255,0,255])
 
         if self.detectball:
-            rgb = self.balldetector.detect(rgb)
+            rgb = self.balldetector.detectDepth(rgb, depth)
 
         # generate opencv image
         img = cv.fromarray(np.array(rgb[:,:,::-1], dtype=np.uint8))
@@ -85,5 +95,5 @@ class Kinector(object):
         cv.ShowImage('display', img)
         
 if __name__ == '__main__':
-    Kinector(swapbackground=False, dummymode=False, detectball=True).loop()
+    Kinector(swapbackground=True, dummymode=False, detectball=False, record=False).loop()
 

@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import random
+import time
 
 
 def replaceBackground(rgb, depth, background_src, depth_threshold=100):
@@ -42,6 +43,14 @@ def saveImg(rgb, filename):
     img = Image.fromarray(rgb)
     img.save(filename, "PNG")
 
+def snapshot(rgb, depth):
+    filename = "frames/frame-%d" % int(time.time()*1000)
+    filename_rgb = filename + "-rgb"
+    filename_depth = filename + "-depth"
+    np.save(filename_rgb, rgb)
+    np.save(filename_depth, depth)
+    # imgtools.saveImg(rgb, filename)
+
 def getDummyImg(filename):
     img = np.asarray(Image.open(filename))
     return (img, None)
@@ -52,6 +61,7 @@ class BallDetector(object):
     def __init__(self, ballcolor, threshold):
         self.ballcolorarray = np.empty(shape=(480, 640, 3), dtype=np.uint8)
         self.ballcolorarray[:, :] = np.array(ballcolor)
+        self.ballcolor = ballcolor
         self.threshold = threshold
 
     def detect(self, rgb):
@@ -59,6 +69,14 @@ class BallDetector(object):
         b = np.logical_and(np.logical_and(b[:,:,0], b[:,:,1]), b[:,:,2])
         rgb = np.zeros(shape=(480, 640, 3), dtype=np.uint8)
         rgb[b] = np.array([255, 0, 255])
+        return rgb
+
+    def detectDepth(self, rgb, depth):
+        return rgb
+        
+        rgb = np.zeros(shape=(480, 640, 3), dtype=np.uint8)
+        subset = depth < 100
+        rgb[subset] = self.ballcolor
         return rgb
         
 
