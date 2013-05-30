@@ -24,13 +24,6 @@
 \titlepage
 }
 
-\frame
-{
-\tableofcontents
-}
-
-\section{A Juggling Robot}
-
 \begin{frame}{A juggling robot}
 
 \textbf{Playing Catch and Juggling with a Humanoid Robot}
@@ -46,6 +39,14 @@ $^{2}$ University of Birmingham, UK
    
 \end{frame}
 
+\frame
+{
+\tableofcontents
+}
+
+\section{A Juggling Robot}
+
+
 \begin{frame}{System description}
 \begin{enumerate}
 \item Robot hardware
@@ -60,7 +61,6 @@ $^{2}$ University of Birmingham, UK
 
 \begin{frame}{Image processing pipeline}
 \begin{center}\includegraphics[width=12cm]{img/img-processing.png}\end{center}
-
 \end{frame}
 
 
@@ -118,22 +118,14 @@ $^{2}$ University of Birmingham, UK
 \end{frame}
 
 \begin{frame}{Conclusion}
-   Video + paper conclusion
+	\begin{itemize}
+	\item 75\% success in feasable catching region
+	\item 47\% overall catching
+	\pause \item Video
+	\end{itemize}
+	
 \end{frame}
 
-\section{Our plan}
-\begin{frame}{The flow}
-IN: rgb + z
-
-\begin{itemize}
-	\item eliminate background in z
-	\item search local maxima in z $\rightarrow$ ROIs
-	\item use ROI mask on rgb
-	\item Hough transform on rgb
-	\item Match corresponding balls in multiple frames
-	\item Kalman filter for each ball
-\end{itemize}
-\end{frame}
 
 \section{Our plan}
 \begin{frame}{The flow}
