@@ -34,7 +34,7 @@
 \begin{frame}{A juggling robot}
 
 \textbf{Playing Catch and Juggling with a Humanoid Robot}
-Jens Kober$^{1}$, Matthew Glisson, and Michael Mistry$^{2}$
+Jens Kober$^{1}$, Matthew Glisson, and Michael Mistry$^{2}$
 
 Disney Research, Pittsburgh, USA
 
@@ -68,17 +68,50 @@ $^{2}$ University of Birmingham, UK
 
 \begin{frame}{Hough Transform}
 \color{red}{   FIXME: Thiemo}
-\begin{center}\includegraphics[0.5]{img/Hough3.png}\end{center}
+\begin{center}\includegraphics[scale=1]{img/Hough3.png}\end{center}
 \end{frame}
 
 \section{Kalman Filter}
 
-\begin{frame}
-\frametitle{Kalman Filter}
-\framesubtitle{sub}
+\begin{frame}{Kalman Filter}
+\begin{itemize}
+\item nutzt verschiedene Daten, um den aktuellen Zustand zu schätzen:
+\begin{itemize}
+\item Daten aus Wissen über die Zustandsänderung
+\item Sensordaten
+\end{itemize}
+\item kann mit diesen auch zukünftige Zustände schätzen
+\end{itemize}
+\end{frame}
 
-FIXME: Rolf
+\begin{frame}{Kalman Filter}{Anwendungsfall}
+\begin{center}
+\includegraphics<1-1>[scale=0.45]{img/kalman_0_1.jpg}
+\includegraphics<2-2>[scale=0.45]{img/kalman_0_2.jpg}
+\includegraphics<3-3>[scale=0.45]{img/kalman_0_3.jpg}
+\includegraphics<4-4>[scale=0.45]{img/kalman_0_4.jpg}
+\end{center}
+\end{frame}
 
+\begin{frame}{Kalman Filter}{Formeln}
+\begin{itemize}
+\item<1-> predict
+\begin{itemize}
+\item<2-> mit Wissen über die Art der Bewegung wird eine voraussichtliche Position berechnet:\\\qquad\qquad$\overline{x}_{t} = A_{t}x_{t-1} + B_{t}u_{t} + \varepsilon_{t}$
+\item<2-> zusätzlich werden die Sensordaten (hier GPS) geschätzt:\\\qquad\qquad$\overline{z}_{t} = H_{t}\overline{x}_{t} + \varepsilon_{t}$
+\end{itemize}
+\item<1-> update
+\begin{itemize}
+\item<3-> geschätzte Positionen werden mit Sensordaten korrigiert:\\\qquad\qquad$x_{estimate} = \overline{x}_{t} + K(z_{t} - \overline{z}_{t})$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Kalman Filter}{Unsere Anwendung}
+\begin{itemize}
+\item Wissen über Art der Bewegung $\rightarrow$ Wurfparabel
+\item Sensordaten $\rightarrow$ Kinect
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Conclusion}
@@ -97,6 +130,11 @@ IN: rgb + z
 	\item Match corresponding balls in multiple frames
 	\item Kalman filter for each ball
 \end{itemize}
+\end{frame}
+
+\section{Our plan}
+\begin{frame}{The flow}
+\begin{center}\includegraphics[scale=0.1045]{img/flowchart.png}\end{center}
 \end{frame}
 
 \begin{frame}{Challenges}
