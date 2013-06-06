@@ -15,7 +15,7 @@ import imgtools
 
 class Kinector(object):
     """ Does awesome stuff with the Kinect. """
-    def __init__(self, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False):
+    def __init__(self, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False, canny=False):
         self.running = True
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
         self.swapbackground = swapbackground
@@ -26,8 +26,10 @@ class Kinector(object):
         self.detectball = detectball
         self.balldetector = imgtools.BallDetector([180, 30, 30], threshold=100)
         self.record = record
-        self.depth_0 = np.load("frames/frame-1368712006486-depth.npy")
-        self.rgb_0 = np.load("frames/frame-1368712006486-rgb.npy")
+        if self.dummymode:
+            self.depth_0 = np.load("frames/frame-1368712006486-depth.npy")
+            self.rgb_0 = np.load("frames/frame-1368712006486-rgb.npy")
+        self.canny = canny
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
@@ -47,15 +49,15 @@ class Kinector(object):
         imgtools.snapshot(rgb, depth)
         # filename = "snapshot-%d.png" % int(time.time()*1000)
         # imgtools.saveImg(rgb, filename)
-        
+
 
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
-        # (depth,_) = get_depth(format=4)
-        # (rgb,_) = imgtools.getDummyImg("snapshot-1367500340985.png") if self.dummymode else get_video()
-        depth = self.depth_0
-        rgb = self.rgb_0
+        (depth,_) = get_depth(format=4)
+        (rgb,_) = imgtools.getDummyImg("snapshot-1367500340985.png") if self.dummymode else get_video()
+        # depth = self.depth_0
+        # rgb = self.rgb_0
 
         # Normalize depth values to be 0..255 instead of 0..2047
         depth = depth / 8
@@ -69,7 +71,8 @@ class Kinector(object):
         if self.disco:
             rgb = imgtools.discoMode(rgb)
 
-
+        if self.canny:
+            depth_opencv = imgtools.canny(depth, as_cv=True)
 
         if self.showoverlay:
             # get center color value
@@ -84,16 +87,17 @@ class Kinector(object):
         # generate opencv image
         img = cv.fromarray(np.array(rgb[:,:,::-1], dtype=np.uint8))
 
+
         if self.showoverlay:
             f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
             # PutText(img, text, org, font, color)
-            cv.PutText(img, 'Color: %s' % (color), (20,20) , f, (int(color[2]), int(color[1]), int(color[0])))     
+            cv.PutText(img, 'Color: %s' % (color), (20,20) , f, (int(color[2]), int(color[1]), int(color[0])))
             cv.PutText(img, 'X', (320, 240) , f, (255, 255 , 255))
 
         # Display image
         # cv.ShowImage('display', cv.fromarray(np.array(rgb[:,:,::-1])))
-        cv.ShowImage('display', img)
-        
+        cv.ShowImage('display', depth_opencv)
+
 if __name__ == '__main__':
-    Kinector(swapbackground=True, dummymode=False, detectball=False, record=False).loop()
+    Kinector(swapbackground=True, dummymode=False, detectball=False, record=False, canny=True).loop()
 
