@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import cv
+import cv2
 import random
 import time
 
@@ -71,6 +72,16 @@ def getDummyImg(filename):
     img = np.asarray(Image.open(filename))
     return (img, None)
 
+def detectHoles(depth):
+    white = np.zeros(shape=(480, 640))
+    white.fill(0)
+
+    subset_objects = depth < 1500
+    subset_holes = depth == 0
+    white[subset_objects] = 1023
+    white[subset_holes] = 100
+    return white
+
 
 class BallDetector(object):
     """docstring for BallDetector """
@@ -94,6 +105,22 @@ class BallDetector(object):
         subset = depth < 100
         rgb[subset] = self.ballcolor
         return rgb
+
+    def drawRects(self, rgb, depth):
+        # img = cv.fromarray(depth, cv.CV_8UC1)
+        # ret, thresh = cv2.threshold(depth, 127, 255, 0)
+        contours, hierarchy = cv2.findContours(depth, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+        # find rectangles
+        x,y,w,h = cv2.boundingRect(contours)
+
+        # draw rectangles
+        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+
+        # approx = cv2.approxPolyDP(cnt,0.1*cv2.arcLength(contours,True),True)
+        return img
+
+
 
 
 class SmoothBuffer(object):

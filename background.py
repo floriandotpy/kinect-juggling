@@ -60,10 +60,10 @@ class Kinector(object):
         # rgb = self.rgb_0
 
         # Normalize depth values to be 0..255 instead of 0..2047
-        depth = depth / 8
+        # depth = depth / 8
 
-        self.smoothBuffer.add(depth)
-        depth = self.smoothBuffer.get()
+        # self.smoothBuffer.add(depth)
+        # depth = self.smoothBuffer.get()
 
         if self.swapbackground:
             rgb = imgtools.replaceBackground(rgb, depth, 'bg.jpg')
@@ -73,6 +73,15 @@ class Kinector(object):
 
         if self.canny:
             depth_opencv = imgtools.canny(depth, as_cv=True)
+        else:
+            depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+
+        # show holes
+        depth = imgtools.detectHoles(depth)
+        depth = depth / 8
+        # depth = self.balldetector.drawRects(rgb, depth)
+        depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+
 
         if self.showoverlay:
             # get center color value
@@ -99,5 +108,5 @@ class Kinector(object):
         cv.ShowImage('display', depth_opencv)
 
 if __name__ == '__main__':
-    Kinector(swapbackground=True, dummymode=False, detectball=False, record=False, canny=True).loop()
+    Kinector(swapbackground=True, dummymode=False, detectball=False, record=False, canny=False).loop()
 
