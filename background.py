@@ -14,7 +14,7 @@ import imgtools
 
 class Kinector(object):
     """ Does awesome stuff with the Kinect. """
-    def __init__(self, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False, canny=False):
+    def __init__(self, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False, canny=False, hough=False):
         self.running = True
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
         self.swapbackground = swapbackground
@@ -30,6 +30,7 @@ class Kinector(object):
         else:
             self.kinect = imgtools.Kinect()
         self.canny = canny
+        self.hough = hough
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
@@ -73,6 +74,9 @@ class Kinector(object):
         else:
             depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
 
+        if self.hough:
+            rgb = imgtools.hough(rgb, depth)
+
         # show holes
         depth = self.balldetector.detectHoles(depth)
         depth = depth / 8
@@ -110,5 +114,5 @@ class Kinector(object):
         # cv.ShowImage('display', depth_opencv)
 
 if __name__ == '__main__':
-    Kinector(swapbackground=False, dummymode=True, detectball=False, record=False, canny=False).loop()
+    Kinector(swapbackground=False, dummymode=True, detectball=False, record=False, canny=False, hough=True).loop()
 
