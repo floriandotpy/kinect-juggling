@@ -1,9 +1,11 @@
 import numpy as np
 from PIL import Image
+import os
 import cv
 import cv2
 import random
 import time
+from freenect import sync_get_depth as get_depth, sync_get_video as get_video
 
 
 def replaceBackground(rgb, depth, background_src, depth_threshold=100):
@@ -148,3 +150,39 @@ class SmoothBuffer(object):
         else:
             depth = self.buffers[self.buffer_i-1]
         return depth
+
+class Kinect(object):
+    """Offers acces to rgb and depth from the real Kinect"""
+    def __init__(self):
+        pass
+
+    def get_frame(self):
+        # Get a fresh frame
+        (depth,_) = get_depth(format=4)
+        (rgb,_) = get_video()
+        return (rgb, depth)
+
+class KinectDummy(object):
+    """Offers access to recorded dummy data the same way the Kinect would return it"""
+    def __init__(self):
+        self.path = "frames"
+        (_, _, files) = os.walk(self.path).next()
+        self.frames_rgb = []
+        self.frames_depth = []
+        for filename in files:
+            if "rgb" in filename:
+                self.frames_rgb.append(filename)
+            elif "depth" in filename:
+                self.frames_depth.append(filename)
+        self.frames_rgb = sorted(self.frames_rgb)
+        self.frames_depth = sorted(self.frames_depth)
+
+        self.current = 0
+        self.total = len(self.frames_rgb)
+
+    def get_frame(self):
+        rgb = np.load(os.path.join(self.path,self.frames_rgb[self.current]))
+        depth = np.load(os.path.join(self.path,self.frames_depth[self.current]))
+        self.current = (self.current + 1) % self.total
+        return (rgb, depth)
+

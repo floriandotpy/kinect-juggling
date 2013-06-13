@@ -4,7 +4,6 @@
     Based on demo_freenect.py from the https://github.com/amiller/libfreenect-goodies.git
 '''
 
-from freenect import sync_get_depth as get_depth, sync_get_video as get_video
 import cv
 import numpy as np
 from PIL import Image
@@ -27,8 +26,9 @@ class Kinector(object):
         self.balldetector = imgtools.BallDetector([180, 30, 30], threshold=100)
         self.record = record
         if self.dummymode:
-            self.depth_0 = np.load("frames/frame-1368712006486-depth.npy")
-            self.rgb_0 = np.load("frames/frame-1368712006486-rgb.npy")
+            self.kinect = imgtools.KinectDummy()
+        else:
+            self.kinect = imgtools.Kinect()
         self.canny = canny
 
     def loop(self):
@@ -54,10 +54,7 @@ class Kinector(object):
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
-        (depth,_) = get_depth(format=4)
-        (rgb,_) = imgtools.getDummyImg("snapshot-1367500340985.png") if self.dummymode else get_video()
-        # depth = self.depth_0
-        # rgb = self.rgb_0
+        (rgb, depth) = self.kinect.get_frame()
 
         # Normalize depth values to be 0..255 instead of 0..2047
         # depth = depth / 8
@@ -104,9 +101,9 @@ class Kinector(object):
             cv.PutText(img, 'X', (320, 240) , f, (255, 255 , 255))
 
         # Display image
-        # cv.ShowImage('display', cv.fromarray(np.array(rgb[:,:,::-1])))
-        cv.ShowImage('display', depth_opencv)
+        cv.ShowImage('display', cv.fromarray(np.array(rgb[:,:,::-1])))
+        # cv.ShowImage('display', depth_opencv)
 
 if __name__ == '__main__':
-    Kinector(swapbackground=True, dummymode=False, detectball=False, record=False, canny=False).loop()
+    Kinector(swapbackground=False, dummymode=True, detectball=False, record=False, canny=False).loop()
 
