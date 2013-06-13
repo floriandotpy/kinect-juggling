@@ -74,15 +74,6 @@ def getDummyImg(filename):
     img = np.asarray(Image.open(filename))
     return (img, None)
 
-def detectHoles(depth):
-    white = np.zeros(shape=(480, 640))
-    white.fill(0)
-
-    subset_objects = depth < 1500
-    subset_holes = depth == 0
-    white[subset_objects] = 1023
-    white[subset_holes] = 100
-    return white
 
 
 class BallDetector(object):
@@ -92,6 +83,15 @@ class BallDetector(object):
         self.ballcolorarray[:, :] = np.array(ballcolor)
         self.ballcolor = ballcolor
         self.threshold = threshold
+
+    def detectHoles(self, depth):
+        white = np.zeros(shape=(480, 640))
+        white.fill(0)
+        subset_objects = depth < 2100 # chosen by experiment for example frames
+        subset_holes = depth == 0
+        white[subset_objects] = 2047
+        white[subset_holes] = 0
+        return white
 
     def detect(self, rgb):
         b = abs(rgb - self.ballcolorarray) < self.threshold
@@ -111,16 +111,51 @@ class BallDetector(object):
     def drawRects(self, rgb, depth):
         # img = cv.fromarray(depth, cv.CV_8UC1)
         # ret, thresh = cv2.threshold(depth, 127, 255, 0)
-        contours, hierarchy = cv2.findContours(depth, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        # contours, hierarchy = cv2.findContours(depth, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        # storage = cv.CreateMemStorage(0)
+        # contours, hierarchy = cv.FindContours(depth, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
+
 
         # find rectangles
         x,y,w,h = cv2.boundingRect(contours)
 
         # draw rectangles
-        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+        cv2.rectangle(rgb,(x,y),(x+w,y+h),(0,255,0),2)
 
         # approx = cv2.approxPolyDP(cnt,0.1*cv2.arcLength(contours,True),True)
-        return img
+        return rgb
+
+    def drawRects2(self, rgb, depth, draw_here):
+        storage = cv.CreateMemStorage(0)
+        contour = cv.FindContours(depth, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
+        points = []
+
+        # rectangle drawing even working? Hmm not like this apparently
+        # cv.Rectangle(rgb, (10, 10), (40, 40), cv.CV_RGB(0, 255,0), 1)
+
+        while contour:
+            x,y,w,h = cv.BoundingRect(list(contour))
+            contour = contour.h_next()
+
+            print  x,y,w,h
+
+            cv.Rectangle(rgb, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
+            # cv.Rectangle(rgb, (10, 10), (100, 100), 128, 3)
+        # cv2.rectangle(rgb,(x,y),(x+w,y+h),(0,255,0),2)
+
+
+        # while contour:
+        #     # Draw rectangles
+        #     bound_rect = cv.BoundingRect(list(contour))
+        #     contour = contour.h_next()
+
+        #     pt1 = (bound_rect[0], bound_rect[1])
+        #     pt2 = (bound_rect[0] + bound_rect[2], bound_rect[1] + bound_rect[3])
+        #     points.append(pt1)
+        #     points.append(pt2)
+
+        #     # draw rect on img
+        #     cv.Rectangle(rgb, pt1, pt2, cv.CV_RGB(255,0,0), 1)
 
 
 
@@ -152,7 +187,7 @@ class SmoothBuffer(object):
         return depth
 
 class Kinect(object):
-    """Offers acces to rgb and depth from the real Kinect"""
+    """Offers access to rgb and depth from the real Kinect"""
     def __init__(self):
         pass
 
