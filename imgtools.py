@@ -48,8 +48,13 @@ def canny(depth, as_cv=False):
         return mat2
     return np.asarray(mat2)
 
-def hough(rgb):
-    img = cv2.cvtColor(rgb,cv2.COLOR_BGR2GRAY)
+def hough(rgb, depth):
+    maxd = np.amax(depth)
+    subset = depth >  maxd - 2 * maxd / 3
+    rgb2 = np.copy(rgb)
+    rgb2[subset] = 255
+
+    img = cv2.cvtColor(rgb2,cv2.COLOR_BGR2GRAY)
     img = cv.fromarray(img)
 
     cv.Smooth(img, img, cv.CV_GAUSSIAN, 9, 0, 0, 0)
@@ -61,15 +66,20 @@ def hough(rgb):
     width = img.width
     try:
         storage = cv.CreateMat(height, 1, cv.CV_32FC3)
-        cv.HoughCircles(canny, storage, cv.CV_HOUGH_GRADIENT, 19, 50, 1, 25, 10, 58)
+        cv.HoughCircles(canny, storage, cv.CV_HOUGH_GRADIENT, 2, 100, 100, 70, 1, 40)
     except:
         storage = cv.CreateMat(1, 1, cv.CV_32FC3)
         # storage[0,0] = (50,50,20)
 
+    # for i in xrange(storage.rows):
+    #     (x,y,r) = storage[i,0]
+    #     cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(r), cv.RGB(0, 0, 255), thickness=1, lineType=8, shift=0)
+    
     for i in xrange(storage.rows):
         (x,y,r) = storage[i,0]
-        cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(r), cv.RGB(0, 0, 255), thickness=1, lineType=8, shift=0)
-    
+        if (x-r > 0 and x+r < 640 and y-r > 0 and y+r < 460):
+            cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
+
     return rgb
 
 def parallaxCorrect(depth, x, y):

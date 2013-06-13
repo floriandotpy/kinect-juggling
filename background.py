@@ -109,5 +109,5 @@ class Kinector(object):
         # cv.ShowImage('display', depth_opencv)
 
 if __name__ == '__main__':
-    Kinector(swapbackground=False, dummymode=True, detectball=False, record=False, canny=False, hough=True).loop()
+    Kinector(swapbackground=False, dummymode=False, detectball=False, record=False, canny=False, hough=True).loop()
 
