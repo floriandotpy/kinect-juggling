@@ -78,10 +78,14 @@ class Kinector(object):
             rgb = imgtools.hough(rgb, depth)
 
         # show holes
-        depth = imgtools.detectHoles(depth)
+        depth = self.balldetector.detectHoles(depth)
         depth = depth / 8
-        # depth = self.balldetector.drawRects(rgb, depth)
+        rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
         depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+        depth_opencv_tmp = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+        self.balldetector.drawRects2(rgb_opencv, depth_opencv_tmp, depth_opencv)
+        # depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+        # depth_opencv = depth_opencv_tmp
 
 
         if self.showoverlay:
@@ -105,7 +109,8 @@ class Kinector(object):
             cv.PutText(img, 'X', (320, 240) , f, (255, 255 , 255))
 
         # Display image
-        cv.ShowImage('display', cv.fromarray(np.array(rgb[:,:,::-1])))
+        cv.ShowImage('display', rgb_opencv)
+        # cv.ShowImage('display', cv.fromarray(np.array(rgb[:,:,::-1])))
         # cv.ShowImage('display', depth_opencv)
 
 if __name__ == '__main__':
