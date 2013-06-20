@@ -48,39 +48,51 @@ def canny(depth, as_cv=False):
         return mat2
     return np.asarray(mat2)
 
-def hough(rgb, depth):
-    maxd = np.amax(depth)
-    subset = depth >  maxd - 2 * maxd / 3
-    rgb2 = np.copy(rgb)
-    rgb2[subset] = 255
+def findHoughCircles(rgb):
+    # maxd = np.amax(depth)
+    # subset = depth >  maxd - 2 * maxd / 3
+    # rgb2[subset] = 255
+    rgb = np.copy(rgb)
+    print rgb.shape
 
-    img = cv2.cvtColor(rgb2,cv2.COLOR_BGR2GRAY)
+    img = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
     img = cv.fromarray(img)
 
     cv.Smooth(img, img, cv.CV_GAUSSIAN, 9, 0, 0, 0)
 
-    canny = cv.CreateImage(cv.GetSize(img), 8, 1)
-    cv.Canny(img, canny, 5, 40)
+    # canny = cv.CreateImage(cv.GetSize(img), 8, 1)
+    # cv.Canny(img, canny, 5, 40)
 
     height = img.height
     width = img.width
+    storage = cv.CreateMat(height, 1, cv.CV_32FC3)
+    # HoughCircles(image, circle_storage, method, dp, min_dist [, param1 [, param2 [, min_radius [, max_radius]]]]) -> None
+    # cv.fromarray(np.copy(rgb[:,:,0]))
     try:
-        storage = cv.CreateMat(height, 1, cv.CV_32FC3)
-        cv.HoughCircles(canny, storage, cv.CV_HOUGH_GRADIENT, 2, 100, 100, 70, 1, 40)
+        cv.HoughCircles(img, storage, cv.CV_HOUGH_GRADIENT,
+            dp=1, min_dist=1, param1=2,
+            param2=10, min_radius=1, max_radius=40)
     except:
-        storage = cv.CreateMat(1, 1, cv.CV_32FC3)
-        # storage[0,0] = (50,50,20)
+        print "LOLWUT?"
+        return []
 
-    # for i in xrange(storage.rows):
-    #     (x,y,r) = storage[i,0]
-    #     cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(r), cv.RGB(0, 0, 255), thickness=1, lineType=8, shift=0)
-    
+    circles = []
     for i in xrange(storage.rows):
         (x,y,r) = storage[i,0]
+        circles.append( (x, y, r) )
+
+    return circles
+
+def hough(rgb, depth):
+    circles = findHoughCircles(rgb)
+
+    for (x,y,r) in circles:
         if (x-r > 0 and x+r < 640 and y-r > 0 and y+r < 460):
-            cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
+            cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(abs(r)), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
 
     return rgb
+
+
 
 def parallaxCorrect(depth, x, y):
     """
@@ -116,6 +128,8 @@ class BallDetector(object):
         self.ballcolorarray[:, :] = np.array(ballcolor)
         self.ballcolor = ballcolor
         self.threshold = threshold
+        self.WIDTH = 640
+        self.HEIGHT = 480
 
     def detectHoles(self, depth):
         white = np.zeros(shape=(480, 640))
@@ -142,12 +156,6 @@ class BallDetector(object):
         return rgb
 
     def drawRects(self, rgb, depth):
-        # img = cv.fromarray(depth, cv.CV_8UC1)
-        # ret, thresh = cv2.threshold(depth, 127, 255, 0)
-        # contours, hierarchy = cv2.findContours(depth, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-        # storage = cv.CreateMemStorage(0)
-        # contours, hierarchy = cv.FindContours(depth, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
-
 
         # find rectangles
         x,y,w,h = cv2.boundingRect(contours)
@@ -163,33 +171,26 @@ class BallDetector(object):
         contour = cv.FindContours(depth, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
         points = []
 
-        # rectangle drawing even working? Hmm not like this apparently
-        # cv.Rectangle(rgb, (10, 10), (40, 40), cv.CV_RGB(0, 255,0), 1)
-
         while contour:
             x,y,w,h = cv.BoundingRect(list(contour))
             contour = contour.h_next()
 
-            print  x,y,w,h
+            # print  x,y,w,h
 
-            cv.Rectangle(rgb, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
-            # cv.Rectangle(rgb, (10, 10), (100, 100), 128, 3)
-        # cv2.rectangle(rgb,(x,y),(x+w,y+h),(0,255,0),2)
+            # filter out small and border touching rectangles
+            t = 5 # tolerance threshold
+            minsize = 5
+            if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
+                # draw rect
+                cv.Rectangle(rgb, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
 
+                circles = findHoughCircles(rgb[y:y+h, x:x+w])
+                print "%d circles found" % len(circles)
+                for circle_x, circle_y, r in circles:
+                    # print int(circle_x), int(circle_y), int(r)
+                    cv.Circle(rgb, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
 
-        # while contour:
-        #     # Draw rectangles
-        #     bound_rect = cv.BoundingRect(list(contour))
-        #     contour = contour.h_next()
-
-        #     pt1 = (bound_rect[0], bound_rect[1])
-        #     pt2 = (bound_rect[0] + bound_rect[2], bound_rect[1] + bound_rect[3])
-        #     points.append(pt1)
-        #     points.append(pt2)
-
-        #     # draw rect on img
-        #     cv.Rectangle(rgb, pt1, pt2, cv.CV_RGB(255,0,0), 1)
-
+                # FIXME: draw circles (do not forget to add x, y offset)
 
 
 
