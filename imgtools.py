@@ -92,6 +92,50 @@ def hough(rgb, depth):
 
     return rgb
 
+def kalman(x, y):
+    kalman = cv.CreateKalman(4, 2, 0)
+    kalman_state = cv.CreateMat(4, 1, cv.CV_32FC1)
+    kalman_process_noise = cv.CreateMat(4, 1, cv.CV_32FC1)
+    kalman_measurement = cv.CreateMat(2, 1, cv.CV_32FC1)
+
+    # set previous state for prediction
+    kalman.state_pre[0,0]  = x
+    kalman.state_pre[1,0]  = y
+    kalman.state_pre[2,0]  = 0
+    kalman.state_pre[3,0]  = 0
+     
+    # set kalman transition matrix
+    kalman.transition_matrix[0,0] = 1
+    kalman.transition_matrix[0,1] = 0
+    kalman.transition_matrix[0,2] = 0
+    kalman.transition_matrix[0,3] = 0
+    kalman.transition_matrix[1,0] = 0
+    kalman.transition_matrix[1,1] = 1
+    kalman.transition_matrix[1,2] = 0
+    kalman.transition_matrix[1,3] = 0
+    kalman.transition_matrix[2,0] = 0
+    kalman.transition_matrix[2,1] = 0
+    kalman.transition_matrix[2,2] = 0
+    kalman.transition_matrix[2,3] = 1
+    kalman.transition_matrix[3,0] = 0
+    kalman.transition_matrix[3,1] = 0
+    kalman.transition_matrix[3,2] = 0
+    kalman.transition_matrix[3,3] = 1
+     
+    # set Kalman Filter
+    cv.SetIdentity(kalman.measurement_matrix, cv.RealScalar(1))
+    cv.SetIdentity(kalman.process_noise_cov, cv.RealScalar(1e-5))
+    cv.SetIdentity(kalman.measurement_noise_cov, cv.RealScalar(1e-1))
+    cv.SetIdentity(kalman.error_cov_post, cv.RealScalar(1))
+
+    kalman_prediction = cv.KalmanPredict(kalman)
+    predict_pt  = (kalman_prediction[0,0], kalman_prediction[1,0])
+
+    kalman_estimated = cv.KalmanCorrect(kalman, kalman_measurement)
+    state_pt = (kalman_estimated[0,0], kalman_estimated[1,0])
+
+    kalman_measurement[0, 0] = x
+    kalman_measurement[1, 0] = y
 
 
 def parallaxCorrect(depth, x, y):
@@ -119,7 +163,32 @@ def getDummyImg(filename):
     img = np.asarray(Image.open(filename))
     return (img, None)
 
+def maxima(depth):
+    # TODO ROLF
+    # http://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
+    fname = '/tmp/slice0000.png'
+    neighborhood_size = 20
+    threshold = 100
 
+    data = depth
+    # data = scipy.misc.imread(fname)
+
+    data_max = filters.maximum_filter(data, neighborhood_size)
+    maxima = (data == data_max)
+    data_min = filters.minimum_filter(data, neighborhood_size)
+    diff = ((data_max - data_min) > threshold)
+    maxima[diff == 0] = 0
+
+    labeled, num_objects = ndimage.label(maxima)
+    slices = ndimage.find_objects(labeled)
+    x, y = [], []
+    for dy,dx in slices:
+        x_center = (dx.start + dx.stop - 1)/2
+        x.append(x_center)
+        y_center = (dy.start + dy.stop - 1)/2    
+        y.append(y_center)
+
+    print x, y
 
 class BallDetector(object):
     """docstring for BallDetector """
