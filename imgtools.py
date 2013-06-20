@@ -70,8 +70,8 @@ def findHoughCircles(rgb):
     # cv.fromarray(np.copy(rgb[:,:,0]))
     try:
         cv.HoughCircles(img, storage, cv.CV_HOUGH_GRADIENT,
-            dp=1, min_dist=1, param1=2,
-            param2=10, min_radius=1, max_radius=40)
+            dp=1, min_dist=10, param1=2,
+            param2=10, min_radius=5, max_radius=40)
     except:
         print "LOLWUT?"
         return []
@@ -175,23 +175,25 @@ class BallDetector(object):
             x,y,w,h = cv.BoundingRect(list(contour))
             contour = contour.h_next()
 
-            # print  x,y,w,h
-
             # filter out small and border touching rectangles
-            t = 5 # tolerance threshold
+            t = 2 # tolerance threshold
             minsize = 5
             if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
                 # draw rect
+                #
+                x -= 5
+                y -= 5
+                w += 10
+                h += 10
                 cv.Rectangle(rgb, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
 
                 circles = findHoughCircles(rgb[y:y+h, x:x+w])
                 print "%d circles found" % len(circles)
+                if len(circles) > 1:
+                    circles = circles[:1] # only the first circle for now
                 for circle_x, circle_y, r in circles:
-                    # print int(circle_x), int(circle_y), int(r)
-                    cv.Circle(rgb, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
-
-                # FIXME: draw circles (do not forget to add x, y offset)
-
+                    if 0 < circle_x-r and circle_x+r < w and 0 < circle_y-r and circle_y+r<h:
+                        cv.Circle(rgb, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
 
 
 class SmoothBuffer(object):
