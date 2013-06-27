@@ -114,5 +114,10 @@ class Kinector(object):
         # cv.ShowImage('display', depth_opencv)
 
 if __name__ == '__main__':
-    Kinector(swapbackground=False, dummymode=True, detectball=False, record=False, canny=False, hough=False).loop()
+    import sys
+    args = {}
+    args['swapbackground'] = "--swapbackground" in sys.argv
+    args['dummymode'] = "--dummymode" in sys.argv
+
+    Kinector(swapbackground=args['swapbackground'], dummymode=args['dummymode'], detectball=False, record=False, canny=False, hough=False).loop()
 
