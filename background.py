@@ -78,15 +78,16 @@ class Kinector(object):
             rgb = imgtools.hough(rgb, depth)
 
         # show holes
-        depth = self.balldetector.detectHoles(depth)
+        #depth = self.balldetector.detectHoles(depth)
         depth = depth / 8
         rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
         depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
         depth_opencv_tmp = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        self.balldetector.drawRects2(rgb_opencv, depth_opencv_tmp, depth_opencv)
+        # self.balldetector.drawRects(rgb_opencv, depth_opencv_tmp, depth_opencv)
         # depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
         # depth_opencv = depth_opencv_tmp
 
+        rgb_opencv = imgtools.maxima(rgb, depth)
 
         if self.showoverlay:
             # get center color value

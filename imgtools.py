@@ -7,6 +7,11 @@ import random
 import time
 from freenect import sync_get_depth as get_depth, sync_get_video as get_video
 
+import scipy
+import scipy.ndimage as ndimage
+import scipy.ndimage.filters as filters
+import matplotlib.pyplot as plt
+
 
 def replaceBackground(rgb, depth, background_src, depth_threshold=100):
     """
@@ -163,12 +168,12 @@ def getDummyImg(filename):
     img = np.asarray(Image.open(filename))
     return (img, None)
 
-def maxima(depth):
+def maxima(rgb, depth):
     # TODO ROLF
     # http://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
-    fname = '/tmp/slice0000.png'
-    neighborhood_size = 20
-    threshold = 100
+    neighborhood_size = 15
+    threshold = 30
+
 
     data = depth
     # data = scipy.misc.imread(fname)
@@ -179,16 +184,26 @@ def maxima(depth):
     diff = ((data_max - data_min) > threshold)
     maxima[diff == 0] = 0
 
-    labeled, num_objects = ndimage.label(maxima)
-    slices = ndimage.find_objects(labeled)
-    x, y = [], []
-    for dy,dx in slices:
-        x_center = (dx.start + dx.stop - 1)/2
-        x.append(x_center)
-        y_center = (dy.start + dy.stop - 1)/2    
-        y.append(y_center)
+    # cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(abs(r)), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
 
-    print x, y
+    # labeled, num_objects = ndimage.label(maxima)
+    # slices = ndimage.find_objects(labeled)
+    # x, y = [], []
+    # for dy,dx in slices:
+    #     x_center = (dx.start + dx.stop - 1)/2
+    #     x.append(x_center)
+    #     y_center = (dy.start + dy.stop - 1)/2    
+    #     y.append(y_center)
+
+    # print x, y
+
+    # print np.nonzero(maxima)
+
+    rgb[maxima] = [255, 0, 0]
+
+    return cv.fromarray(np.array(rgb[:,:,::-1], dtype=np.uint8))
+
+    # return maxima
 
 class BallDetector(object):
     """docstring for BallDetector """
@@ -224,18 +239,7 @@ class BallDetector(object):
         rgb[subset] = self.ballcolor
         return rgb
 
-    def drawRects(self, rgb, depth):
-
-        # find rectangles
-        x,y,w,h = cv2.boundingRect(contours)
-
-        # draw rectangles
-        cv2.rectangle(rgb,(x,y),(x+w,y+h),(0,255,0),2)
-
-        # approx = cv2.approxPolyDP(cnt,0.1*cv2.arcLength(contours,True),True)
-        return rgb
-
-    def drawRects2(self, rgb, depth, draw_here):
+    def drawRects(self, rgb, depth, draw_here):
         storage = cv.CreateMemStorage(0)
         contour = cv.FindContours(depth, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
         points = []
