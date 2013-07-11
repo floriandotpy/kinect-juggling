@@ -244,6 +244,7 @@ class BallDetector(object):
         contour = cv.FindContours(depth, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
         points = []
 
+        rectcount = 0
         while contour:
             x,y,w,h = cv.BoundingRect(list(contour))
             contour = contour.h_next()
@@ -252,6 +253,7 @@ class BallDetector(object):
             t = 2 # tolerance threshold
             minsize = 5
             if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
+                rectcount += 1
                 # draw rect
                 #
                 x -= 5
@@ -267,6 +269,10 @@ class BallDetector(object):
                 for circle_x, circle_y, r in circles:
                     if 0 < circle_x-r and circle_x+r < w and 0 < circle_y-r and circle_y+r<h:
                         cv.Circle(rgb, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
+        f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
+        # PutText(img, text, org, font, color)
+        cv.PutText(rgb, 'Rects:', (20, 20), f, (255, 255, 255))
+        cv.PutText(rgb, str(rectcount), (50 + rectcount * 15, 20), f, (0, 0, 0))
 
 
 class SmoothBuffer(object):
