@@ -118,7 +118,7 @@ if __name__ == '__main__':
     import sys
     args = {}
     args['swapbackground'] = "--swapbackground" in sys.argv
-    args['dummymode'] = "--dummymode" in sys.argv
+    args['dummymode'] = "--dummymode" in sys.argv or "-d" in sys.argv
 
     Kinector(swapbackground=args['swapbackground'], dummymode=args['dummymode'], detectball=False, record=False, canny=False, hough=False).loop()
 
