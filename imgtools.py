@@ -10,7 +10,7 @@ from freenect import sync_get_depth as get_depth, sync_get_video as get_video
 import scipy
 import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 def replaceBackground(rgb, depth, background_src, depth_threshold=100):
@@ -108,7 +108,7 @@ def kalman(x, y):
     kalman.state_pre[1,0]  = y
     kalman.state_pre[2,0]  = 0
     kalman.state_pre[3,0]  = 0
-     
+
     # set kalman transition matrix
     kalman.transition_matrix[0,0] = 1
     kalman.transition_matrix[0,1] = 0
@@ -126,7 +126,7 @@ def kalman(x, y):
     kalman.transition_matrix[3,1] = 0
     kalman.transition_matrix[3,2] = 0
     kalman.transition_matrix[3,3] = 1
-     
+
     # set Kalman Filter
     cv.SetIdentity(kalman.measurement_matrix, cv.RealScalar(1))
     cv.SetIdentity(kalman.process_noise_cov, cv.RealScalar(1e-5))
@@ -192,7 +192,7 @@ def maxima(rgb, depth):
     # for dy,dx in slices:
     #     x_center = (dx.start + dx.stop - 1)/2
     #     x.append(x_center)
-    #     y_center = (dy.start + dy.stop - 1)/2    
+    #     y_center = (dy.start + dy.stop - 1)/2
     #     y.append(y_center)
 
     # print x, y
