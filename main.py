@@ -120,8 +120,13 @@ if __name__ == '__main__':
         from KinectDummy import KinectDummy
         kinect = KinectDummy()
     else:
-        from Kinect import Kinect
-        kinect = Kinect()
+        try:
+            __import__('Kinect')
+            kinect = Kinect.Kinect()
+        except ImportError:
+            from KinectDummy import KinectDummy
+            kinect = KinectDummy()
+
 
     Kinector(kinect=kinect, swapbackground=swapbackground, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
 
