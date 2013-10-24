@@ -116,9 +116,15 @@ class Kinector(object):
 
 if __name__ == '__main__':
     import sys
-    args = {}
-    args['swapbackground'] = "--swapbackground" in sys.argv
-    args['dummymode'] = "--dummymode" in sys.argv or "-d" in sys.argv
+    swapbackground = "--swapbackground" in sys.argv
+    dummymode = "--dummymode" in sys.argv or "-d" in sys.argv
 
-    Kinector(swapbackground=args['swapbackground'], dummymode=args['dummymode'], detectball=False, record=False, canny=False, hough=False).loop()
+    if dummymode:
+        from KinectDummy import KinectDummy
+        kinect = KinectDummy()
+    else:
+        from Kinect import Kinect
+        kinect = Kinect()
+
+    # Kinector(swapbackground=swapbackground, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
 
