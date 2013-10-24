@@ -14,7 +14,8 @@ import imgtools
 
 class Kinector(object):
     """ Does awesome stuff with the Kinect. """
-    def __init__(self, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False, canny=False, hough=False):
+    def __init__(self, kinect, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False, canny=False, hough=False):
+        self.kinect = kinect
         self.running = True
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
         self.swapbackground = swapbackground
@@ -25,10 +26,6 @@ class Kinector(object):
         self.detectball = detectball
         self.balldetector = imgtools.BallDetector([180, 30, 30], threshold=100)
         self.record = record
-        if self.dummymode:
-            self.kinect = imgtools.KinectDummy()
-        else:
-            self.kinect = imgtools.Kinect()
         self.canny = canny
         self.hough = hough
 
@@ -126,5 +123,5 @@ if __name__ == '__main__':
         from Kinect import Kinect
         kinect = Kinect()
 
-    # Kinector(swapbackground=swapbackground, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
+    Kinector(kinect=kinect, swapbackground=swapbackground, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
 

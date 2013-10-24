@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 class KinectDummy(object):
     """Offers access to recorded dummy data the same way the Kinect would return it"""
