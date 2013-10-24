@@ -33,21 +33,13 @@ class Kinector(object):
         """ Start the loop which is terminated by hitting a random key. """
         while self.running:
             if self.record:
-                self.snapshot()
+                self.kinect.snapshot()
             else:
                 self._step()
             key = cv.WaitKey(5)
             self.running = key in (-1, 32)
             if key == 32: # space bar
                 self.snapshot()
-
-    def snapshot(self):
-        (rgb, _) = get_video()
-        (depth,_) = get_depth(format=4)
-        imgtools.snapshot(rgb, depth)
-        # filename = "snapshot-%d.png" % int(time.time()*1000)
-        # imgtools.saveImg(rgb, filename)
-
 
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
@@ -121,11 +113,12 @@ if __name__ == '__main__':
         kinect = KinectDummy()
     else:
         try:
-            import Kinect
-            kinect = Kinect.Kinect()
+            from Kinect import Kinect
+            kinect = Kinect()
         except ImportError:
             from KinectDummy import KinectDummy
             kinect = KinectDummy()
+            dummymode = True;
 
 
     Kinector(kinect=kinect, swapbackground=swapbackground, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()

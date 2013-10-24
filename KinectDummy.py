@@ -24,3 +24,6 @@ class KinectDummy(object):
         depth = np.load(os.path.join(self.path,self.frames_depth[self.current]))
         self.current = (self.current + 1) % self.total
         return (rgb, depth)
+
+    def snapshot(self):
+        pass

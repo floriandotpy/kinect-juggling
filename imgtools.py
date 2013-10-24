@@ -152,22 +152,6 @@ def parallaxCorrect(depth, x, y):
     depth[:y, :] = True
     return depth
 
-def saveImg(rgb, filename):
-    img = Image.fromarray(rgb)
-    img.save(filename, "PNG")
-
-def snapshot(rgb, depth):
-    filename = "frames/frame-%d" % int(time.time()*1000)
-    filename_rgb = filename + "-rgb"
-    filename_depth = filename + "-depth"
-    np.save(filename_rgb, rgb)
-    np.save(filename_depth, depth)
-    # imgtools.saveImg(rgb, filename)
-
-def getDummyImg(filename):
-    img = np.asarray(Image.open(filename))
-    return (img, None)
-
 def maxima(rgb, depth):
     # TODO ROLF
     # http://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
