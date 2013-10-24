@@ -121,7 +121,7 @@ if __name__ == '__main__':
         kinect = KinectDummy()
     else:
         try:
-            __import__('Kinect')
+            import Kinect
             kinect = Kinect.Kinect()
         except ImportError:
             from KinectDummy import KinectDummy
