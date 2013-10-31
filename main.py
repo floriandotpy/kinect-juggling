@@ -7,9 +7,9 @@
 import cv
 import numpy as np
 from PIL import Image
-from SimpleDetector import SimpleDetector
+from NoFilter import NoFilter
 from BackgroundFilter import BackgroundFilter
-import random
+from DiscoFilter import DiscoFilter
 import time
 import imgtools
 
@@ -20,8 +20,6 @@ class Kinector(object):
         self.kinect = kinect
         self.running = True
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
-        self.swapbackground = swapbackground
-        self.disco = disco
         self.dummymode = dummymode
         self.showoverlay = showoverlay
         self.threshold = np.empty(shape=(480, 640, 3)).fill(50)
@@ -36,6 +34,9 @@ class Kinector(object):
 
         if swapbackground:
             self.filters.append(BackgroundFilter('bg.jpg'))
+
+        if disco:
+            self.filters.append(DiscoFilter())
 
         self.filters.append(NoFilter())
 
@@ -70,9 +71,6 @@ class Kinector(object):
 
         # self.smoothBuffer.add(depth)
         # depth = self.smoothBuffer.get()
-
-        if self.swapbackground:
-            rgb = imgtools.replaceBackground(rgb, depth, 'bg.jpg')
 
         if self.disco:
             rgb = imgtools.discoMode(rgb)
