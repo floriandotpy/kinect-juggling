@@ -7,6 +7,7 @@
 import cv
 import numpy as np
 from PIL import Image
+from SimpleDetector import SimpleDetector
 import random
 import time
 import imgtools
@@ -29,6 +30,10 @@ class Kinector(object):
         self.canny = canny
         self.hough = hough
 
+
+        self.processors = []
+        self.processors.append(SimpleDetector([]))
+
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
         while self.running:
@@ -39,12 +44,21 @@ class Kinector(object):
             key = cv.WaitKey(5)
             self.running = key in (-1, 32)
             if key == 32: # space bar
-                self.snapshot()
+                self.kinect.snapshot()
 
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
         (rgb, depth) = self.kinect.get_frame()
+
+        for processor in self.processors:
+            rgb, depth = processor.step(rgb, depth)
+
+        rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
+        cv.ShowImage('display', rgb_opencv)
+
+        return
+
 
         # Normalize depth values to be 0..255 instead of 0..2047
         # depth = depth / 8
