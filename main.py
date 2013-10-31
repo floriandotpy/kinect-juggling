@@ -31,8 +31,8 @@ class Kinector(object):
         self.hough = hough
 
 
-        self.processors = []
-        self.processors.append(SimpleDetector([]))
+        self.filters = []
+        self.filters.append(NoFilter())
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
@@ -51,8 +51,8 @@ class Kinector(object):
         # Get a fresh frame
         (rgb, depth) = self.kinect.get_frame()
 
-        for processor in self.processors:
-            rgb, depth = processor.step(rgb, depth)
+        for filter in self.filters:
+            rgb, depth = filter.filter(rgb, depth)
 
         rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
         cv.ShowImage('display', rgb_opencv)
