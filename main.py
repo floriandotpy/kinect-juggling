@@ -8,6 +8,7 @@ import cv
 import numpy as np
 from PIL import Image
 from SimpleDetector import SimpleDetector
+from BackgroundFilter import BackgroundFilter
 import random
 import time
 import imgtools
@@ -32,6 +33,11 @@ class Kinector(object):
 
 
         self.processors = []
+
+        if swapbackground:
+            self.processors.append(BackgroundFilter('bg.jpg'))
+
+
         self.processors.append(SimpleDetector([]))
 
     def loop(self):

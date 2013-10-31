@@ -12,20 +12,6 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 # import matplotlib.pyplot as plt
 
-
-def replaceBackground(rgb, depth, background_src, depth_threshold=100):
-    """
-        Cuts of the rgb image at a given depth and places it on top of
-        a background image.
-    """
-    # load background image
-    img = np.asarray(Image.open(background_src))
-            # Remove the background based on the depth field
-    subset = depth > depth_threshold
-    rgb[subset] = img[subset]
-    return rgb
-
-
 def discoMode(rgb):
     """
         Adds nyan cat mode to your life, therefore enhancing it by factor 1000.
