@@ -12,18 +12,6 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 # import matplotlib.pyplot as plt
 
-def discoMode(rgb):
-    """
-        Adds nyan cat mode to your life, therefore enhancing it by factor 1000.
-    """
-    # Shuffle RGB channels for every pixel
-    l = [0, 1, 2]
-    random.shuffle(l)
-    mapping = ([0, 1, 2], l)
-    rgb[:, :, mapping[0][0]], rgb[:, :, mapping[0][1]], rgb[:, :, mapping[0][1]] = \
-        rgb[:, :, mapping[1][0]], rgb[:, :, mapping[1][1]], rgb[:, :, mapping[1][2]]
-    return rgb
-
 def canny(depth, as_cv=False):
     print "trying canny..."
     img = cv.fromarray(depth, cv.CV_8UC1)

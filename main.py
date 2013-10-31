@@ -6,12 +6,13 @@
 
 import cv
 import numpy as np
+import random
+import time
 from PIL import Image
 from NoFilter import NoFilter
 from BackgroundFilter import BackgroundFilter
 from RectsFilter import RectsFilter
-import random
-import time
+from DiscoFilter import DiscoFilter
 import imgtools
 
 
@@ -21,8 +22,6 @@ class Kinector(object):
         self.kinect = kinect
         self.running = True
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
-        self.swapbackground = swapbackground
-        self.disco = disco
         self.dummymode = dummymode
         self.showoverlay = showoverlay
         self.threshold = np.empty(shape=(480, 640, 3)).fill(50)
@@ -40,6 +39,9 @@ class Kinector(object):
 
         if detectball:
             self.filters.append(RectsFilter())
+
+        if disco:
+            self.filters.append(DiscoFilter())
 
         self.filters.append(NoFilter())
 
@@ -74,9 +76,6 @@ class Kinector(object):
 
         # self.smoothBuffer.add(depth)
         # depth = self.smoothBuffer.get()
-
-        if self.swapbackground:
-            rgb = imgtools.replaceBackground(rgb, depth, 'bg.jpg')
 
         if self.disco:
             rgb = imgtools.discoMode(rgb)
