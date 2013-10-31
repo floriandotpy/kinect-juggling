@@ -6,9 +6,6 @@
 
 import cv
 import numpy as np
-import random
-import time
-from PIL import Image
 from NoFilter import NoFilter
 from BackgroundFilter import BackgroundFilter
 from RectsFilter import RectsFilter
@@ -84,11 +81,6 @@ class Kinector(object):
 
         # Display image
         cv.ShowImage('display', rgb_opencv)
-
-        return
-
-        if self.hough:
-            rgb = imgtools.hough(rgb, depth)
 
 if __name__ == '__main__':
     import sys
