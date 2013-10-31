@@ -20,6 +20,7 @@ class Kinector(object):
     def __init__(self, kinect, args=[], buffersize=3):
         self.running = False
         self.record = 'record' in args
+        self.show = 'depth' if 'depth' in args else 'rgb'
 
         self.kinect = kinect
 
@@ -59,16 +60,27 @@ class Kinector(object):
         (rgb, depth) = self.kinect.get_frame()
 
         # reduce depth from 2048 to 256 values
+        print depth[200:205,200:205]
         depth = depth / 8
 
         for filter in self.filters:
             rgb, depth = filter.filter(rgb, depth, args)
 
-        # Generate opencv image
-        rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
+
+        if self.show == 'rgb':
+            # Generate opencv image
+            img = cv.fromarray(np.array(rgb[:,:,::-1]))
+        else:
+            a = np.ndarray(shape=(480,640,3))
+            a[:,:,0] = depth
+            a[:,:,1] = depth
+            a[:,:,2] = depth
+            img = cv.fromarray(a)
+            # image(img,0,0)
+
 
         # Display image
-        cv.ShowImage('display', rgb_opencv)
+        cv.ShowImage('display', img)
 
 if __name__ == '__main__':
     import sys
