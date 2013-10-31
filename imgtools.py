@@ -12,21 +12,6 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 # import matplotlib.pyplot as plt
 
-def canny(depth, as_cv=False):
-    print "trying canny..."
-    img = cv.fromarray(depth, cv.CV_8UC1)
-    mat1 = cv.CreateMat(img.rows, img.cols, cv.CV_8UC1)
-    mat2 = cv.CreateMat(img.rows, img.cols, cv.CV_8UC1)
-    cv.Convert(img, mat1)
-    # img2 = cv.CreateMat(img.rows, img.cols, cv.CV_8UC1)
-    # print img.rows, img.cols, img2.rows, img2.cols
-    # print img.type, img2.type
-    cv.Canny(mat1, mat2, 50, 200) # ???
-    print "done with canny..."
-    if cv:
-        return mat2
-    return np.asarray(mat2)
-
 def findHoughCircles(rgb):
     # maxd = np.amax(depth)
     # subset = depth >  maxd - 2 * maxd / 3

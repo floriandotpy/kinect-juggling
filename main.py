@@ -14,6 +14,7 @@ from BackgroundFilter import BackgroundFilter
 from RectsFilter import RectsFilter
 from DiscoFilter import DiscoFilter
 from OverlayFilter import OverlayFilter
+from CannyFilter import CannyFilter
 import imgtools
 
 
@@ -39,6 +40,9 @@ class Kinector(object):
 
         if 'disco' in filters:
             self.filters.append(DiscoFilter())
+
+        if 'canny' in filters:
+            self.filters.append(CannyFilter())
 
         if 'detectball' in filters:
             self.filters.append(RectsFilter())
@@ -75,62 +79,16 @@ class Kinector(object):
         for filter in self.filters:
             rgb, depth = filter.filter(rgb, depth, args)
 
+        # Generate opencv image
         rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
+
+        # Display image
         cv.ShowImage('display', rgb_opencv)
 
         return
 
-
-        # Normalize depth values to be 0..255 instead of 0..2047
-        # depth = depth / 8
-
-        # self.smoothBuffer.add(depth)
-        # depth = self.smoothBuffer.get()
-
-        if self.canny:
-            depth_opencv = imgtools.canny(depth, as_cv=True)
-        else:
-            depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-
         if self.hough:
             rgb = imgtools.hough(rgb, depth)
-
-        # show holes
-        #depth = self.balldetector.detectHoles(depth)
-        depth = depth / 8
-        rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
-        depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        depth_opencv_tmp = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        self.balldetector.drawRects(rgb_opencv, depth_opencv_tmp, depth_opencv)
-        depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        depth_opencv = depth_opencv_tmp
-
-        # rgb_opencv = imgtools.maxima(rgb, depth)
-
-        if self.showoverlay:
-            # get center color value
-            color = rgb[240, 320]
-
-            # set center marker
-            rgb[240, 320] = np.array([255,0,255])
-
-        if self.detectball:
-            rgb = self.balldetector.detectDepth(rgb, depth)
-
-        # generate opencv image
-        img = cv.fromarray(np.array(rgb[:,:,::-1], dtype=np.uint8))
-
-
-        if self.showoverlay:
-            f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
-            # PutText(img, text, org, font, color)
-            cv.PutText(img, 'Color: %s' % (color), (20,20) , f, (int(color[2]), int(color[1]), int(color[0])))
-            cv.PutText(img, 'X', (320, 240) , f, (255, 255 , 255))
-
-        # Display image
-        cv.ShowImage('display', rgb_opencv)
-        # cv.ShowImage('display', cv.fromarray(np.array(rgb[:,:,::-1])))
-        # cv.ShowImage('display', depth_opencv)
 
 if __name__ == '__main__':
     import sys
