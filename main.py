@@ -7,8 +7,9 @@
 import cv
 import numpy as np
 from PIL import Image
-from SimpleDetector import SimpleDetector
+from NoFilter import NoFilter
 from BackgroundFilter import BackgroundFilter
+from RectsFilter import RectsFilter
 import random
 import time
 import imgtools
@@ -36,6 +37,9 @@ class Kinector(object):
 
         if swapbackground:
             self.filters.append(BackgroundFilter('bg.jpg'))
+
+        if detectball:
+            self.filters.append(RectsFilter())
 
         self.filters.append(NoFilter())
 
@@ -91,11 +95,11 @@ class Kinector(object):
         rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
         depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
         depth_opencv_tmp = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        # self.balldetector.drawRects(rgb_opencv, depth_opencv_tmp, depth_opencv)
-        # depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        # depth_opencv = depth_opencv_tmp
+        self.balldetector.drawRects(rgb_opencv, depth_opencv_tmp, depth_opencv)
+        depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+        depth_opencv = depth_opencv_tmp
 
-        rgb_opencv = imgtools.maxima(rgb, depth)
+        # rgb_opencv = imgtools.maxima(rgb, depth)
 
         if self.showoverlay:
             # get center color value
@@ -140,5 +144,5 @@ if __name__ == '__main__':
             dummymode = True;
 
 
-    Kinector(kinect=kinect, swapbackground=swapbackground, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
+    Kinector(kinect=kinect, swapbackground=swapbackground, dummymode=dummymode, detectball=True, record=False, canny=False, hough=False).loop()
 
