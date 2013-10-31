@@ -10,15 +10,16 @@ from PIL import Image
 from NoFilter import NoFilter
 from BackgroundFilter import BackgroundFilter
 from DiscoFilter import DiscoFilter
+from OverlayFilter import OverlayFilter
 import time
 import imgtools
 
 
 class Kinector(object):
     """ Does awesome stuff with the Kinect. """
-    def __init__(self, kinect, buffersize=3, swapbackground=True, disco=False, dummymode=False, showoverlay=False, detectball=False, record=False, canny=False, hough=False):
+    def __init__(self, kinect, filters=[], dummymode=False, buffersize=3, showoverlay=False, detectball=False, record=False, canny=False, hough=False):
+        self.running = False
         self.kinect = kinect
-        self.running = True
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
         self.dummymode = dummymode
         self.showoverlay = showoverlay
@@ -32,16 +33,20 @@ class Kinector(object):
 
         self.filters = []
 
-        if swapbackground:
+        if 'swapbackground' in filters:
             self.filters.append(BackgroundFilter('bg.jpg'))
 
-        if disco:
+        if 'disco' in filters:
             self.filters.append(DiscoFilter())
 
         self.filters.append(NoFilter())
 
+        if 'overlay' in filters:
+            self.filters.append(OverlayFilter())
+
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
+        self.running = True
         while self.running:
             if self.record:
                 self.kinect.snapshot()
@@ -57,8 +62,14 @@ class Kinector(object):
         # Get a fresh frame
         (rgb, depth) = self.kinect.get_frame()
 
+        # reduce depth from 2048 to 256 values
+        depth = depth / 8
+
+        args = {}
+        args['color'] = rgb[240, 320]
+
         for filter in self.filters:
-            rgb, depth = filter.filter(rgb, depth)
+            rgb, depth = filter.filter(rgb, depth, args)
 
         rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
         cv.ShowImage('display', rgb_opencv)
@@ -71,9 +82,6 @@ class Kinector(object):
 
         # self.smoothBuffer.add(depth)
         # depth = self.smoothBuffer.get()
-
-        if self.disco:
-            rgb = imgtools.discoMode(rgb)
 
         if self.canny:
             depth_opencv = imgtools.canny(depth, as_cv=True)
@@ -122,9 +130,13 @@ class Kinector(object):
 
 if __name__ == '__main__':
     import sys
-    swapbackground = "--swapbackground" in sys.argv
-    dummymode = "--dummymode" in sys.argv or "-d" in sys.argv
 
+    filters = []
+    for argv in sys.argv:
+        if argv.startswith('--'):
+            filters.append(argv[2:])
+
+    dummymode = "--dummymode" in sys.argv or "-d" in sys.argv
     if dummymode:
         from KinectDummy import KinectDummy
         kinect = KinectDummy()
@@ -138,5 +150,5 @@ if __name__ == '__main__':
             dummymode = True;
 
 
-    Kinector(kinect=kinect, swapbackground=swapbackground, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
+    Kinector(kinect=kinect, filters=filters, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
 
