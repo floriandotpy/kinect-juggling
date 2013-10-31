@@ -6,25 +6,26 @@
 
 import cv
 import numpy as np
+import random
+import time
 from PIL import Image
 from NoFilter import NoFilter
 from BackgroundFilter import BackgroundFilter
+from RectsFilter import RectsFilter
 from DiscoFilter import DiscoFilter
 from OverlayFilter import OverlayFilter
-import time
 import imgtools
 
 
 class Kinector(object):
     """ Does awesome stuff with the Kinect. """
-    def __init__(self, kinect, filters=[], dummymode=False, buffersize=3, showoverlay=False, detectball=False, record=False, canny=False, hough=False):
+    def __init__(self, kinect, filters=[], dummymode=False, buffersize=3, showoverlay=False, record=False, canny=False, hough=False):
         self.running = False
         self.kinect = kinect
         self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
         self.dummymode = dummymode
         self.showoverlay = showoverlay
         self.threshold = np.empty(shape=(480, 640, 3)).fill(50)
-        self.detectball = detectball
         self.balldetector = imgtools.BallDetector([180, 30, 30], threshold=100)
         self.record = record
         self.canny = canny
@@ -38,6 +39,9 @@ class Kinector(object):
 
         if 'disco' in filters:
             self.filters.append(DiscoFilter())
+
+        if 'detectball' in filters:
+            self.filters.append(RectsFilter())
 
         self.filters.append(NoFilter())
 
@@ -97,11 +101,11 @@ class Kinector(object):
         rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
         depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
         depth_opencv_tmp = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        # self.balldetector.drawRects(rgb_opencv, depth_opencv_tmp, depth_opencv)
-        # depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
-        # depth_opencv = depth_opencv_tmp
+        self.balldetector.drawRects(rgb_opencv, depth_opencv_tmp, depth_opencv)
+        depth_opencv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+        depth_opencv = depth_opencv_tmp
 
-        rgb_opencv = imgtools.maxima(rgb, depth)
+        # rgb_opencv = imgtools.maxima(rgb, depth)
 
         if self.showoverlay:
             # get center color value
@@ -149,6 +153,5 @@ if __name__ == '__main__':
             kinect = KinectDummy()
             dummymode = True;
 
-
-    Kinector(kinect=kinect, filters=filters, dummymode=dummymode, detectball=False, record=False, canny=False, hough=False).loop()
+    Kinector(kinect=kinect, filters=filters, dummymode=dummymode, record=False, canny=False, hough=False).loop()
 

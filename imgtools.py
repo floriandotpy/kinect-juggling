@@ -197,42 +197,6 @@ class BallDetector(object):
         rgb[subset] = self.ballcolor
         return rgb
 
-    def drawRects(self, rgb, depth, draw_here):
-        storage = cv.CreateMemStorage(0)
-        contour = cv.FindContours(depth, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
-        points = []
-
-        rectcount = 0
-        while contour:
-            x,y,w,h = cv.BoundingRect(list(contour))
-            contour = contour.h_next()
-
-            # filter out small and border touching rectangles
-            t = 2 # tolerance threshold
-            minsize = 5
-            if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
-                rectcount += 1
-                # draw rect
-                #
-                x -= 5
-                y -= 5
-                w += 10
-                h += 10
-                cv.Rectangle(rgb, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
-
-                circles = findHoughCircles(rgb[y:y+h, x:x+w])
-                print "%d circles found" % len(circles)
-                if len(circles) > 1:
-                    circles = circles[:1] # only the first circle for now
-                for circle_x, circle_y, r in circles:
-                    if 0 < circle_x-r and circle_x+r < w and 0 < circle_y-r and circle_y+r<h:
-                        cv.Circle(rgb, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
-        f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
-        # PutText(img, text, org, font, color)
-        cv.PutText(rgb, 'Rects:', (20, 20), f, (255, 255, 255))
-        cv.PutText(rgb, str(rectcount), (50 + rectcount * 15, 20), f, (0, 0, 0))
-
-
 class SmoothBuffer(object):
     """Reduces noise on the depth image. """
     def __init__(self, buffersize=3):
