@@ -12,6 +12,7 @@ from RectsFilter import RectsFilter
 from DiscoFilter import DiscoFilter
 from OverlayFilter import OverlayFilter
 from CannyFilter import CannyFilter
+from CutOffFilter import CutOffFilter
 import imgtools
 
 
@@ -37,6 +38,7 @@ class Kinector(object):
         if 'canny' in args:
             self.filters.append(CannyFilter())
         if 'detectball' in args:
+            self.filters.append(CutOffFilter())
             self.filters.append(RectsFilter())
         if 'overlay' in args:
             self.filters.append(OverlayFilter())
