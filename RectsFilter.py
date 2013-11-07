@@ -15,9 +15,12 @@ class RectsFilter(object):
 
     def filter(self, rgb, depth, args = {}):
 
+        if 'depth_out' in args:
+            my_depth = args['depth_out']
+
         # We'll need open CV for this.
         rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
-        depth_cv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
+        depth_cv = cv.fromarray(np.array(my_depth[:,:], dtype=np.uint8))
 
         storage = cv.CreateMemStorage(0)
         contour = cv.FindContours(depth_cv, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
@@ -59,7 +62,6 @@ class RectsFilter(object):
 
     def findHoughCircles(self, rgb):
         rgb = np.copy(rgb)
-        print rgb.shape
 
         img = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
         img = cv.fromarray(img)
