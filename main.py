@@ -15,6 +15,7 @@ from CannyFilter import CannyFilter
 from CutOffFilter import CutOffFilter
 from DepthHolesFilter import DepthHolesFilter
 from MaximaFilter import MaximaFilter
+from HoughFilter import HoughFilter
 import imgtools
 
 
@@ -49,6 +50,8 @@ class Kinector(object):
             self.filters.append(OverlayFilter())
         if 'maxima' in args:
             self.filters.append(MaximaFilter())
+        if 'hough' in args:
+            self.filters.append(HoughFilter())
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """

@@ -12,50 +12,6 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 # import matplotlib.pyplot as plt
 
-def findHoughCircles(rgb):
-    # maxd = np.amax(depth)
-    # subset = depth >  maxd - 2 * maxd / 3
-    # rgb2[subset] = 255
-    rgb = np.copy(rgb)
-    print rgb.shape
-
-    img = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
-    img = cv.fromarray(img)
-
-    cv.Smooth(img, img, cv.CV_GAUSSIAN, 9, 0, 0, 0)
-
-    # canny = cv.CreateImage(cv.GetSize(img), 8, 1)
-    # cv.Canny(img, canny, 5, 40)
-
-    height = img.height
-    width = img.width
-    storage = cv.CreateMat(height, 1, cv.CV_32FC3)
-    # HoughCircles(image, circle_storage, method, dp, min_dist [, param1 [, param2 [, min_radius [, max_radius]]]]) -> None
-    # cv.fromarray(np.copy(rgb[:,:,0]))
-    try:
-        cv.HoughCircles(img, storage, cv.CV_HOUGH_GRADIENT,
-            dp=1, min_dist=10, param1=2,
-            param2=10, min_radius=5, max_radius=40)
-    except:
-        print "LOLWUT?"
-        return []
-
-    circles = []
-    for i in xrange(storage.rows):
-        (x,y,r) = storage[i,0]
-        circles.append( (x, y, r) )
-
-    return circles
-
-def hough(rgb, depth):
-    circles = findHoughCircles(rgb)
-
-    for (x,y,r) in circles:
-        if (x-r > 0 and x+r < 640 and y-r > 0 and y+r < 460):
-            cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(abs(r)), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
-
-    return rgb
-
 def kalman(x, y):
     kalman = cv.CreateKalman(4, 2, 0)
     kalman_state = cv.CreateMat(4, 1, cv.CV_32FC1)
@@ -110,43 +66,6 @@ def parallaxCorrect(depth, x, y):
     depth[:, -x:] = True
     depth[:y, :] = True
     return depth
-
-def maxima(rgb, depth):
-    # TODO ROLF
-    # http://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
-    neighborhood_size = 15
-    threshold = 30
-
-
-    data = depth
-    # data = scipy.misc.imread(fname)
-
-    data_max = filters.maximum_filter(data, neighborhood_size)
-    maxima = (data == data_max)
-    data_min = filters.minimum_filter(data, neighborhood_size)
-    diff = ((data_max - data_min) > threshold)
-    maxima[diff == 0] = 0
-
-    # cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(abs(r)), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
-
-    # labeled, num_objects = ndimage.label(maxima)
-    # slices = ndimage.find_objects(labeled)
-    # x, y = [], []
-    # for dy,dx in slices:
-    #     x_center = (dx.start + dx.stop - 1)/2
-    #     x.append(x_center)
-    #     y_center = (dy.start + dy.stop - 1)/2
-    #     y.append(y_center)
-
-    # print x, y
-
-    # print np.nonzero(maxima)
-
-    rgb[maxima] = [255, 0, 0]
-
-    return cv.fromarray(np.array(rgb[:,:,::-1], dtype=np.uint8))
-
-    # return maxima
 
 class BallDetector(object):
     """docstring for BallDetector """
