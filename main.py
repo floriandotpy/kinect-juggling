@@ -27,7 +27,7 @@ class Kinector(object):
         self.kinect = kinect
 
         # TODO: implement useful buffer
-        # self.smoothBuffer = imgtools.SmoothBuffer(buffersize)
+        self.smoothBuffer = imgtools.SmoothBuffer(buffersize=2)
 
 
         # init filters
@@ -75,7 +75,7 @@ class Kinector(object):
             img = cv.fromarray(np.array(rgb[:,:,::-1]))
         else:
             # reduce depth from 2048 to 256 values
-            depth = depth / 8
+            depth = depth / 16
 
             a = np.ndarray(shape=(480,640,3), dtype=np.uint8)
             a[:,:,0] = depth
