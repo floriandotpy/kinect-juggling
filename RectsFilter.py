@@ -10,6 +10,9 @@ class RectsFilter(object):
         self.WIDTH = 640
         self.HEIGHT = 480
 
+    def nullify(self, i):
+        return i if i > 0 else 0
+
     def filter(self, rgb, depth, args = {}):
 
         # We'll need open CV for this.
@@ -35,6 +38,8 @@ class RectsFilter(object):
                 y -= 5
                 w += 10
                 h += 10
+                x, y = self.nullify(x), self.nullify(y) # why is this necessary now?
+
                 cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
 
                 circles = self.findHoughCircles(rgb_cv[y:y+h, x:x+w])
