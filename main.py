@@ -63,23 +63,22 @@ class Kinector(object):
         # Get a fresh frame
         (rgb, depth) = self.kinect.get_frame()
 
-        # reduce depth from 4096 to 256 values
-        depth = depth / 16
-
         for filter in self.filters:
             rgb, depth = filter.filter(rgb, depth, args)
+
 
         if self.show == 'rgb':
             # Generate opencv image
             img = cv.fromarray(np.array(rgb[:,:,::-1]))
         else:
+            # reduce depth from 2048 to 256 values
+            depth = depth / 8
+
             a = np.ndarray(shape=(480,640,3), dtype=np.uint8)
             a[:,:,0] = depth
             a[:,:,1] = depth
             a[:,:,2] = depth
             img = cv.fromarray(a)
-            # print a[200:205,200:205]
-            # image(img,0,0)
 
 
         # Display image
