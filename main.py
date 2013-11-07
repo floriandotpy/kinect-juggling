@@ -12,6 +12,7 @@ from RectsFilter import RectsFilter
 from DiscoFilter import DiscoFilter
 from OverlayFilter import OverlayFilter
 from CannyFilter import CannyFilter
+from DepthHolesFilter import DepthHolesFilter
 import imgtools
 
 
@@ -30,6 +31,9 @@ class Kinector(object):
 
         # init filters
         self.filters = []
+
+        self.filters.append(DepthHolesFilter())
+
         if 'swapbackground' in args:
             self.filters.append(BackgroundFilter('bg.jpg'))
         if 'disco' in args:
@@ -61,7 +65,6 @@ class Kinector(object):
 
         # reduce depth from 4096 to 256 values
         depth = depth / 16
-        print depth[200:205,200:205]
 
         for filter in self.filters:
             rgb, depth = filter.filter(rgb, depth, args)
