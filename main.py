@@ -16,6 +16,7 @@ from CutOffFilter import CutOffFilter
 from DepthHolesFilter import DepthHolesFilter
 from MaximaFilter import MaximaFilter
 from HoughFilter import HoughFilter
+from TemporalFilter import TemporalFilter
 import imgtools
 
 
@@ -29,14 +30,17 @@ class Kinector(object):
         self.kinect = kinect
 
         # TODO: implement useful buffer
-        self.smoothBuffer = imgtools.SmoothBuffer(buffersize=2)
+        if 'buffer' in args:
+            self.buffer = imgtools.SmoothBuffer(buffersize=2)
+        else:
+            self.buffer = None
 
 
         # init filters
         self.filters = []
 
-        self.filters.append(DepthHolesFilter())
-
+        if 'withholes' not in args:
+            self.filters.append(DepthHolesFilter())
         if 'swapbackground' in args:
             self.filters.append(BackgroundFilter('bg.jpg'))
         if 'disco' in args:
@@ -72,6 +76,11 @@ class Kinector(object):
         (rgb, depth) = self.kinect.get_frame()
 
         args = {}
+
+        if self.buffer:
+            self.buffer.add(depth)
+            args['buffer'] = self.buffer
+
         for filter in self.filters:
             rgb, depth = filter.filter(rgb, depth, args)
 
