@@ -13,6 +13,7 @@ from DiscoFilter import DiscoFilter
 from OverlayFilter import OverlayFilter
 from CannyFilter import CannyFilter
 from DepthHolesFilter import DepthHolesFilter
+from MaximaFilter import MaximaFilter
 import imgtools
 
 
@@ -44,6 +45,8 @@ class Kinector(object):
             self.filters.append(RectsFilter())
         if 'overlay' in args:
             self.filters.append(OverlayFilter())
+        if 'maxima' in args:
+            self.filters.append(MaximaFilter())
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
