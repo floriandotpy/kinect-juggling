@@ -8,8 +8,8 @@ class MaximaFilter(object):
     def filter(self, rgb, depth, argv = {}):
         # TODO ROLF
         # http://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
-        neighborhood_size = 50
-        threshold = 1500
+        neighborhood_size = 100
+        threshold = 100
 
 
         data = depth
