@@ -1,30 +1,22 @@
 import numpy as np
-import cv
+import cv, cv2
 import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 
 class HoughFilter(object):
 
-    def findHoughCircles(self, rgb):
-        # maxd = np.amax(depth)
-        # subset = depth >  maxd - 2 * maxd / 3
-        # rgb2[subset] = 255
-        rgb = np.copy(rgb)
-        print rgb.shape
-
+    def findHoughCirclesfromRGB(self, rgb):
         img = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
+        return self.findHoughCircles(img)
+
+    def findHoughCircles(self, img):
         img = cv.fromarray(img)
 
         cv.Smooth(img, img, cv.CV_GAUSSIAN, 9, 0, 0, 0)
 
-        # canny = cv.CreateImage(cv.GetSize(img), 8, 1)
-        # cv.Canny(img, canny, 5, 40)
-
         height = img.height
         width = img.width
         storage = cv.CreateMat(height, 1, cv.CV_32FC3)
-        # HoughCircles(image, circle_storage, method, dp, min_dist [, param1 [, param2 [, min_radius [, max_radius]]]]) -> None
-        # cv.fromarray(np.copy(rgb[:,:,0]))
         try:
             cv.HoughCircles(img, storage, cv.CV_HOUGH_GRADIENT,
                 dp=1, min_dist=10, param1=2,
@@ -41,7 +33,10 @@ class HoughFilter(object):
         return circles
 
     def filter(self, rgb, depth, argv = {}):
-        circles = findHoughCircles(rgb)
+        # circles = self.findHoughCircles(depth)
+        circles = self.findHoughCirclesfromRGB(rgb)
+
+        print circles
 
         for (x,y,r) in circles:
             if (x-r > 0 and x+r < 640 and y-r > 0 and y+r < 460):
