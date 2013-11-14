@@ -1,7 +1,6 @@
 import numpy as np
 import cv
 import cv2
-from Ball import BallCollection
 
 class RectsFilter(object):
 
@@ -10,7 +9,7 @@ class RectsFilter(object):
         # FIXME: this has to go somewhere else...
         self.WIDTH = 640
         self.HEIGHT = 480
-        self.balls = BallCollection()
+
 
     def nullify(self, i):
         return i if i > 0 else 0
@@ -59,7 +58,7 @@ class RectsFilter(object):
                 #         cv.Circle(rgb_cv, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
                 cv.Circle(rgb_cv, ball_center, ball_radius, cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
         if (rectcount == 3): # for now: make sure we have 3 balls
-            self.balls.addPositions(ballpositions)
+            args['balls'].addPositions(ballpositions)
         f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
         cv.PutText(rgb_cv, 'Rects:', (20, 20), f, (255, 255, 255))
         cv.PutText(rgb_cv, str(rectcount), (50 + rectcount * 15, 20), f, (0, 0, 0))

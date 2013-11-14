@@ -17,6 +17,7 @@ from DepthHolesFilter import DepthHolesFilter
 from MaximaFilter import MaximaFilter
 from HoughFilter import HoughFilter
 from TemporalFilter import TemporalFilter
+from Ball import BallCollection
 import imgtools
 
 
@@ -76,6 +77,9 @@ class Kinector(object):
         (rgb, depth) = self.kinect.get_frame()
 
         args = {}
+
+        # where we will collect our balls
+        args['balls'] = BallCollection()
 
         if self.buffer:
             self.buffer.add(depth)
