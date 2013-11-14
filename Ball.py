@@ -1,12 +1,24 @@
+# tmp
+import cv
+colours = [cv.RGB(0, 0, 255), cv.RGB(0, 255, 0), cv.RGB(255, 0, 0), cv.RGB(0, 255, 255), cv.RGB(255, 0, 255)]
+def getcolour():
+    try:
+        return colours.pop()
+    except:
+        return cv.RGB(255, 255, 255)
+
+
 class Ball(object):
     """docstring for Ball"""
-    def __init__(self, position):
+    def __init__(self, position, radius=10):
+        self.colour = getcolour()
         self.position = position
         self.positions = []
+        self.radius = radius
         self.updatedAlready = False
         self.closeThreshold = 50 # pixel distance for 2 balls to be considered "close"
 
-    def updatePosition(self, position):
+    def updatePosition(self, position, radius=10):
         self.positions.append( self.position )
         self.position = position
         self.updatedAlready = True
@@ -17,7 +29,8 @@ class Ball(object):
         else:
             return self.position
 
-    def isClose(self, otherPosition):
+    def isClose(self, otherBall):
+        otherPosition = otherBall['position']
         return (self.distance(otherPosition) < self.closeThreshold)
 
     def distance(self, otherPosition):
@@ -30,22 +43,21 @@ class BallCollection(object):
     def __init__(self):
         self.balls = []
 
-    def addPositions(self, positions=[]):
+    def addPositions(self, ball_list=[]):
         # first call?
         if not len(self.balls):
-            for pos in positions:
-                self.balls.append(Ball(pos))
+            for ball in ball_list:
+                self.balls.append(Ball(ball['position'], radius=ball['radius']))
         else: # find the right ball to update
-            for pos in positions:
+            for new_ball in ball_list:
                 for ball in self.balls:
-                    if not ball.updatedAlready and ball.isClose(pos):
-                        ball.updatePosition(pos)
+                    if not ball.updatedAlready and ball.isClose(new_ball):
+                        ball.updatePosition(new_ball['position'], radius=new_ball['radius'])
             # reset ball updated status
             for ball in self.balls:
                 if not ball.updatedAlready:
                     # fallback update
-                    ball.updatePosition(ball.position)
+                    ball.updatePosition(ball.position, ball.radius)
                 ball.updatedAlready = False
 
-            print self.balls[-1]
 

@@ -28,7 +28,7 @@ class RectsFilter(object):
         points = []
 
         rectcount = 0
-        ballpositions = [] # collect ballpositions in loop
+        ball_list = [] # collect ballpositions in loop
         while contour:
             x,y,w,h = cv.BoundingRect(list(contour))
             contour = contour.h_next()
@@ -49,16 +49,15 @@ class RectsFilter(object):
 
                 ball_center = (x+w/2, y+h/2)
                 ball_radius = min(w/2, h/2)
-                ballpositions.append(ball_center)
+                ball_list.append(dict(position=ball_center, radius=ball_radius))
                 # circles = self.findHoughCircles(rgb_cv[y:y+h, x:x+w])
                 # if len(circles) > 1:
                 #     circles = circles[:1] # only the first circle for now
                 # for circle_x, circle_y, r in circles:
                 #     if 0 < circle_x-r and circle_x+r < w and 0 < circle_y-r and circle_y+r<h:
                 #         cv.Circle(rgb_cv, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
-                cv.Circle(rgb_cv, ball_center, ball_radius, cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
         if (rectcount == 3): # for now: make sure we have 3 balls
-            args['balls'].addPositions(ballpositions)
+            args['balls'].addPositions(ball_list)
         f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
         cv.PutText(rgb_cv, 'Rects:', (20, 20), f, (255, 255, 255))
         cv.PutText(rgb_cv, str(rectcount), (50 + rectcount * 15, 20), f, (0, 0, 0))
