@@ -16,7 +16,7 @@ class Ball(object):
         self.positions = []
         self.radius = radius
         self.updatedAlready = False
-        self.closeThreshold = 50 # pixel distance for 2 balls to be considered "close"
+        self.closeThreshold = 35 # pixel distance for 2 balls to be considered "close"
 
     def updatePosition(self, position, radius=10):
         self.positions.append( self.position )
