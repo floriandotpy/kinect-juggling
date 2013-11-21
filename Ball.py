@@ -44,20 +44,37 @@ class BallCollection(object):
         self.balls = []
 
     def addPositions(self, ball_list=[]):
+        if (len(ball_list) > 3):
+            return
+            # calculate center of gravity (=centroid)
+            positions = [list(b['position']) for b in ball_list]
+            centroid = map(lambda b: b/float(len(ball_list)), reduce(lambda s, pos: [s[0]+pos[0], s[1]+pos[1]], positions, [0, 0]))
+            for ball in ball_list:
+                ball['distanceToCentroid'] = (abs(ball['position'][0] - centroid[0]) + abs(ball['position'][0] - centroid[0])) / 2
+            ball_list.sort(key=lambda b: b['distanceToCentroid'])
+            ball_list = ball_list[:3]
+        elif len(ball_list) < 3:
+            # cannot handle less than 3 objects right now
+            return
+
         # first call?
         if not len(self.balls):
             for ball in ball_list:
                 self.balls.append(Ball(ball['position'], radius=ball['radius']))
         else: # find the right ball to update
-            for new_ball in ball_list:
-                for ball in self.balls:
-                    if not ball.updatedAlready and ball.isClose(new_ball):
-                        ball.updatePosition(new_ball['position'], radius=new_ball['radius'])
-            # reset ball updated status
-            for ball in self.balls:
-                if not ball.updatedAlready:
-                    # fallback update
-                    ball.updatePosition(ball.position, ball.radius)
-                ball.updatedAlready = False
+            for i in (0, 1, 2):
+                self.balls[i].updatePosition(ball_list[i]['position'])
+
+            # more sophisticated ball updating below:
+            # for new_ball in ball_list:
+            #     for ball in self.balls:
+            #         if not ball.updatedAlready and ball.isClose(new_ball):
+            #             ball.updatePosition(new_ball['position'], radius=new_ball['radius'])
+            # # reset ball updated status
+            # for ball in self.balls:
+            #     if not ball.updatedAlready:
+            #         # fallback update
+            #         ball.updatePosition(ball.position, ball.radius)
+            #     ball.updatedAlready = False
 
 
