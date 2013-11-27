@@ -6,9 +6,10 @@ import timeit
 # import numpy as np
 
 setup = '''
-import pyximport; pyximport.install()
-import doit
+import pyximport;
 import numpy as np
+pyximport.install(setup_args={'include_dirs': np.get_include()})
+import doit
 a = np.random.random_integers(0,255, (10,10)).astype(np.uint8)
 '''
 

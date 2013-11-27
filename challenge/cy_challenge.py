@@ -4,8 +4,8 @@ from scipy import ndimage
 import timeit as ti
 
 
-small_shape = (100, 100)
-large_shape = (200, 200)
+small_shape = (2048, 2048)
+large_shape = (4096, 4096)
 
 test_configs = ("Testcase 1: small shape, pixeltype: uint8",
                 "Testcase 2: large shape, pixeltype: uint8",
@@ -39,9 +39,10 @@ theta = 33.7
 number_of_executions = 100
 
 
-tests = (("1", "Summation of arrays, vanilla python",   "img_dest = sum_arrays.py_sum_arrays(test_images[{i}][0], test_images[{i}][0])"),
+tests = (("3",  "Summation of arrays, actual cython",    "img_dest = cy_sum_arrays.cy_sum_arrays_int(test_images[{i}][0], test_images[{i}][0])"),
+        #("1", "Summation of arrays, vanilla python",   "img_dest = sum_arrays.py_sum_arrays(test_images[{i}][0], test_images[{i}][0])"),
         ("2",  "Summation of arrays, python in cython", "img_dest = cy_sum_arrays.py_sum_arrays(test_images[{i}][0], test_images[{i}][0])"),
-        ("3",  "Summation of arrays, actual cython",    "img_dest = cy_sum_arrays.cy_sum_arrays_int(test_images[{i}][0], test_images[{i}][0])"))
+        ("4", "Summation of arrays, numby", "img_dest = test_images[{i}][0] + test_images[{i}][1]" ))
          # ("2",  "Thresholding of images",                                        "img_dest = test_images[{i}][0] > thresh"),
          # ("3",  "Histogram of images",                                           "img_hist = np.histogram(test_images[{i}][0], bins=256, range=(0,255))"),
          # ("4a", "2d-convolution of images with gaussian mask (size: 5x5)",       "img_dest = ndimage.convolve(test_images[{i}][0],mask)"),

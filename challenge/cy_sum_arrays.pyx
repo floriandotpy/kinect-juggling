@@ -23,7 +23,9 @@ import numpy as np
 cimport numpy as np
 DTYPE = np.uint8
 ctypedef np.uint8_t DTYPE_t
+cimport cython
 
+@cython.boundscheck(False)
 def cy_sum_arrays_int(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
     cdef int width = a.shape[0]
     cdef int height = a.shape[1]
