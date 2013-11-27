@@ -17,6 +17,8 @@ from DepthHolesFilter import DepthHolesFilter
 from MaximaFilter import MaximaFilter
 from HoughFilter import HoughFilter
 from TemporalFilter import TemporalFilter
+from DrawBallsFilter import DrawBallsFilter
+from Ball import BallCollection
 import imgtools
 
 
@@ -36,6 +38,8 @@ class Kinector(object):
             self.buffer = None
 
 
+        self.ballcollection = BallCollection()
+
         # init filters
         self.filters = []
 
@@ -50,6 +54,7 @@ class Kinector(object):
         if 'detectball' in args:
             self.filters.append(CutOffFilter())
             self.filters.append(RectsFilter())
+            self.filters.append(DrawBallsFilter())
         if 'overlay' in args:
             self.filters.append(OverlayFilter())
         if 'maxima' in args:
@@ -78,6 +83,9 @@ class Kinector(object):
         (rgb, depth) = self.kinect.get_frame()
 
         args = {}
+
+        # where we will collect our balls
+        args['balls'] = self.ballcollection
 
         if self.buffer:
             self.buffer.add(depth)
