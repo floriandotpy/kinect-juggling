@@ -23,6 +23,8 @@
 }
 \usepackage{verbatim} % mainly for multi-line comments
 
+\resetcounteronoverlays{lstlisting}
+\usepackage{tikz}
 
 \title{Speeding up Python using Cython}
 \author[Rolf $\cdot$ Thiemo $\cdot$ Flo]{Rolf Boomgaarden $\cdot$ Thiemo Gries $\cdot$ Florian Letsch}
@@ -36,16 +38,20 @@
 \titlepage
 }
 
-%\frame
-%{
-%\tableofcontents
-%}
+%\frame{\tableofcontents}
 
 \section{Introducing Cython}
 \begin{frame}{What is Cython?}
-FIXME bullet points
+\begin{itemize}
+\item Compiler, compiles Python-like code to C-code
+\item Code is still executed in the Python runtime environment
+\item But is compiled to native machine code instead of Python bytecode
+\item Can result in more speed and easy wrapping of C libraries
+\end{itemize}
+%FIXME bullet points
 \end{frame}
 
+\begin{comment}
 \begin{frame}[fragile]{Hello World}
 \begin{lstlisting}[language=Python]
 print "Hello World"
@@ -70,16 +76,72 @@ Hello World
 \end{lstlisting}
 
 \end{frame}
+\end{comment}
 
-\begin{frame}{Cython workflow}
-FIXME
+\begin{frame}[fragile]{Cython workflow}{first approach}
+\setbeamercovered{transparent}
+\begin{itemize}
+\item<1-> Write a helloworld.pyx source file
+\begin{lstlisting}[language=Python]
+print "Hello World"
+\end{lstlisting}
+\item<1-> Run the Cython compiler to generate a C file\\
+\begin{lstlisting}[language=Python]
+$ cython helloworld.pyx
+\end{lstlisting}
+%{\tt \$ cython helloworld.pyx}
+\item<2-> Run a C compiler to generate a compiled library\\
+\begin{lstlisting}[language=Python]
+$ gcc [...] -o helloworld.so helloworld.c
+\end{lstlisting}
+%{\tt \$ gcc [...] -o helloworld.so helloworld.c}
+\item<2-> Run the Python interpreter and import the module\\
+\begin{lstlisting}[language=Python]
+>>> import helloworld
+Hello World
+\end{lstlisting}
+\end{itemize}
+%FIXME
 \end{frame}
 
+\begin{frame}[fragile]{Cython workflow}{second approach}
+\setbeamercovered{transparent}
+\begin{itemize}
+\item<1-> Write a helloworld.pyx source file
+\item<1-> Write a setup.py file with compile information
+\begin{lstlisting}[language=Python]
+from distutils.core import setup
+from Cython.Build import cythonize
+
+setup(
+    ext_modules = cythonize("helloworld.pyx")
+)
+\end{lstlisting}
+\item<2-> Let Python compile the file
+\begin{lstlisting}[language=Python]
+$ python setup.py build_ext --inplace
+\end{lstlisting}
+\item<2-> Run the Python interpreter and import the module\\
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Cython workflow}{third approach: pyximport}
+\begin{itemize}
+\item Write a helloworld.pyx source file
+\item Use Pyximport
+\begin{lstlisting}[language=Python]
+>>> import pyximport; pyximport.install()
+>>> import helloworld
+Hello World
+\end{lstlisting}
+\end{itemize}
+\end{frame}
 
 \section{Image processing}
 
-\begin{frame}{A real world example}
-EXAMPLE
+\begin{frame}{}
+%\color{red}FIXME cool image which represents something nice and funny
+\begin{center}\includegraphics[scale=0.42]{challenge.jpg}\end{center}
 \end{frame}
 
 \begin{frame}[fragile]{Pure Python}
@@ -87,7 +149,7 @@ EXAMPLE
 import numpy as np
 
 def my_add(a, b):
-    (...)
+    (...) # validate parameter
 	
     dtype = a.dtype
     height = a.shape[0]
@@ -101,6 +163,8 @@ def my_add(a, b):
 
     return result
 \end{lstlisting}
+\pause
+{\tt Time: $\sim$19 minutes (2048x2048, 100x)}
 \end{frame}
 
 \begin{frame}[fragile]{Python run through Cython}
@@ -108,7 +172,7 @@ def my_add(a, b):
 import numpy as np
 
 def my_add(a, b):
-    (...)
+    (...) # validate parameter
 	
     dtype = a.dtype
     height = a.shape[0]
@@ -122,6 +186,8 @@ def my_add(a, b):
 
     return result
 \end{lstlisting}
+\pause
+{\tt Time: $\sim$16 minutes (2048x2048, 100x)}
 \end{frame}
 
 \begin{frame}[fragile]{Cython: Adding types}
@@ -134,7 +200,8 @@ DTYPE = np.uint8
 ctypedef np.uint8_t DTYPE_t
 
 def my_add(np.ndarray a, np.ndarray b):
-    (...)
+    (...) # validate parameter
+
     cdef int height = a.shape[0]
     cdef int width = a.shape[1]
     cdef np.ndarray result = np.zeros((height, width), dtype=DTYPE)
@@ -146,6 +213,9 @@ def my_add(np.ndarray a, np.ndarray b):
 
     return result
 \end{lstlisting}
+\pause
+\vspace{-0.2cm}
+{\tt Time: $\sim$16 minutes (2048x2048, 100x)}
 \end{frame}
 
 \begin{frame}[fragile]{Cython: Efficient indexing}
@@ -157,7 +227,8 @@ DTYPE = np.uint8
 ctypedef np.uint8_t DTYPE_t
 
 def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
-    (...)
+    (...) # validate parameter
+
     cdef int height = a.shape[0]
     cdef int width = a.shape[1]
     cdef np.ndarray[DTYPE_t, ndim=2] result = np.zeros((height, width), dtype=DTYPE)
@@ -169,6 +240,9 @@ def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
 
     return result
 \end{lstlisting}
+\pause
+\vspace{-0.3cm}
+{\tt Time: 1.249 seconds (2048x2048, 100x)}
 \end{frame}
 
 \begin{frame}[fragile]{Cython: Don't check boundaries}
@@ -180,7 +254,8 @@ ctypedef np.uint8_t DTYPE_t
 
 @cython.boundscheck(False)
 def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
-    (...)
+    (...) # validate parameter
+
     cdef int height = a.shape[0]
     cdef int width = a.shape[1]
     cdef np.ndarray[DTYPE_t, ndim=2] result = np.zeros((height, width), dtype=DTYPE)
@@ -192,32 +267,92 @@ def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
 
     return result
 \end{lstlisting}
+\pause
+\vspace{-0.3cm}
+{\tt Time: 1.086 seconds (2048x2048, 100x)}
 \end{frame}
 
 \section{Speedup}
 
+\begin{comment}
 \begin{frame}[fragile]{Cython vs numpy}
 
-\begin{lstlisting}[language=Python,caption={add6.pyx}]
-import numpy as np; cimport numpy as np
+\Huge \begin{center}a + b\end{center}
 
-DTYPE = np.uint8
-ctypedef np.uint8_t DTYPE_t
-
-def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
-    if a.shape[0] != b.shape[0] or a.shape[1] != b.shape[1]:
-        raise ValueError("Arrays must have identical dimensions")
-    if a.dtype != DTYPE or b.dtype != DTYPE:
-        raise ValueError("Arrays must have type %s" % DTYPE)
-
-    return a + b
-\end{lstlisting}
+\pause
+{\tt\normalsize Time: 0.376 seconds (2048x2048, 100x)}
 \end{frame}
+\end{comment}
 
 \section{More features?}
 
 \begin{frame}{Conclusion}
-FIXME: speedup, how much fun to work with, easy use of features, documentation etc
+
+\begin{tikzpicture}[x=1.4cm,y=0.15pt]
+\centering\hspace{1cm}
+% Bars
+\draw[ycomb, color=blue!50, line width=1.2cm]
+plot coordinates {(0,1157) (1,971) (2,996)};
+% Axes
+\draw (-0.5,0) -- (-0.5,1000);
+\draw (-0.5,0) -- (2.5,0);
+\draw (0,-50) node {\footnotesize py};
+\draw (1,-50) node {\footnotesize py as cy};
+\draw (2,-50) node {\footnotesize typed};
+\draw[color=white] (0, 1057) node {1157};
+\draw[color=white] (1, 871) node {971};
+\draw[color=white] (2, 896) node {996};
+
+% Bars
+\draw[ycomb, color=blue!50, line width=1.2cm]
+plot coordinates {(3.4,125) (4.4,109)};
+% Axes
+%\draw (2.8,0) -- (2.8,1000);
+\draw (2.8,0) -- (6,0);
+\draw (3.4,-50) node {\footnotesize indices};
+\draw (4.4,-50) node {\footnotesize bounds};
+\draw[color=white] (3.4, 80) node {1.25};
+\draw[color=white] (4.4, 65) node {1.09};
+\end{tikzpicture}
+
+\end{frame}
+
+
+\begin{frame}{Conclusion}
+
+\begin{tikzpicture}[x=1.4cm,y=0.15pt]
+\centering\hspace{1cm}
+% Bars
+\draw[ycomb, color=blue!50, line width=1.2cm]
+plot coordinates {(0,1157) (1,971) (2,996)};
+% Axes
+\draw (-0.5,0) -- (-0.5,1000);
+\draw (-0.5,0) -- (2.5,0);
+\draw (0,-50) node {\footnotesize py};
+\draw (1,-50) node {\footnotesize py as cy};
+\draw (2,-50) node {\footnotesize typed};
+\draw[color=white] (0, 1057) node {1157};
+\draw[color=white] (1, 871) node {971};
+\draw[color=white] (2, 896) node {996};
+
+% Bars
+\draw[ycomb, color=blue!50, line width=1.2cm]
+plot coordinates {(3.4,125) (4.4,109) (5.4,38)};
+% Axes
+%\draw (2.8,0) -- (2.8,1000);
+\draw (2.8,0) -- (6,0);
+\draw (3.4,-50) node {\footnotesize indices};
+\draw (4.4,-50) node {\footnotesize bounds};
+\draw (5.4,-50) node {\footnotesize numpy};
+\draw[color=white] (3.4, 80) node {1.25};
+\draw[color=white] (4.4, 65) node {1.09};
+\draw[color=blue!50] (5.4, 80) node {0.38};
+\end{tikzpicture}
+
+\end{frame}
+
+\begin{frame}{FIXME Flo}
+\color{red}FIXME: speedup, how much fun to work with, easy use of features, documentation etc
 \end{frame}
 
 \begin{frame}{The end}
