@@ -1,16 +1,28 @@
-\documentclass{beamer}
+\documentclass[dvipsnames]{beamer}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[ngerman]{babel}
 \usepackage{graphicx}
 \usepackage{listings}
+\lstset{
+    %backgroundcolor=\color[rgb]{0.95,0.95,0.95},
+    columns=flexible, 
+    numbers=left, 
+    numbersep=8pt, 
+    xleftmargin=10pt,
+    numberstyle=\scriptsize\color[rgb]{0.700,0.700,0.700}, 
+    basicstyle=\ttfamily\footnotesize,
+    captionpos=b,
+    %keywordstyle=\color{Mahogany},
+    commentstyle=\color[rgb]{0.133,0.545,0.133},
+    stringstyle=\color{MidnightBlue},
+    breaklines=true,
+    frame=shadowbox,
+    rulesepcolor=\color[rgb]{0.7,0.7,0.7} % color of box-shadow
+}
 \usepackage{verbatim} % mainly for multi-line comments
 
-\usetheme{Madrid}
-\useinnertheme{rectangles}
-\setbeamertemplate{navigation symbols}{}
-\setbeamercovered{highly dynamic}
 
 \title{Speeding up Python using Cython}
 \author[Rolf $\cdot$ Thiemo $\cdot$ Flo]{Rolf Boomgaarden $\cdot$ Thiemo Gries $\cdot$ Florian Letsch}
@@ -24,16 +36,39 @@
 \titlepage
 }
 
-\frame
-{
-\tableofcontents
-}
+%\frame
+%{
+%\tableofcontents
+%}
 
-\section{Intrudocing Cython}
+\section{Introducing Cython}
+\begin{frame}{What is Cython?}
+FIXME bullet points
+\end{frame}
 
+\begin{frame}[fragile]{Hello World}
+\begin{lstlisting}[language=Python]
+print "Hello World"
+\end{lstlisting}
 
-\begin{frame}{Hello World}
-FIXME example from \lstinline{http://docs.cython.org/src/tutorial/cython_tutorial.html}
+\begin{lstlisting}[language=Python]
+from distutils.core import setup
+from Cython.Build import cythonize
+
+setup(
+    ext_modules = cythonize("helloworld.pyx")
+)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python]
+$ python setup.py build_ext --inplace
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python]
+>>> import helloworld
+Hello World
+\end{lstlisting}
+
 \end{frame}
 
 \begin{frame}{Cython workflow}
@@ -47,10 +82,26 @@ FIXME
 FIXME something from the code challenge
 \end{frame}
 
+\begin{frame}{Pure Python}
+FIXME something from the code challenge
+\end{frame}
+
+\begin{frame}{Python run through Cython}
+FIXME something from the code challenge
+\end{frame}
+
+\begin{frame}{Cython: Adding types}
+FIXME add4
+\end{frame}
+
+\begin{frame}{Cython: Efficient indexing}
+FIXME add5 + add6
+\end{frame}
+
 \section{Speedup}
 
-\begin{frame}{How well did we do?}
-FIXME speed comparison
+\begin{frame}{Cython vs numpy}
+FIXME add6
 \end{frame}
 
 \section{More features?}
