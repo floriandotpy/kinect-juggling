@@ -10,9 +10,9 @@
     columns=flexible, 
     numbers=left, 
     numbersep=8pt, 
-    xleftmargin=10pt,
+    xleftmargin=5pt,
     numberstyle=\scriptsize\color[rgb]{0.700,0.700,0.700}, 
-    basicstyle=\ttfamily\footnotesize,
+    basicstyle=\ttfamily\scriptsize,
     captionpos=b,
     %keywordstyle=\color{Mahogany},
     commentstyle=\color[rgb]{0.133,0.545,0.133},
@@ -82,30 +82,136 @@ FIXME
 EXAMPLE
 \end{frame}
 
-\begin{frame}{Pure Python}
-\lstinputlisting[inputencoding={latin1},language=Python]{../challenge/thiemo/add1.py}
+\begin{frame}[fragile]{Pure Python}
+\begin{lstlisting}[language=Python,caption={add1.py}]
+import numpy as np
+
+def my_add(a, b):
+    (...)
+	
+    dtype = a.dtype
+    height = a.shape[0]
+    width = a.shape[1]
+
+    result = np.zeros((height, width), dtype=dtype)
+
+    for y in range(height):
+        for x in range(width):
+            result[y,x] = a[y,x] + b[y,x]
+
+    return result
+\end{lstlisting}
 \end{frame}
 
-\begin{frame}{Python run through Cython}
-\lstinputlisting[inputencoding={latin1},language=Python]{../challenge/thiemo/add2.pyx}
+\begin{frame}[fragile]{Python run through Cython}
+\begin{lstlisting}[language=Python,caption={add2.pyx}]
+import numpy as np
+
+def my_add(a, b):
+    (...)
+	
+    dtype = a.dtype
+    height = a.shape[0]
+    width = a.shape[1]
+
+    result = np.zeros((height, width), dtype=dtype)
+
+    for y in range(height):
+        for x in range(width):
+            result[y,x] = a[y,x] + b[y,x]
+
+    return result
+\end{lstlisting}
 \end{frame}
 
-\begin{frame}{Cython: Adding types}
-\lstinputlisting[inputencoding={latin1},language=Python]{../challenge/thiemo/add3.pyx}
+\begin{frame}[fragile]{Cython: Adding types}
+
+\begin{lstlisting}[language=Python,caption={add3.pyx}]
+import numpy as np
+cimport numpy as np
+
+DTYPE = np.uint8
+ctypedef np.uint8_t DTYPE_t
+
+def my_add(np.ndarray a, np.ndarray b):
+    (...)
+    cdef int height = a.shape[0]
+    cdef int width = a.shape[1]
+    cdef np.ndarray result = np.zeros((height, width), dtype=DTYPE)
+
+    cdef int x, y
+    for y in range(height):
+        for x in range(width):
+            result[y,x] = a[y,x] + b[y,x]
+
+    return result
+\end{lstlisting}
 \end{frame}
 
-\begin{frame}{Cython: Efficient indexing}
-\lstinputlisting[inputencoding={latin1},language=Python]{../challenge/thiemo/add4.pyx}
+\begin{frame}[fragile]{Cython: Efficient indexing}
+\begin{lstlisting}[language=Python,caption={add4.pyx}]
+import numpy as np
+cimport numpy as np
+
+DTYPE = np.uint8
+ctypedef np.uint8_t DTYPE_t
+
+def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
+    (...)
+    cdef int height = a.shape[0]
+    cdef int width = a.shape[1]
+    cdef np.ndarray[DTYPE_t, ndim=2] result = np.zeros((height, width), dtype=DTYPE)
+
+    cdef int x, y
+    for y in range(height):
+        for x in range(width):
+            result[y,x] = a[y,x] + b[y,x]
+
+    return result
+\end{lstlisting}
 \end{frame}
 
-\begin{frame}{Cython: Don't check boundaries}
-\lstinputlisting[inputencoding={latin1},language=Python]{../challenge/thiemo/add5.pyx}
+\begin{frame}[fragile]{Cython: Don't check boundaries}
+\begin{lstlisting}[language=Python,caption={add5.pyx}]
+import numpy as np; cimport numpy as np; cimport cython
+
+DTYPE = np.uint8
+ctypedef np.uint8_t DTYPE_t
+
+@cython.boundscheck(False)
+def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
+    (...)
+    cdef int height = a.shape[0]
+    cdef int width = a.shape[1]
+    cdef np.ndarray[DTYPE_t, ndim=2] result = np.zeros((height, width), dtype=DTYPE)
+
+    cdef int x, y
+    for y in range(height):
+        for x in range(width):
+            result[y,x] = a[y,x] + b[y,x]
+
+    return result
+\end{lstlisting}
 \end{frame}
 
 \section{Speedup}
 
-\begin{frame}{Cython vs numpy}
-\lstinputlisting[inputencoding={latin1},language=Python]{../challenge/thiemo/add6.pyx}
+\begin{frame}[fragile]{Cython vs numpy}
+
+\begin{lstlisting}[language=Python,caption={add6.pyx}]
+import numpy as np; cimport numpy as np
+
+DTYPE = np.uint8
+ctypedef np.uint8_t DTYPE_t
+
+def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
+    if a.shape[0] != b.shape[0] or a.shape[1] != b.shape[1]:
+        raise ValueError("Arrays must have identical dimensions")
+    if a.dtype != DTYPE or b.dtype != DTYPE:
+        raise ValueError("Arrays must have type %s" % DTYPE)
+
+    return a + b
+\end{lstlisting}
 \end{frame}
 
 \section{More features?}
