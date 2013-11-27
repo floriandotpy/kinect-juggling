@@ -193,8 +193,7 @@ def my_add(a, b):
 \begin{frame}[fragile]{Cython: Adding types}
 
 \begin{lstlisting}[language=Python,caption={add3.pyx}]
-import numpy as np
-cimport numpy as np
+import numpy as np; cimport numpy as np
 
 DTYPE = np.uint8
 ctypedef np.uint8_t DTYPE_t
@@ -220,13 +219,12 @@ def my_add(np.ndarray a, np.ndarray b):
 
 \begin{frame}[fragile]{Cython: Efficient indexing}
 \begin{lstlisting}[language=Python,caption={add4.pyx}]
-import numpy as np
-cimport numpy as np
+import numpy as np; cimport numpy as np
 
 DTYPE = np.uint8
 ctypedef np.uint8_t DTYPE_t
 
-def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
+def my_add(np.ndarray[DTYPE_t,ndim=2] a, np.ndarray[DTYPE_t,ndim=2] b):
     (...) # validate parameter
 
     cdef int height = a.shape[0]
@@ -241,7 +239,7 @@ def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
     return result
 \end{lstlisting}
 \pause
-\vspace{-0.3cm}
+\vspace{-0.2cm}
 {\tt Time: 1.249 seconds (2048x2048, 100x)}
 \end{frame}
 
@@ -253,7 +251,7 @@ DTYPE = np.uint8
 ctypedef np.uint8_t DTYPE_t
 
 @cython.boundscheck(False)
-def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
+def my_add(np.ndarray[DTYPE_t,ndim=2] a, np.ndarray[DTYPE_t,ndim=2] b):
     (...) # validate parameter
 
     cdef int height = a.shape[0]
@@ -285,6 +283,14 @@ def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
 \end{comment}
 
 \section{More features?}
+
+\begin{frame}{Obtaining speedup}
+\begin{itemize}
+\item Static typing
+\item Access data buffer directly at C level
+\item Cython gimmicks
+\end{itemize}
+\end{frame}
 
 \begin{frame}{Conclusion}
 
@@ -358,7 +364,7 @@ plot coordinates {(3.4,125) (4.4,109) (5.4,38)};
 \begin{frame}{The end}
 EOF
 
-(FIXME: better joke)
+\color{red}(FIXME: better joke)
 \end{frame}
 
 \end{document}
