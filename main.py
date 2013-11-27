@@ -56,6 +56,8 @@ class Kinector(object):
             self.filters.append(MaximaFilter())
         if 'hough' in args:
             self.filters.append(HoughFilter())
+        if 'temporal' in args:
+            self.filters.append(TemporalFilter())
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
