@@ -141,7 +141,7 @@ Hello World
 
 \begin{frame}{}
 %\color{red}FIXME cool image which represents something nice and funny
-\begin{center}\includegraphics[scale=0.42]{challenge.jpg}\end{center}
+%\begin{center}\includegraphics[scale=0.42]{challenge.jpg}\end{center}
 \end{frame}
 
 \begin{frame}[fragile]{Pure Python}
@@ -357,8 +357,14 @@ plot coordinates {(3.4,125) (4.4,109) (5.4,38)};
 
 \end{frame}
 
-\begin{frame}{FIXME Flo}
-\color{red}FIXME: speedup, how much fun to work with, easy use of features, documentation etc
+\begin{frame}{Now what?}
+\begin{enumerate}
+\item http://docs.cython.org (tutorial style plus reference)
+\item \lstinline{with nogil:} release GIL
+\item \lstinline{cython.parallel}, parallelism with OpenMP support
+\item PyPy support (considered mostly usable since Cython 0.17)
+\item actual speedup compared to CPython; but compared to PyPy etc. ?
+\end{enumerate}
 \end{frame}
 
 \begin{frame}{The end}
