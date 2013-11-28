@@ -25,6 +25,7 @@
 
 \resetcounteronoverlays{lstlisting}
 \usepackage{tikz}
+\setbeamercovered{highly dynamic}
 
 \title{Speeding up Python using Cython}
 \author[Rolf $\cdot$ Thiemo $\cdot$ Flo]{Rolf Boomgaarden $\cdot$ Thiemo Gries $\cdot$ Florian Letsch}
@@ -360,10 +361,11 @@ plot coordinates {(3.4,125) (4.4,109) (5.4,38)};
 \begin{frame}{Now what?}
 \begin{enumerate}
 \item http://docs.cython.org (tutorial style plus reference)
-\item \lstinline{with nogil:} release GIL
+\pause\item \lstinline{with nogil:} release GIL
 \item \lstinline{cython.parallel}, parallelism with OpenMP support
 \item PyPy support (considered mostly usable since Cython 0.17)
-\item actual speedup compared to CPython; but compared to PyPy etc. ?
+\pause\item actual speedup compared to CPython; but compared to PyPy etc. ?
+\item can we juggle with this? Pretty sure we can!
 \end{enumerate}
 \end{frame}
 
