@@ -10,6 +10,8 @@ class RectsFilter(object):
         self.WIDTH = 640
         self.HEIGHT = 480
 
+        self.font = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
+
 
     def nullify(self, i):
         return i if i > 0 else 0
@@ -46,6 +48,7 @@ class RectsFilter(object):
                 x, y = self.nullify(x), self.nullify(y) # why is this necessary now?
 
                 cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
+                cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
 
                 ball_center = (x+w/2, y+h/2)
                 ball_radius = min(w/2, h/2)
