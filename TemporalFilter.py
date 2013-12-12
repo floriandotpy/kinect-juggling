@@ -1,5 +1,8 @@
 import numpy as np
-import vigra as vi
+try:
+    import vigra as vi
+except:
+    print "ERROR: vigra not installed. Cannot use temporal filtering"
 from DelayedBuffer import DelayedBuffer
 
 class TemporalFilter(object):
