@@ -2,6 +2,8 @@
 import cv
 colours = [cv.RGB(0, 0, 255), cv.RGB(0, 255, 0), cv.RGB(255, 0, 0), cv.RGB(0, 255, 255), cv.RGB(255, 0, 255)]
 def getcolour():
+    # temp fix: only one ball colour
+    return cv.RGB(255, 255, 255)
     try:
         return colours.pop()
     except:
