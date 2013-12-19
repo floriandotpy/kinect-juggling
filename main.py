@@ -63,7 +63,8 @@ class Kinector(object):
         if 'hough' in args:
             self.filters.append(HoughFilter())
         if 'temporal' in args:
-            self.filters.append(TemporalFilter())
+            erosion = False if 'noerosion' in args else True
+            self.filters.append(TemporalFilter(erosion = erosion))
         if 'slowmotion' in args:
             self.filters.append(SlowmotionFilter(0.4))
 

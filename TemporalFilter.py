@@ -8,10 +8,11 @@ from DelayedBuffer import DelayedBuffer
 
 class TemporalFilter(object):
 
-    def __init__(self, minSize=100, maxRegions=50):
+    def __init__(self, minSize=100, maxRegions=50, erosion=True):
         self.buffer = DelayedBuffer(buffersize=5)
         self.minSize = minSize
         self.maxRegions = maxRegions
+        self.erosion = erosion
 
     def filter(self, rgb, depth, args = {}):
 
@@ -21,8 +22,10 @@ class TemporalFilter(object):
 
         if previous is not None:
             vi_img = vi.Image(previous > depth, dtype=np.uint8)
-            vi_img = vi.filters.discErosion(vi_img, 3)
-            vi_img = vi.filters.discDilation(vi_img, 1)
+
+            if self.erosion:
+                vi_img = vi.filters.discErosion(vi_img, 3)
+                vi_img = vi.filters.discDilation(vi_img, 1)
             vi_img = vi_img.astype(np.float32)
 
             vi_label_img = vi.analysis.labelImageWithBackground(vi_img)
