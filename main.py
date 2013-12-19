@@ -18,6 +18,7 @@ from MaximaFilter import MaximaFilter
 from HoughFilter import HoughFilter
 from TemporalFilter import TemporalFilter
 from DrawBallsFilter import DrawBallsFilter
+from SlowmotionFilter import SlowmotionFilter
 from Ball import BallCollection
 import imgtools
 
@@ -63,6 +64,8 @@ class Kinector(object):
             self.filters.append(HoughFilter())
         if 'temporal' in args:
             self.filters.append(TemporalFilter())
+        if 'slowmotion' in args:
+            self.filters.append(SlowmotionFilter(0.4))
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
