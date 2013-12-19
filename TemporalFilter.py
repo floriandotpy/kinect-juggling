@@ -29,7 +29,7 @@ class TemporalFilter(object):
 
             vi.analysis.supportedRegionFeatures(vi_img, vi_label_img)
 
-            features = vi.analysis.extractRegionFeatures(vi_img, vi_label_img)
+            features = vi.analysis.extractRegionFeatures(vi_img, vi_label_img, features=['Sum','Coord<Minimum>','Coord<Maximum>'])
 
             regions = features.maxRegionLabel() + 1
             boxes = []
