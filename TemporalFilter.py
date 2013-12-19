@@ -42,8 +42,8 @@ class TemporalFilter(object):
 
             rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
             for box in boxes:
-                [y, x] = box[0]
-                [y2, x2] = box[1]
+                [y, x] = box[0].astype(np.int64)
+                [y2, x2] = box[1].astype(np.int64)
                 cv.Rectangle(rgb_cv, (x, y), (x2, y2), cv.CV_RGB(0, 255,0), 2)
             rgb = np.copy(rgb_cv)[:,:,::-1]
 
