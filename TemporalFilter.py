@@ -27,7 +27,7 @@ class TemporalFilter(object):
 
             vi_label_img = vi.analysis.labelImageWithBackground(vi_img)
 
-            vi.analysis.supportedRegionFeatures(vi_img, vi_label_img)
+            # vi.analysis.supportedRegionFeatures(vi_img, vi_label_img)
 
             features = vi.analysis.extractRegionFeatures(vi_img, vi_label_img, features=['Sum','Coord<Minimum>','Coord<Maximum>'])
 
@@ -38,13 +38,17 @@ class TemporalFilter(object):
                     if features['Sum'][i] >= self.minSize:
                         boxes.append((features['Coord<Minimum>'][i],features['Coord<Maximum>'][i]))
 
-            d = np.array(depth, dtype=np.uint16)
+            # d = np.zeros(depth.shape)
+            d = vi_img.astype(np.uint16) * 4095
+            # d = np.array(depth, dtype=np.uint16)
 
             rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
             for box in boxes:
                 [y, x] = box[0].astype(np.int64)
                 [y2, x2] = box[1].astype(np.int64)
                 cv.Rectangle(rgb_cv, (x, y), (x2, y2), cv.CV_RGB(0, 255,0), 2)
+                # d[y:y2, x:x2] = depth[y:y2, x:x2]
+
             rgb = np.copy(rgb_cv)[:,:,::-1]
 
         else:
