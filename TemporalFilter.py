@@ -8,7 +8,7 @@ from DelayedBuffer import DelayedBuffer
 
 class TemporalFilter(object):
     def __init__(self, minSize=100, maxRegions=50, erosion=True):
-        self.buffer = DelayedBuffer(buffersize=10)
+        self.buffer = DelayedBuffer(buffersize=5)
         self.minSize = minSize
         self.maxRegions = maxRegions
         self.erosion = erosion
