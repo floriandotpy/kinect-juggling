@@ -20,6 +20,7 @@ from TemporalFilter import TemporalFilter
 from DrawBallsFilter import DrawBallsFilter
 from SlowmotionFilter import SlowmotionFilter
 from Ball import BallCollection
+from KalmanFilter import KalmanFilter
 import imgtools
 
 
@@ -67,6 +68,8 @@ class Kinector(object):
             self.filters.append(TemporalFilter(erosion = erosion))
         if 'slowmotion' in args:
             self.filters.append(SlowmotionFilter(0.4))
+        if 'kalman' in args:
+            self.filters.append(KalmanFilter())
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
