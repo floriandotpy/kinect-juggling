@@ -17,8 +17,9 @@ def my_add(np.ndarray[DTYPE_t, ndim=2] a, np.ndarray[DTYPE_t, ndim=2] b):
 
     cdef int x, y
 
-    for y in range(height):
-        for x in range(width):
+
+    for x in range(width):
+        for y in range(height):
             result[y,x] = a[y,x] + b[y,x]
 
     return result

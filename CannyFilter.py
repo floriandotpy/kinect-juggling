@@ -1,5 +1,6 @@
 import numpy as np
 import cv, cv2
+import vigra as vi
 
 class CannyFilter(object):
 
@@ -23,8 +24,12 @@ class CannyFilter(object):
 		# img = cv2.Canny(img,10,100,apertureSize=3)
 		# cv.Canny(img,edges,0,300,aperture_size=3)
 
+		im = vi.Image(img, dtype=np.uint8)
+		edgels = vi.analysis.cannyEdgelList(im,3.0,3.0)
+
 		# img = cv2.Canny(img, 50, 200)
 		# rgb = cv2.cvtColor(img, cv.CV_GRAY2BGR)
+		print edgels
 
 		w, h = img.shape
 		rgb = np.empty((w, h, 3), dtype=np.uint8)
