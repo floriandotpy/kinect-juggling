@@ -23,7 +23,7 @@ class Ball(object):
     def updatePosition(self, position, radius=10):
         self.positions.append( self.position )
         self.position = position
-        self.radius = 15
+        self.radius = radius
         self.updatedAlready = True
 
     def lastPosition(self, n=1):
