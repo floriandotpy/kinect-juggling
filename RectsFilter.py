@@ -39,6 +39,7 @@ class RectsFilter(object):
             t = 2 # tolerance threshold
             minsize = 5
             if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
+            # if True:
                 rectcount += 1
                 # draw rect
                 x -= 5
@@ -50,10 +51,10 @@ class RectsFilter(object):
 
                 ball_center = (x+w/2, y+h/2)
                 ball_radius = min(w/2, h/2)
-                if x>170: # FIXME: this only removes the annoying noise rects in the dummy data (bottom left corner)
-                    ball_list.append(dict(position=ball_center, radius=ball_radius))
-                    cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
-                    cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
+                # if x>170: # FIXME: this only removes the annoying noise rects in the dummy data (bottom left corner)
+                ball_list.append(dict(position=ball_center, radius=ball_radius))
+                cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
+                cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
                 # circles = self.findHoughCircles(rgb_cv[y:y+h, x:x+w])
                 # if len(circles) > 1:
                 #     circles = circles[:1] # only the first circle for now
