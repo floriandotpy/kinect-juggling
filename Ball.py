@@ -65,22 +65,22 @@ class BallCollection(object):
         self.balls = []
 
     def addPositions(self, ball_list=[]):
-        if (len(ball_list) > 3):
-            # while (len(ball_list) > 3):
-            #     tmp_list = sorted(ball_list, key=lambda b: -1*(b['position'][0]+b['position'][1]))
-            #     ball_list = tmp_list[:3]
-            # return
-            # calculate center of gravity (=centroid)
-            # positions = [list(b['position']) for b in ball_list]
-            # centroid = map(lambda b: b/float(len(ball_list)), reduce(lambda s, pos: [s[0]+pos[0], s[1]+pos[1]], positions, [0, 0]))
-            # centroid = (300, 300) # center of body
-            # for ball in ball_list:
-                # ball['distanceToCentroid'] = (abs(ball['position'][0] - centroid[0]) + abs(ball['position'][1] - centroid[1])) / 2
-            # ball_list.sort(key=lambda b: b['position'][1])
-            ball_list = ball_list[:3]
-        elif len(ball_list) < 3:
-            # cannot handle less than 3 objects right now
-            return
+        # if (len(ball_list) > 3):
+        #     # while (len(ball_list) > 3):
+        #     #     tmp_list = sorted(ball_list, key=lambda b: -1*(b['position'][0]+b['position'][1]))
+        #     #     ball_list = tmp_list[:3]
+        #     # return
+        #     # calculate center of gravity (=centroid)
+        #     positions = [list(b['position']) for b in ball_list]
+        #     centroid = map(lambda b: b/float(len(ball_list)), reduce(lambda s, pos: [s[0]+pos[0], s[1]+pos[1]], positions, [0, 0]))
+        #     # centroid = (300, 300) # center of body
+        #     for ball in ball_list:
+        #         ball['distanceToCentroid'] = (abs(ball['position'][0] - centroid[0]) + abs(ball['position'][1] - centroid[1])) / 2
+        #     ball_list.sort(key=lambda b: b['position'][1])
+        #     ball_list = ball_list[:3]
+        # elif len(ball_list) < 3:
+        #     # cannot handle less than 3 objects right now
+        #     return
 
         # first call?
         if not len(self.balls):
@@ -98,9 +98,21 @@ class BallCollection(object):
 
             # more sophisticated ball updating below:
             for new_ball in ball_list:
+                new_ball['used'] = False
                 for ball in self.balls:
                     if not ball.updatedAlready and ball.isClose(new_ball):
+                        new_ball['used'] = True
                         ball.updatePosition(new_ball['position'], radius=new_ball['radius'])
+            # now update the balls that were not "close"
+            non_updated_balls = [b for b in self.balls if not b.updatedAlready]
+            non_used_positions = [p for p in ball_list if not p['used']]
+            for ball in non_updated_balls:
+                if len(non_used_positions) == 0:
+                    return
+                print non_used_positions
+                pos = sorted(non_used_positions, key=lambda p: ball.distance(p['position'], ball.futurePosition()))[0]
+                ball.updatePosition(pos['position'])
+                non_used_positions.remove(pos)
             # reset ball updated status
             for ball in self.balls:
                 if not ball.updatedAlready:
