@@ -75,19 +75,16 @@ class Kinector(object):
         """ Start the loop which is terminated by hitting a random key. """
         self.running = True
         while self.running:
-            if self.record:
-                self.kinect.snapshot()
-            else:
-                self._step()
             key = cv.WaitKey(5)
             self.running = key in (-1, 32)
-            if key == 32: # space bar
-                self.kinect.snapshot()
+            self._step()
+            # if key == 32: # space bar
+            #     self.kinect.snapshot()
 
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
-        (rgb, depth) = self.kinect.get_frame()
+        (rgb, depth) = self.kinect.get_frame(record=self.record)
 
         args = {}
 
