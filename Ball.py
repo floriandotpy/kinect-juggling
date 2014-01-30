@@ -1,5 +1,6 @@
 # tmp
 import cv
+import numpy as np
 colours = [cv.RGB(0, 0, 255), cv.RGB(0, 255, 0), cv.RGB(255, 0, 0), cv.RGB(0, 255, 255), cv.RGB(255, 0, 255)]
 def getcolour():
     # temp fix: only one ball colour
@@ -39,6 +40,13 @@ class Ball(object):
             y = self.position[1] - last_pos[1]
             return (x, y)
 
+    def trajectory(self, (x1, y1), (x2, y2), t=2):
+        b = np.arctan((y1-y2)/(x2-x1)) if x2 != x1 else 0.0
+        v = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+        x = (v * t * np.cos(b)) + x2
+        y = 490 - ((v * t * np.sin(b) - (9.81/2) * t**2) + y2)
+        return (int(x),int(y))
+
     def lastPosition(self, n=1):
         if len(self.positions > (n-1)):
             return self.positions[-n]
@@ -50,9 +58,16 @@ class Ball(object):
         otherPosition = otherBall['position']
         return (self.distance(otherPosition, self.futurePosition()) < self.closeThreshold)
 
-    def futurePosition(self):
-        direction = self.directionVector()
-        return (self.position[0]+direction[0], self.position[1]+direction[1])
+    def futurePosition(self, trajectory=False):
+        if trajectory:
+            if len(self.positions) < 2:
+                return (0, 0)
+            last_pos = self.positions[-1]
+            next_pos = self.trajectory(last_pos, self.position)
+            return next_pos
+        else:
+            direction = self.directionVector()
+            return (self.position[0]+direction[0], self.position[1]+direction[1])
 
     def distance(self, otherPosition, position):
         return ((position[0]-otherPosition[0])**2 + (position[1]-otherPosition[1])**2)**0.5
