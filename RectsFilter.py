@@ -39,6 +39,7 @@ class RectsFilter(object):
             t = 2 # tolerance threshold
             minsize = 5
             if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
+            # if True:
                 rectcount += 1
                 # draw rect
                 x -= 5
@@ -47,12 +48,13 @@ class RectsFilter(object):
                 h += 10
                 x, y = self.nullify(x), self.nullify(y) # why is this necessary now?
 
-                cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
-                cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
 
                 ball_center = (x+w/2, y+h/2)
                 ball_radius = min(w/2, h/2)
+                # if x>170: # FIXME: this only removes the annoying noise rects in the dummy data (bottom left corner)
                 ball_list.append(dict(position=ball_center, radius=ball_radius))
+                cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
+                cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
                 # circles = self.findHoughCircles(rgb_cv[y:y+h, x:x+w])
                 # if len(circles) > 1:
                 #     circles = circles[:1] # only the first circle for now
@@ -61,8 +63,8 @@ class RectsFilter(object):
                 #         cv.Circle(rgb_cv, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
         args['balls'].addPositions(ball_list)
         f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
-        cv.PutText(rgb_cv, 'Rects:', (20, 20), f, (255, 255, 255))
-        cv.PutText(rgb_cv, str(rectcount), (50 + rectcount * 15, 20), f, (0, 0, 0))
+        cv.PutText(rgb_cv, 'Rect/ball:', (20, 20), f, (255, 255, 255))
+        cv.PutText(rgb_cv, "%s / %s" % (str(rectcount), len(ball_list)) , (50 + rectcount * 15, 20), f, (0, 0, 0))
 
         # and back to numpy with this...
         rgb = np.copy(rgb_cv)[:,:,::-1]

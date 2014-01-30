@@ -10,9 +10,8 @@ cimport cython
 def my_function(np.ndarray[np.uint8_t, ndim=2] a, np.ndarray[np.uint8_t, ndim=2] b):
     if a.shape != b.shape:
         raise ValueError('Arrays must have identical dimensions')
-    if a.dtype not in (np.int, np.uint8) or b.dtype not in (np.int, np.uint8):
+    if a.dtype is not np.uint8 or b.dtype is not np.uint8:
         raise ValueError('Array type %s not supported' % a.dtype)
-
 
     cdef np.ndarray[np.uint8_t, ndim=2] n = np.zeros([a.shape[0], a.shape[1]], dtype=np.uint8)
 

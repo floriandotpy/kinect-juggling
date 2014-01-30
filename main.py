@@ -19,8 +19,10 @@ from HoughFilter import HoughFilter
 from TemporalFilter import TemporalFilter
 from DrawBallsFilter import DrawBallsFilter
 from SlowmotionFilter import SlowmotionFilter
+from RgbDepthFilter import RgbDepthFilter
 from Ball import BallCollection
 from KalmanFilter import KalmanFilter
+from DummyBallFilter import DummyBallFilter
 import imgtools
 
 
@@ -45,6 +47,8 @@ class Kinector(object):
         # init filters
         self.filters = []
 
+        if 'dummyball' in args:
+            self.filters.append(DummyBallFilter())
         if 'withholes' not in args:
             self.filters.append(DepthHolesFilter())
         if 'swapbackground' in args:
@@ -70,24 +74,23 @@ class Kinector(object):
             self.filters.append(SlowmotionFilter(0.4))
         if 'kalman' in args:
             self.filters.append(KalmanFilter())
+        if 'showdepth' in args:
+            self.filters.append(RgbDepthFilter())
 
     def loop(self):
         """ Start the loop which is terminated by hitting a random key. """
         self.running = True
         while self.running:
-            if self.record:
-                self.kinect.snapshot()
-            else:
-                self._step()
             key = cv.WaitKey(5)
             self.running = key in (-1, 32)
-            if key == 32: # space bar
-                self.kinect.snapshot()
+            self._step()
+            # if key == 32: # space bar
+            #     self.kinect.snapshot()
 
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
-        (rgb, depth) = self.kinect.get_frame()
+        (rgb, depth) = self.kinect.get_frame(record=self.record)
 
         args = {}
 

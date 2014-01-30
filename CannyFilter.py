@@ -1,6 +1,9 @@
 import numpy as np
 import cv, cv2
-import vigra as vi
+try:
+    import vigra as vi
+except Exception, e:
+    pass
 
 class CannyFilter(object):
 
@@ -15,7 +18,7 @@ class CannyFilter(object):
     #     return rgb, np.asarray(mat2)
 
     def filter(self, rgb, depth, argv = {}):
-		
+
 		img = np.asarray(depth)
 		# img = cv.fromarray(depth, cv.CV_8UC1)
 		# mat = cv.CreateMat(img.rows, img.cols, cv.CV_8UC1)
