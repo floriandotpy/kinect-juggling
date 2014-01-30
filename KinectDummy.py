@@ -20,7 +20,7 @@ class KinectDummy(object):
         self.total = len(self.frames_rgb)
 
     def get_frame(self, record=False):
-        print self.frames_rgb[self.current]
+        # print self.frames_rgb[self.current]
         rgb = np.load(os.path.join(self.path,self.frames_rgb[self.current]))
         depth = np.load(os.path.join(self.path,self.frames_depth[self.current]))
         self.current = (self.current + 1) % self.total
