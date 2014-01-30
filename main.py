@@ -4,8 +4,10 @@
     Based on demo_freenect.py from the https://github.com/amiller/libfreenect-goodies.git
 '''
 
-import cv
 import numpy as np
+import time
+import cv
+from PIL import Image
 from NoFilter import NoFilter
 from BackgroundFilter import BackgroundFilter
 from RectsFilter import RectsFilter
@@ -83,11 +85,19 @@ class Kinector(object):
         while self.running:
             key = cv.WaitKey(5)
             self.running = key in (-1, 32)
-            self._step()
-            # if key == 32: # space bar
-            #     self.kinect.snapshot()
 
-    def _step(self):
+            snapshot = (key == 32) # space bar
+
+            self._step(snapshot)
+
+    def snapshot(self, rgb):
+        filename = "snapshots/frame-%d.png" % int(time.time()*1000)
+        # rescaled = (255.0 / rgb.max() * (rgb - rgb.min())).astype(np.uint8)
+
+        im = Image.fromarray(rgb)
+        im.save(filename)
+
+    def _step(self, snapshot=False):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
         (rgb, depth) = self.kinect.get_frame(record=self.record)
@@ -119,6 +129,9 @@ class Kinector(object):
             a[:,:,2] = depth
             img = cv.fromarray(a)
 
+
+        if (snapshot):
+            self.snapshot(rgb)
 
         # Display image
         cv.ShowImage('display', img)
