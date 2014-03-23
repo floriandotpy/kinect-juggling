@@ -15,7 +15,7 @@
 \title{Tracking juggling balls using the Kinect}
 \author[Rolf $\cdot$ Thiemo $\cdot$ Flo]{Rolf Boomgaarden $\cdot$ Thiemo Gries $\cdot$ Florian Letsch}
 \institute{Universität Hamburg}
-\date{19/12/2013}
+\date{\today}
 
 \begin{document}
 
@@ -26,37 +26,37 @@
 \section{Looking back}
 
 \section{Our plan}
-\begin{frame}{What we thought at first}
-\begin{center}\includegraphics[scale=0.1]{img/flowchart.png}\end{center}
+
+\begin{frame}{}
+\begin{itemize}
+\item Vigra
+\item Match balls from frame to frame
+\item Kalman filter
+\end{itemize}
 \end{frame}
 
-\begin{frame}{A \textit{"working"} solution}
-\begin{enumerate}
-	\item detection with depth data (no rgb)
-	\item cut off depth at threshold ($\rightarrow$ binary representation)
-	\item find bounding rects (\lstinline{OpenCV.BoundingRect})
-	\item filter out small rectangles and rectangles touching the image boundaries
-	\item find centroid of remaining rects. The three rects closest to centroid are considered "balls"
-	\item a ball fits inside a rectangle (close representation of actual ball in RGB, ignoring the deformation caused by movement)
-\end{enumerate}
+\begin{frame}{Match balls from frame to frame}
+
+\includegraphics[scale=0.45]{img/future-1.png}
+
+\end{frame}
+
+\begin{frame}{Match balls from frame to frame}
+
+\includegraphics[scale=0.45]{img/future-2.png}
+
 \end{frame}
 
 
-\begin{frame}{A checklist}
-WORKS:
+\begin{frame}{Physics?}
 
-\begin{itemize}
-\item Using dummy data (numpy array dumps)\\
-\item Use a hard coded threshold\\
-\item filter out rectangles too small or too close to image edge
-\end{itemize}
+\includegraphics[scale=0.45]{img/trajectory.png}
 
-CURRENTLY WORKING ON:
+\end{frame}
 
-\begin{itemize}
- \item Match balls from frame to frame
- \item Do this using a Kalman filter
-\end{itemize}
+\begin{frame}{Let's see...}
+
+\includegraphics[scale=0.45]{img/kalman.png}
 
 \end{frame}
 
@@ -66,6 +66,7 @@ CURRENTLY WORKING ON:
 \begin{itemize}
 	\item Local maxima
 	\item Multiple balls (colour?)
+	\item ...
 \end{itemize}
 \end{frame}
 
