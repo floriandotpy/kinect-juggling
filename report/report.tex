@@ -1,0 +1,113 @@
+\documentclass[12pt,a4paper,ngerman]{scrartcl}
+\usepackage[left=2.5cm,right=2.5cm,top=1cm,bottom=2cm,includeheadfoot]{geometry}
+\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage{verbatim} %muss vorhanden sein für \begin{comment}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+\usepackage{enumitem}
+
+\usepackage[super,square,comma]{natbib}
+
+\usepackage{hyperref}
+\hypersetup{
+	%linktocpage,
+	colorlinks,
+	citecolor=black,
+	filecolor=black,
+	linkcolor=black,
+	urlcolor=black}
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+
+\usepackage{xcolor}
+
+\usepackage{float}
+\usepackage{parskip}
+%\usepackage[none]{hyphenat}
+
+\include{pythonlisting}
+
+\begin{document}
+
+\begin{titlepage}
+
+\vspace*{3 cm}
+
+\begin{flushright}
+%\bfseries{\Huge\scshape Automatische\\Passbildausrichtung\\{\Large mit Hilfe des}\\Viola-Jones-Algorithmus\\}
+\bfseries{\Huge\scshape Jonglieren mit der Kinect\\{\Large ein Softwareprojekt im}\\Projekt Bildverarbeitung}
+\end{flushright}
+
+\vspace{2 cm}
+
+\begin{flushright}
+\scshape{\large Projektbericht}
+\end{flushright}
+
+\begin{flushright}
+\scshape{\LARGE\bfseries Rolf Boomgaarden\\}
+\scshape{\LARGE\bfseries Florian Letsch\\}
+\scshape{\LARGE\bfseries Thiemo Gries\\}
+\end{flushright}
+
+\vspace{2 cm}
+
+\begin{flushright}
+\scshape{\large\bfseries \today}
+\end{flushright}
+
+\vfill
+
+\begin{flushright}
+
+\scshape{Unter Aufsicht von: {\bfseries Benjamin Seppke}\\}
+\scshape{\bfseries Arbeitsbereich Kognitive Systeme\\}
+\scshape{\bfseries Fachbereich Informatik, Universität Hamburg\\}
+\end{flushright}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\input{chapter/einleitung}
+
+\newpage
+
+
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{section}{Quellen}
+\renewcommand{\refname}{Quellen}
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+
+%\cite{violajones}
+\bibitem{violajones}
+Paul Viola, Michael Jones,\\
+{\em Robust Real-time Object Detection}\\
+Vancouver, Canada, 13.07.2001.\\
+\url{http://research.microsoft.com/en-us/um/people/viola/Pubs/Detect/violaJones_IJCV.pdf}
+
+\bibitem{ole}
+Ole Helvig Jensen,\\
+{\em Implementing the Viola-Jones Face Detection Algorithm}\\
+IMM-M.Sc.: ISBN 87-643-0008-0 \qquad ISSN 1601-233X\\
+Technical University of Denmark, Informatics and Mathematical Modelling\\
+Kongens Lyngby, Denmark, 2008.\\
+\url{http://www.imm.dtu.dk/English/Research/Image_Analysis_and_Computer_Graphics/Publications.aspx?lg=showcommon&id=223656}
+
+\end{thebibliography}
+
+\end{document}
