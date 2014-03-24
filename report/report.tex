@@ -106,7 +106,32 @@ dessen Grundlage konkrete Anwendungen entwickelt werden können.
 
 \section{Zielsetzung}
 
+Am Ende dieser Arbeit soll eine Anwendung stehen, die mit Hilfe der Kinect Daten 
+über die Flugbahnen dreier jonglierter Bälle liefert. 
+
+Ein Akteur befindet sich hierbei im Bildzentrum in einem wohl definierten Abstand 
+zur Kinect. Es werden drei matte Bälle beliebiger Farbe jongliert. Um das Ergebnis
+unabhängig von der Szenenbeleuchtung zu halten, sollen die Tiefendaten ausreichend
+Information für das eindeutige Identifizieren der Bälle liefern.
+
 \section{Möglichkeiten der Kinect}
+
+Die Kinect ist eine von Microsoft zur Spielekonsole Xbox 360 vertriebene Erweiterung,
+die den Spieler mit einem RGB- und einem Tiefensensor erfasst und diese beiden 
+Datenströme an die Konsole liefert. Da die Kinect über einen USB-Anschluss verfügt,
+kann sie an konventionellen Rechnern angeschlossen und betrieben werden. Eine 
+quelloffene Implementierung zur Unterstützung der Kinect ist das freenect Projekt,
+das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbeit
+als Bibliothek für Python verwendet wurde. FIXME: Quellen.
+
+Die Videoquelle der Kinect liefert standardmäßig 30 (JA?) Bilder pro Sekunde mit einer
+Auflösung von 640x480 und 8 bit Farbtiefe. Die Tiefendaten stammen von einer 
+Infrarot-Kamera und liefern bei gleicher Bildfrequenz 2048 verschiedene 
+Tiefenwerte (11bit). Aus der Funktionsweise der Infrarotkamera ergibt sich, dass
+die Kinect in Umgebungen starker Infrarotstrahlung (beispielsweise im Tageslicht)
+nur beschränkt einsatzfähig ist. 
+
+FIXME: Erklären wie das mit diesem projizierten Punktemuster funktioniert. 
 
 \section{Recherche: Ein jonglierender Roboter} 
 
