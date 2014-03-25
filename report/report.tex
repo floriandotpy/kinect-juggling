@@ -145,6 +145,18 @@ FIXME: Erklären wie das mit diesem projizierten Punktemuster funktioniert.
 
 \subsection{Erläuterung verwendeter Bildverarbeitungsverfahren}
 
+\subsubsection{Kalman Filter}
+
+{\color{red} FIXME: alles überarbeiten, mehr, nochmal nachlesen, wie's wirklich ist, Schaubilder}
+
+Der Kalman Filter kann sich bewegende Objekte beobachten und Schätzungen zur aktuellen oder auch zukünftigen Position machen.
+
+In diesem Projekt wird er dazu verwendet, die Bälle zu beobachten und die weitere Flugbahn zu bestimmen. Damit kann eine voraussichtliche Flugbahn in die Ausgabe gezeichnet werden, aber auch in der internen Verfolgung und Zuordnung der Bälle spielen die Ergebnisse eine wichtige Rolle.
+
+Der Kalman Filter besteht aus zwei Funktionen, einem {\tt predict} und einem {\tt update}. Im {\tt predict} wird mit Informationen zur Art der Bewegung und mit mindestens einer Ortsinformation zum Zeitpunkt {\tt t} eine Schätzung zum Ort im Zeitpunkt {\tt t+1} gemacht. Ein {\tt predict} kann beliebig oft hintereinander ausgeführt werden.
+
+Im {\tt update} wird die aktuell gespeicherte Ortsinformation mit extern gewonnen Daten aktualisiert. Die hier gemessene Abweichung zwischen Schätzung und tatsächlichen Daten kann natürlich auch zur weiteren Schätzung eingebracht werden. Ein {\tt update} wird nicht mehrmals hintereinander ausgeführt.
+
 \subsection{Herausforderungen}
 
 \subsection{Bewertung der Umsetzung}
