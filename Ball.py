@@ -40,12 +40,22 @@ class Ball(object):
             y = self.position[1] - last_pos[1]
             return (x, y)
 
-    def trajectory(self, (x1, y1), (x2, y2), t=2):
-        b = np.arctan((y1-y2)/(x2-x1)) if x2 != x1 else 0.0
-        v = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
-        x = (v * t * np.cos(b)) + x2
-        y = 490 - ((v * t * np.sin(b) - (9.81/2) * t**2) + y2)
-        return (int(x),int(y))
+    def trajectory(self, (x1, y1), (x2, y2), t=1):
+        """Calculate the throw trajectory based of 2 points return any future
+        or past point on that trajectory"""
+
+        # gravity, positive because y is upside-down
+        g   = 9.81 * 0.4
+
+        # speed in x and y direction
+        v_x = x2 - x1
+        v_y = y2 - y1
+
+        # distance in x and y direction
+        x   = v_x * t + x2
+        y   = v_y * t + g/2 * t**2 + y2
+
+        return int(x), int(y)
 
     def lastPosition(self, n=1):
         if len(self.positions > (n-1)):
@@ -54,16 +64,15 @@ class Ball(object):
             return self.position
 
     def isClose(self, otherBall):
-        # otherPosition = (otherBall['position'][0] + self.directionVector()[0], otherBall['position'][1] + self.directionVector()[1])
         otherPosition = otherBall['position']
-        return (self.distance(otherPosition, self.futurePosition()) < self.closeThreshold)
+        return (self.distance(otherPosition, self.futurePosition(True)) < self.closeThreshold)
 
     def futurePosition(self, trajectory=False):
         if trajectory:
             if len(self.positions) < 2:
                 return (0, 0)
             last_pos = self.positions[-1]
-            next_pos = self.trajectory(last_pos, self.position)
+            next_pos = self.trajectory(last_pos, self.position, 0)
             return next_pos
         else:
             direction = self.directionVector()
@@ -106,10 +115,6 @@ class BallCollection(object):
                 self.balls.append(Ball(ball['position'], radius=ball['radius']))
             print str(len(self.balls)) + " balls"
         else: # find the right ball to update
-            # for i in (0, 1, 2):
-            #     self.balls[i].updatePosition(ball_list[i]['position'], ball_list[i]['radius'])
-            #     print self.balls[i].directionVector()
-            # return
 
             # more sophisticated ball updating below:
             for new_ball in ball_list:
@@ -125,7 +130,7 @@ class BallCollection(object):
                 if len(non_used_positions) == 0:
                     return
                 print non_used_positions
-                pos = sorted(non_used_positions, key=lambda p: ball.distance(p['position'], ball.futurePosition()))[0]
+                pos = sorted(non_used_positions, key=lambda p: ball.distance(p['position'], ball.futurePosition(True)))[0]
                 ball.updatePosition(pos['position'])
                 non_used_positions.remove(pos)
             # reset ball updated status
