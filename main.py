@@ -59,8 +59,9 @@ class Kinector(object):
             self.filters.append(DiscoFilter())
         if 'canny' in args:
             self.filters.append(CannyFilter())
-        if 'detectball' in args:
+        if 'cutoff' in args:
             self.filters.append(CutOffFilter())
+        if 'detectball' in args:
             self.filters.append(RectsFilter())
             self.filters.append(DrawBallsFilter())
         if 'overlay' in args:
