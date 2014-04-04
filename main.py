@@ -23,6 +23,7 @@ from DrawBallsFilter import DrawBallsFilter
 from SlowmotionFilter import SlowmotionFilter
 from RgbDepthFilter import RgbDepthFilter
 from Ball import BallCollection
+from Ball import TrajectoryBallCollection
 from KalmanFilter import KalmanFilter
 from DummyBallFilter import DummyBallFilter
 import imgtools
@@ -44,7 +45,7 @@ class Kinector(object):
             self.buffer = None
 
 
-        self.ballcollection = BallCollection()
+        self.ballcollection = TrajectoryBallCollection() if 'trajectory' in args else BallCollection()
 
         # init filters
         self.filters = []

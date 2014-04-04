@@ -1,12 +1,13 @@
 # tmp
 import cv
 import numpy as np
+import random
 colours = [cv.RGB(0, 0, 255), cv.RGB(0, 255, 0), cv.RGB(255, 0, 0), cv.RGB(0, 255, 255), cv.RGB(255, 0, 255)]
 def getcolour():
     # temp fix: only one ball colour
     #return cv.RGB(255, 255, 255)
     try:
-        return colours.pop()
+        return random.choice(colours)
     except:
         return cv.RGB(255, 255, 255)
 
@@ -84,6 +85,7 @@ class Ball(object):
     def __str__(self):
         return "Ball at %d/%d" % self.position
 
+
 class BallCollection(object):
     def __init__(self):
         self.balls = []
@@ -140,4 +142,92 @@ class BallCollection(object):
                     ball.updatePosition(ball.position, ball.radius)
                 ball.updatedAlready = False
 
+class TrajectoryBall(object):
+    def __init__(self, lowerPoint, upperPoint):
+        # remember older positions
+        self.positions = []
+
+        (x1, y1), (x2, y2) = lowerPoint, upperPoint
+
+        # for drawing
+        self.radius = 10
+        self.colour = getcolour()
+
+        # speed in x and y direction
+        self.v_x = x2 - x1
+        self.v_y = y2 - y1
+
+        self.xOffset = (x2 + x1) / 2
+        self.yOffset = (y2 + x1) / 2
+
+        # gravity, positive because y is upside-down
+        self.gravity = 9.81 * 0.5
+
+        # progress of the trajectory
+        self.t = 0
+
+        # initial position
+        self.position = None
+        self.step()
+
+    def futurePosition(self):
+        return self._trajectory(self.t+1)
+
+    def directionVector(self):
+        return (0,0)
+
+    def _trajectory(self, t=1):
+        """Calculate the throw trajectory based on 2 points
+        to return any future or past point on that trajectory"""
+
+        # distance in x and y direction
+        x   = self.v_x * t + self.xOffset
+        y   = self.v_y * t + self.gravity/2 * t**2 + self.yOffset
+
+        return int(x), int(y)
+
+    def step(self):
+        if self.position:
+            self.positions.append(self.position)
+        self.position = self._trajectory(self.t)
+        self.t += 1
+
+
+class TrajectoryBallCollection(object):
+    def __init__(self):
+        self.positions = []
+        self.balls = []
+        self.lastFrame = []
+
+    def addPositions(self, positions=[]):
+
+        # first call
+        if len(self.lastFrame) == 0:
+            self.lastFrame = positions
+            return
+
+        for oldPos in self.lastFrame:
+            for newPos in positions:
+                oldX, oldY = oldPos['position']
+                newX, newY = newPos['position']
+
+                isAbove = newY < oldY - 10
+                isNotTooHigh = (newY - oldY) < 50
+                isCloseX = abs(newX - oldX) < 30
+                if isAbove and isNotTooHigh and isCloseX:
+                    # upwards movement!
+                    self.launchTrajectory(oldPos['position'], newPos['position'])
+
+        # move balls
+        self.step()
+
+    def launchTrajectory(self, lowerPoint, upperPoint):
+        ball = TrajectoryBall(lowerPoint, upperPoint)
+        self.balls.append(ball)
+
+    def step(self):
+        for ball in self.balls:
+            ball.step()
+            if ball.position[1] > 480 or not -200 < ball.position[0] < 840:
+                self.balls.remove(ball)
 
