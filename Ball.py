@@ -157,6 +157,10 @@ class TrajectoryBall(object):
         self.v_x = x2 - x1
         self.v_y = y2 - y1
 
+        # why is the calculated speed too fast? need to correct it here
+        self.v_x *= 0.5
+        self.v_y *= 0.4
+
         self.xOffset = (x2 + x1) / 2
         self.yOffset = (y2 + x1) / 2
 
@@ -212,7 +216,7 @@ class TrajectoryBallCollection(object):
                 newX, newY = newPos['position']
 
                 isAbove = newY < oldY - 10
-                isNotTooHigh = (newY - oldY) < 50
+                isNotTooHigh = abs(newY - oldY) < 100
                 isCloseX = abs(newX - oldX) < 30
                 if isAbove and isNotTooHigh and isCloseX:
                     # upwards movement!
@@ -228,6 +232,6 @@ class TrajectoryBallCollection(object):
     def step(self):
         for ball in self.balls:
             ball.step()
-            if ball.position[1] > 480 or not -200 < ball.position[0] < 840:
+            if ball.position[1] > 380 or not -200 < ball.position[0] < 840:
                 self.balls.remove(ball)
 
