@@ -145,15 +145,58 @@ image Processing Pipeline
 
 \subsection{Programmfluss}
 
-\subsubsection{Schritt 1}
+\subsubsection{Schritt 1: Tiefendaten vorverarbeiten}
 
-\subsubsection{Schritt 2}
+Normieren aux XXX Tiefenwerte
 
-\subsubsection{Schritt 3}
+\subsubsection{Schritt 2: Regions Of Interest isolieren}
 
-\subsubsection{Schritt 4}
+Hintergrund entfernen, Bälle freistellen. Zwei Ansätze:
 
-verschiedene Ansätze... 
+A. keine Objekte auf Tiefenebene zwischen Spieler und Kinect, auch nicht am Rand. Tiefenwerte aber einem gewissen Wert einfach abschneiden. Annahme: Spieler steht auf Linie oder ähnlich. Tiefendaten binarisieren.
+
+B. Mit temporalem Filtering sich bewegende Regionen isolieren. Erlaubt auch störende Objekte wie Stühle am Rand, Erfahrung aber nicht so gut, da das Verfahren bei schneller Bewegung (Ballwurf) nicht zuverlässig ist. Außerdem Probleme mit unscharfen Objekträndern und Rauschen. Außerdem technische Hürden (Vigra als weitere Abhängigkeit).
+
+Bewertung: Ansatz A völlig ausreichend für unsere Zwecke. Einschränkung der Spielerpositition nicht störend, da dies sogar interkativ durchgeführt werden (so lange nach vorne gehen, bis System vernünftige Werte liefert - kein aufwändiges Abmessen nötig).
+
+\subsubsection{Schritt 3: Bälle in Frame-Folgen einander zuordnen}
+
+Kurze Vorverarbeitung: Rechtecke erkennen aus binarisiertem Bild. Annahme: der Mittelpunkt jedes Rechtecks ist ein Kandidat für eine Ballposition. Die Ausdehnung und somit der Ballradius werden vorerst ignoriert.
+
+Dies ist der aufwändigste Schritt wie sich herausgestellt hat, zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben.
+
+Erste Idee: Regionen mit Tiefenbild bestimmen, tatsächliche Bälle von Händen etc unterscheiden, indem Kreise in den RGB Bildern gesucht werden. Dies war aber rechenaufwändig und wegen Bewegungsunschärfe sehr unzuverlässig (auch noch unterschiedlich stark je nach Fortschritt des Ballwurfs).
+
+Problemquellen: 
+
+\begin{itemize}
+ \item Hände sind auch als Rechtecke enthalten 
+ \item Bälle fliegen sehr nah, teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes zu sehen ist und als eine mögliche Ballposition untersucht wird
+ \item Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange Strecken zurück, teilweise sehr große (Pixelanzahl angeben?) 
+ \item Mindestabstand zur Kinect resultiert in kleinem Jongliermuster, das verstärkt die problematischen Faktoren
+ \item teilweise fehlt eine Region in einem erkannten Frame
+\end{itemize}
+ 
+Ansätze:
+ 
+Konsumierende Ansätze, feste Ballanzahl:
+ 
+ \begin{enumerate}
+ \item Nächste Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegung und nah aneinander fliegender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt -> Beachtung von "springenden" Bällen.
+ \item Verbesserungsansatz: erwartete Ballposition wird approximiert mit vorheriger Bewegung (linearer Bewegungsvektor). Teilweise besser, aber schwierig, die initiale Bewegung zu Erkennen, auch weiterhin Probleme mit Lücken in den Informationen.
+ \item Verbesserung: Nicht linear, sondern Flugbahn vorberechnen. Linearer Bewegungsvektor wird als Tangente an Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochtmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
+  \end{enumerate}
+  
+Nicht konsumierende Ansätze, variable Ballanzahl:
+  
+\begin{enumerate}
+	\item wenn langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
+\end{enumerate}
+
+
+\subsubsection{Schritt 4: Bereinigte Wurfparabel}
+
+Das fehlt uns noch. Aber aus den gelieferten Daten wollen wir dann höher-levelige Informationen abstrahieren. Objektanzahl, Wurfhöhen, Würfe zählen, etc.
 
 \subsection{Erläuterung verwendeter Bildverarbeitungsverfahren}
 
@@ -171,9 +214,15 @@ Im {\tt update} wird die aktuell gespeicherte Ortsinformation mit extern gewonne
 
 \subsection{Herausforderungen}
 
+Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über?
+
 \subsection{Bewertung der Umsetzung}
 
-Effizient. Speedup-Möglichkeiten
+Robustheit.
+
+Effizienz. Speedup-Möglichkeiten?
+
+Anwendungsrelevanz.
 
 \section{Anwendungsmöglichkeiten}
 
@@ -187,7 +236,7 @@ Projekte nehmen als Grundlage für einfache Programme / Spiele.
 
 \section{Fazit}
 
-
+Lerneffekt, Frustration, Bewertung des Endprodukts
 
 
 \newpage
