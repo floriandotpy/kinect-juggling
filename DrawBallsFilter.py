@@ -11,9 +11,18 @@ class DrawBallsFilter(object):
         rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
 
         balls = args['balls'].balls
-        print str([str(s) for s in balls])
         for ball in balls:
             cv.Circle(rgb_cv, ball.position, ball.radius, ball.colour, thickness=-1, lineType=8, shift=0)
+            # highlight rects that this ball is based upon
+            if ball.meta:
+                for r in [ball.meta['old'], ball.meta['new']]:
+                    radius = r['radius']
+                    top_left = (r['position'][0]-radius/2, r['position'][1]-radius/2)
+                    bottom_right = (r['position'][0]+radius/2, r['position'][1]+radius/2)
+                    cv.Rectangle(rgb_cv, top_left, bottom_right, ball.colour, 2)
+
+
+            # cv.Circle(rgb_cv, ball.firstPosition, int(ball.radius*1.5), ball.colour, thickness=-1, lineType=8, shift=0)
             # cv.Circle(rgb_cv, ball.futurePosition(), ball.radius, ball.colour, thickness=-1, lineType=8, shift=0)
             cv.PutText(rgb_cv, '%d/%d' % ball.position, ball.position , self.font, (255, 255, 255))
             prevPos = ball.position
