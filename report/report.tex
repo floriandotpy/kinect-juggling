@@ -86,7 +86,7 @@
 
 Mit den technischen Möglichkeiten eines Tiefen- und Bilddaten liefernden Systems 
 (konkret: Microsoft Kinect) soll in dieser Arbeit versucht werden, das Wurfmuster
-eines mit Bällen jonglierenden Akteurs zu analsieren.
+eines mit Bällen jonglierenden Akteurs zu analysieren.
 
 Ein Jongleur wirft Jonglierbälle in einem Muster, das möglichst gleichmäßig ist.
 So ist der Höhepunkt der Flugbahn idealerweise konstant auf der gleichen Höhe.
@@ -135,13 +135,107 @@ FIXME: Erklären wie das mit diesem projizierten Punktemuster funktioniert.
 
 \section{Recherche: Ein jonglierender Roboter} 
 
-(paper...)
+Im Vorfeld der ersten eigenen Implementierungsversuche sind wir bei der 
+Paper-Recherche auf eine Arbeit von FIXME gestoßen, die zumindest in Teilen
+eine ähnliche Aufgabenstellung verfolgte. Unter dem Titel "Playing catch and juggling 
+with a humanoid robot" untersuchte die Gruppe des Disney Research Center (FIXME)
+einen humaoiden Roboter, der auf ihn zugeworfene Bälle fangen und zurückwerfen soll.
+In der Entwicklung dieses Systems war ein Teil der Gesamtaufgabe ein 
+bild- und tiefendatenverarbeitendes System, das mit einer der Kinect sehr ähnlichen
+Kamera arbeitete.
+
+Kernidee dieses Systems war eine \textit{Image Processing Pipeline}, also eine
+Kette von Verarbeitungsschritten, die als Eingabe eine Folge von RGB- und Tiefendaten
+nahm und als Ausgabe die aktuelle Position und zukünftige berechnete Flugbahn 
+liefern. 
+
+FIXME: Processing Pipeline
+
+Die gelöste Aufgabe in dieser Arbeit ist also von der Grundidee her also eine ganz
+ähnliche, weshalb wir den Grundaufbau der Verarbeitungsschritte auch in unserem 
+Vorgehen übernehmen wollten. Wie wir im Laufe der Programmierung aber feststellten,
+hatte die Arbeit einige Rahmenbedingungen anders gesetzt, so dass wir auf Probleme 
+stießen, die sich in der Arbeit mit dem Roboter offensichtlich nicht so deutlich
+gezeigt haben.
+
+Hierbei ist zuerst zu nennen, dass die betrachteten Bälle bei uns sehr viel kleiner
+waren, da wir einen tatsächlich jonglierenden Menschen betrachtet haben. In der
+Arbeit mit dem Roboter wurden sehr große Bälle verwendet, die von den werfenden
+Menschen mit beiden Händen gehalten und geworfen wurden.
+
+Hierdurch ergeben sich auch längere Wurfbahnen, die tendenziell auch weiter 
+auseinander liegen. Wie später in der Arbeit zu sehen sein wird, ist das normale
+Jongliermuster mit zwei Händen teilweise so klein, dass es schwer wird, dicht 
+aneinander vorbei fliegende Bälle voneinander zu unterscheiden.
+
+Zusätzlich wurde in der Arbeit mit dem Roboter auf verschiedenfarbige Bälle 
+zugegriffen, um diese voneinander zu unterscheiden. Dies ist eine Rahmenbedingung,
+die wir so nicht wählen wollten, da die RGB-Werte, die die Kinect liefert, sehr stark 
+von den Beleuchtungsbedingungen abhängen und bei den verschwischten Objekten, wie
+wir sie in den Kinect-Aufnahmen sehen, keine robuste Erkennung zu ermöglichen 
+versprechen.
+
 
 \section{Lösungsidee}
 
 image Processing Pipeline
 
 \section{Umsetzung}
+
+\subsection{Programmstruktur}
+
+Die ersten Tests, die wir mit der Kinect und bildverarbeitenden Verfahren 
+ausprobiert haben, bestanden aus wenigen Schritten und wurden in einer
+simplen Schleife gelöst, die bei Druck der ESC Taste verlassen wurde. Zu Beginn
+eines Schleifendurchlaufes wird ein neuer RGB Frame und die zugehörigen 
+Tiefendaten geholt. Danach folgt schrittweise Verarbeitung dieser Daten je nach 
+gewünschtem Zweck. 
+
+FIXME: Einfacher Programmablauf, Blockdiagramm? Nur wenn wir noch Platz brauchen
+
+Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene 
+Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
+Parametrisierung finden mussten. Wir haben uns für ein Konzept von Filtern 
+entschieden, wobei zu Programmstart eine Liste mit gewünschten Filtern erstellt
+wird und diese in der Hauptschleife nacheinander ausgeführt werden (die Originaldaten
+werden also in den ersten Filter gegeben, das Ergebnis dieses Filters wird als 
+Eingabe für den zweiten Filter verwendet und das Ergebnis des letzten Filters
+in der Liste wird dann als Gesamtausgabe visuell dargestellt.
+
+Die RGB- und Tiefendaten werden vom freenect Modul als numpy Arrays zurückgegeben.
+Die Ausgabe erfolgt über ein von OpenCV erzeugtes Fenster, welches Daten für 
+OpenCV erwartet. Die numpy Arrays müssen also an einer Stelle umgewandelt werden.
+Zusätzlich haben wir schnell festgestellt, dass einige gewünschte Operationen 
+entweder nur in numpy oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches 
+Umwandeln von einem Format in das jeweils andere ist aus Performanz-Gründen 
+natürlich zu vermeiden. Um in der Entwicklung nicht immer darauf achten zu müssen,
+welcher Filter welche Eingabe erwartet und welche Ausgabe liefert, haben wir uns dazu
+entschieden, jeden Filter als Eingabe Daten in numpy Darstellung zu liefern und auch
+für die Ausgabe numpy zu erwarten. Dies erlaubt uns eine von außen identische 
+Betrachtung der Filter, auch wenn einige Filter intern eine Umwandlung durchführen 
+müssen. Bei etwaigen Problemen wollten wir die Performanz unserer Lösung getrennt
+betrachten, um zu Beginn lediglich über eine funktionierende Lösung nachdenken
+zu müssen.
+
+Waren die Filter ursprünglich als isolierte Einheiten mit simplem 
+Input-Output-Verhalten von Bild- bzw. Tiefendaten gedacht, fiel uns schnell auf,
+dass einige Filter Zusatzinformationen liefern, die von anderen Filtern gebraucht 
+werden. Um Filter nicht intern Unteraufrufe von von anderen Filtern oder Komponenten
+ausführen zu lassen (dies wäre ebenfalls eine denkbare Lösung), entschieden wir uns
+für ein Objekt, das von der Hauptkomponente des Programms in jeden Filter 
+hineingereicht wird und in dem jeder Filter Informationen ablegen und abfragen kann.
+Natürlich ist dies abhängig von der Reihenfolge der Filter und einige Filter haben 
+als implizite Vorbedingung, dass andere Filter bereits ausgeführt wurden, dies haben
+wir der Einfachheit halber aber nicht expliziert formuliert, im Zweifelsfall wird 
+beim ersten Ausführen einer nicht korrekten Filterkombination oder -reihenfolge ein
+Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht 
+vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
+
+
+FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)
+
+FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen
+
 
 \subsection{Programmfluss}
 
