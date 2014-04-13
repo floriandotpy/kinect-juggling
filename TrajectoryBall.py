@@ -5,14 +5,26 @@ class TrajectoryBall(object):
         # remember older positions
         self.positions = []
 
-        (x1, y1), (x2, y2) = lowerPoint, upperPoint
-
         # meta data (like rects that created this ball)
         self.meta = meta
 
         # for drawing
         self.radius = 10
         self.colour = getcolour()
+
+        # gravity, positive because y is upside-down
+        self.gravity = 9.81 * 0.5
+
+        self._initTrajectory(lowerPoint, upperPoint)
+
+        # initial position
+        self.position = None
+        self.step()
+        self.firstPosition = self.position
+
+    def _initTrajectory(self, lowerPoint, upperPoint):
+        # unpack
+        (x1, y1), (x2, y2) = lowerPoint, upperPoint
 
         # speed in x and y direction
         self.v_x = x2 - x1
@@ -28,16 +40,9 @@ class TrajectoryBall(object):
         self.xOffset = x1
         self.yOffset = y1
 
-        # gravity, positive because y is upside-down
-        self.gravity = 9.81 * 0.5
-
         # progress of the trajectory
         self.t = 0
 
-        # initial position
-        self.position = None
-        self.step()
-        self.firstPosition = self.position
 
     def futurePosition(self):
         return self._trajectory(self.t+1)
@@ -54,6 +59,24 @@ class TrajectoryBall(object):
         y   = self.v_y * t + self.gravity/2 * t**2 + self.yOffset
 
         return int(x), int(y)
+
+    def matches(self, position):
+        """determine whether the predicted position could match a
+        given data point"""
+
+        position = position['position']
+        predictedPos = self._trajectory(self.t+1)
+        distance_x = abs(predictedPos[0] - position[0])
+        distance_y = abs(predictedPos[1] - position[1])
+        distance = (distance_x**2 + distance_y**2)**0.5
+
+        return distance < 20
+
+    def update(self, position_raw):
+        position = position_raw['position']
+        self._initTrajectory(self.position, position)
+        self.position = position
+
 
     def step(self):
         if self.position:
@@ -91,14 +114,20 @@ class TrajectoryBallCollection(object):
 
     def addPositions(self, positions=[]):
 
+        # remember last frame before using current frame
         if len(self.lastFrame) == 0:
             self.lastFrame = positions
             return
 
-        # self.frameQueue.push(positions)
-        # self.lastFrame = self.frameQueue.fetch(-1)
-        # self.lastLastFrame = self.frameQueue.fetch(-2)
+        # update existing balls if possible
+        for ball in self.balls:
+            for pos in positions:
+                if ball.matches(pos):
+                    print "match!"
+                    positions.remove(pos)
+                    ball.update(pos)
 
+        # launch new balls
         for oldPos in self.lastFrame:
             for newPos in positions:
                 oldX, oldY = oldPos['position']
