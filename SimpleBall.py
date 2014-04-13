@@ -1,18 +1,10 @@
 # tmp
 import cv
 import numpy as np
-import random
-colours = [cv.RGB(0, 0, 255), cv.RGB(0, 255, 0), cv.RGB(255, 0, 0), cv.RGB(0, 255, 255), cv.RGB(255, 0, 255)]
-def getcolour():
-    # temp fix: only one ball colour
-    #return cv.RGB(255, 255, 255)
-    try:
-        return random.choice(colours)
-    except:
-        return cv.RGB(255, 255, 255)
+from Util import getcolour
 
 
-class Ball(object):
+class SimpleBall(object):
     """docstring for Ball"""
     def __init__(self, position, radius=10, meta=None):
         self.colour = getcolour()
@@ -87,7 +79,7 @@ class Ball(object):
         return "Ball at %d/%d" % self.position
 
 
-class BallCollection(object):
+class SimpleBallCollection(object):
     def __init__(self):
         self.balls = []
 
@@ -115,7 +107,7 @@ class BallCollection(object):
             if len(ball_list) != 3:
                 return
             for ball in ball_list:
-                self.balls.append(Ball(ball['position'], radius=ball['radius']))
+                self.balls.append(SimpleBall(ball['position'], radius=ball['radius']))
             print str(len(self.balls)) + " balls"
         else: # find the right ball to update
 
@@ -143,134 +135,4 @@ class BallCollection(object):
                     ball.updatePosition(ball.position, ball.radius)
                 ball.updatedAlready = False
 
-class TrajectoryBall(object):
-    def __init__(self, lowerPoint, upperPoint, meta=None):
-        # remember older positions
-        self.positions = []
-
-        (x1, y1), (x2, y2) = lowerPoint, upperPoint
-
-        # meta data (like rects that created this ball)
-        self.meta = meta
-
-        # for drawing
-        self.radius = 10
-        self.colour = getcolour()
-
-        # speed in x and y direction
-        self.v_x = x2 - x1
-        self.v_y = y2 - y1
-
-        # why is the calculated speed too fast? need to correct it here
-        # self.v_x *= 0.5
-        self.v_y *= 0.8
-
-        # start trajectory in center of the two points we are based on
-        self.xOffset = (x2 + x1) / 2
-        self.yOffset = (y2 + y1) / 2
-        self.xOffset = x1
-        self.yOffset = y1
-
-        # gravity, positive because y is upside-down
-        self.gravity = 9.81 * 0.5
-
-        # progress of the trajectory
-        self.t = 0
-
-        # initial position
-        self.position = None
-        self.step()
-        self.firstPosition = self.position
-
-    def futurePosition(self):
-        return self._trajectory(self.t+1)
-
-    def directionVector(self):
-        return (0,0)
-
-    def _trajectory(self, t=1):
-        """Calculate the throw trajectory based on 2 points
-        to return any future or past point on that trajectory"""
-
-        # distance in x and y direction
-        x   = self.v_x * t + self.xOffset
-        y   = self.v_y * t + self.gravity/2 * t**2 + self.yOffset
-
-        return int(x), int(y)
-
-    def step(self):
-        if self.position:
-            self.positions.append(self.position)
-        self.position = self._trajectory(self.t)
-        self.t += 1
-
-
-class FrameQueue(object):
-    """docstring for FrameQueue"""
-    def __init__(self, length=10):
-        super(FrameQueue, self).__init__()
-        self.length = length
-        self._queue = [[] for _ in xrange(self.length)]
-        self.i = 0
-
-    def push(self, frame):
-        self._queue[self.i] = frame
-        self.i = (self.i + 1) % self.length
-
-    def fetch(self, n=0):
-        """Fetch an older frame, n=-1 for the last frame, n=-2 for
-        the second-to-last frame etc. Do not use n>0 for future frames."""
-        if n < -1*self.length:
-            raise IndexError("You cannot go further back in time. Possible: %d, Requested: %d" % (-1*self.length, n))
-        return self._queue[n]
-
-
-class TrajectoryBallCollection(object):
-    def __init__(self):
-        self.positions = []
-        self.balls = []
-        # self.frameQueue = FrameQueue(length=10)
-        self.lastFrame = []
-
-    def addPositions(self, positions=[]):
-
-        if len(self.lastFrame) == 0:
-            self.lastFrame = positions
-            return
-
-        # self.frameQueue.push(positions)
-        # self.lastFrame = self.frameQueue.fetch(-1)
-        # self.lastLastFrame = self.frameQueue.fetch(-2)
-
-        for oldPos in self.lastFrame:
-            for newPos in positions:
-                oldX, oldY = oldPos['position']
-                newX, newY = newPos['position']
-
-                isAbove = newY < oldY - 5
-                # isAbove = True
-                isNotTooHigh = abs(newY - oldY) < 60
-                isCloseX = abs(newX - oldX) < 30
-                midX = 351 # FIXME: dynamic calculation (mid point between outermost rects)
-                isInward = (oldX < newX and oldX < midX) or (oldX > newX and oldX > midX)
-
-                # if isAbove and isCloseX and isNotTooHigh and isInward:
-                if isAbove and isCloseX and isNotTooHigh:
-                    # upwards movement!
-                    self.launchTrajectory(oldPos['position'], newPos['position'], meta={'old': oldPos, 'new': newPos})
-
-        # move balls
-        self.step()
-
-    def launchTrajectory(self, lowerPoint, upperPoint, meta=None):
-        ball = TrajectoryBall(lowerPoint, upperPoint, meta=meta)
-        self.balls.append(ball)
-
-    def step(self):
-        for ball in self.balls:
-            ball.step()
-            if ball.t > 25:
-                self.balls.remove(ball)
-            # if ball.position[1] > 380 or not -200 < ball.position[0] < 840:
-            #     self.balls.remove(ball)
 

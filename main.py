@@ -22,8 +22,9 @@ from TemporalFilter import TemporalFilter
 from DrawBallsFilter import DrawBallsFilter
 from SlowmotionFilter import SlowmotionFilter
 from RgbDepthFilter import RgbDepthFilter
-from Ball import BallCollection
-from Ball import TrajectoryBallCollection
+from SimpleBall import SimpleBallCollection
+from TrajectoryBall import TrajectoryBallCollection
+from MinimalBall import MinimalBallCollection
 from KalmanFilter import KalmanFilter
 from DummyBallFilter import DummyBallFilter
 import imgtools
@@ -45,7 +46,12 @@ class Kinector(object):
             self.buffer = None
 
 
-        self.ballcollection = TrajectoryBallCollection() if 'trajectory' in args else BallCollection()
+        if 'trajectory' in args:
+            self.ballcollection = TrajectoryBallCollection()
+        elif 'minimal' in args:
+            self.ballcollection = MinimalBallCollection()
+        else:
+            self.ballcollection = SimpleBallCollection()
 
         # init filters
         self.filters = []
