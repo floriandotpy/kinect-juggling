@@ -28,6 +28,23 @@
   {\normalfont\normalsize\bfseries}}
 \makeatother
 
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{listings}
+\lstset{
+    backgroundcolor=\color[rgb]{0.95,0.95,0.95},
+    columns=flexible, 
+    numbers=left, 
+    numbersep=5pt, 
+    numberstyle=\scriptsize, 
+    basicstyle=\ttfamily\footnotesize,
+    captionpos=b,
+    keywordstyle=\color{Mahogany},
+    commentstyle=\color[rgb]{0.133,0.545,0.133},
+    stringstyle=\color{MidnightBlue},
+    breaklines=true,
+    frame=shadowbox,
+    rulesepcolor=\color[rgb]{0.7,0.7,0.7} % color of box-shadow
+}
 
 \usepackage{xcolor}
 
@@ -35,7 +52,7 @@
 \usepackage{parskip}
 %\usepackage[none]{hyphenat}
 
-\include{pythonlisting}
+
 
 \begin{document}
 
@@ -44,7 +61,7 @@
 \vspace*{3 cm}
 
 \begin{flushright}
-%\bfseries{\Huge\scshape Automatische\\Passbildausrichtung\\{\Large mit Hilfe des}\\Viola-Jones-Algorithmus\\}
+
 \bfseries{\Huge\scshape Jonglieren mit der Kinect\\{\Large ein Softwareprojekt im}\\Projekt Bildverarbeitung}
 \end{flushright}
 
@@ -251,29 +268,105 @@ A. keine Objekte auf Tiefenebene zwischen Spieler und Kinect, auch nicht am Rand
 
 B. Mit temporalem Filtering sich bewegende Regionen isolieren. Erlaubt auch störende Objekte wie Stühle am Rand, Erfahrung aber nicht so gut, da das Verfahren bei schneller Bewegung (Ballwurf) nicht zuverlässig ist. Außerdem Probleme mit unscharfen Objekträndern und Rauschen. Außerdem technische Hürden (Vigra als weitere Abhängigkeit).
 
-Bewertung: Ansatz A völlig ausreichend für unsere Zwecke. Einschränkung der Spielerpositition nicht störend, da dies sogar interkativ durchgeführt werden (so lange nach vorne gehen, bis System vernünftige Werte liefert - kein aufwändiges Abmessen nötig).
+Bewertung: Ansatz A völlig ausreichend für unsere Zwecke. Einschränkung der Spielerposition nicht störend, da dies sogar interaktiv durchgeführt werden (so lange nach vorne gehen, bis System vernünftige Werte liefert - kein aufwändiges Abmessen nötig).
 
 \subsubsection{Schritt 3: Bälle in Frame-Folgen einander zuordnen}
 
-Kurze Vorverarbeitung: Rechtecke erkennen aus binarisiertem Bild. Annahme: der Mittelpunkt jedes Rechtecks ist ein Kandidat für eine Ballposition. Die Ausdehnung und somit der Ballradius werden vorerst ignoriert.
+Bevor potentielle Ballpositionen konkreten Ball-Instanzen zugeordnet werden, findet eine kurze Vorverarbeitung statt, bei der Regionen im binarisierten Ergebnis des vorherigen Schrittes als Rechtecke umzeichnet werden, wofür einfach die OpenCV-Funktion \lstinline{cv.BoundingRect} verwendet wird, die genau diese Aufgabe erfüllt.
+Kleine Rechtecke und solche, die den Bildrahmen berühren, werden hierbei bereits herausgefiltert.
+
+Durch die resultierende Liste von Rechtecken wird iteriert und jeder 
+Rechteckmittelpunkt als mögliche Ballposition aufgefasst (die kürzere Rechteckskante
+wird vorerst als Balldurchmesser gespeichert, vorerst aber ignoriert). 
+
+\begin{lstlisting}[language=Python,caption={RectsFilter.py, Ausschnitt}]
+# ...
+
+        storage = cv.CreateMemStorage(0)
+        contour = cv.FindContours(depth_cv, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
+        points = []
+
+        ball_list = [] # collect ballpositions in loop
+        while contour:
+            x,y,w,h = cv.BoundingRect(list(contour))
+            contour = contour.h_next()
+
+            # filter out small and border touching rectangles
+            t = 2 # tolerance threshold
+            minsize = 5
+            if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
+                x -= 5
+                y -= 5
+                w += 10
+                h += 10
+                x, y = self._nullify(x), self._nullify(y) # why is this necessary now?
+
+                ball_center = (x+w/2, y+h/2)
+                ball_radius = min(w/2, h/2)
+                ball_list.append(dict(position=ball_center, radius=ball_radius))
+
+                # Draw rectancle with info
+                cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
+                cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
+
+        args['balls'].addPositions(ball_list)
+\end{lstlisting}
+
+Es liegt nun
+für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich 
+zusammen aus tatsächlichen Ballpositionen, Positionen in denen sich die Hände befassen sowie potentiell weiteren Hindernissen im Sichtfeld der Kinect, wobei wir diese in unseren Testdaten vermeiden haben. Bei den tatsächlichen Ballpositionen ist zu beachten, dass diese etwas ungenau sind und mit mehreren Pixeln vom tatsächlichen Ballmittelpunkt abweichen können.
+
+% FIXME: label etc
+\includegraphics[scale=0.5]{img/rects-1.png}
+
+\includegraphics[scale=0.5]{img/rects-2.png}
+
+\includegraphics[scale=0.5]{img/rects-3.png}
+
+\includegraphics[scale=0.5]{img/rects-4.png}
+
+Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiellen
+Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames 
+hinweg eine neue Position einem bestehenden Ball zuordnen soll.
 
 Dies ist der aufwändigste Schritt wie sich herausgestellt hat, zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben.
 
-Erste Idee: Regionen mit Tiefenbild bestimmen, tatsächliche Bälle von Händen etc unterscheiden, indem Kreise in den RGB Bildern gesucht werden. Dies war aber rechenaufwändig und wegen Bewegungsunschärfe sehr unzuverlässig (auch noch unterschiedlich stark je nach Fortschritt des Ballwurfs).
+Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine 
+Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die 
+Implementierung einer Hough-Transformation, mit der wir auch begonnen haben.
+Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl der 
+Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele false-positives
+erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle 
+während des Fluges. Bei Betrachtung der Beispielaufnahmen (siehe oben) wird auch 
+deutlich, dass eine vermutete Position teilweise ein deutlich von der tatsächlichen
+Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen Gewinn 
+ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- udn 
+Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu 
+stützen.
 
-Problemquellen: 
+Aber auch für die reine Berücksichtigung der Tiefendaten haben wir während des 
+Projektablaufes mehrere Problemquellen identifizieren können, die die verschiedenen 
+Ansätze unterschiedlich stark beeinflussen:
 
 \begin{itemize}
  \item Hände sind auch als Rechtecke enthalten 
  \item Bälle fliegen sehr nah, teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes zu sehen ist und als eine mögliche Ballposition untersucht wird
  \item Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange Strecken zurück, teilweise sehr große (Pixelanzahl angeben?) 
  \item Mindestabstand zur Kinect resultiert in kleinem Jongliermuster, das verstärkt die problematischen Faktoren
- \item teilweise fehlt eine Region in einem erkannten Frame
+ \item Teilweise fehlt eine Region in einem erkannten Frame
 \end{itemize}
  
-Ansätze:
- 
-Konsumierende Ansätze, feste Ballanzahl:
+Diese Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
+uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
+in zwei Gruppen unterteilen, in die erste Gruppe, bei der von vorneherein von einer
+festen Ballanzahl ausgegangen wird und die zweiter Gruppe, der bei dynamisch auch wechselnde Ballanzahlen erlaubt sind.
+
+
+Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
+zu jeder bereits existierenden Ballinstanz eine Position aus den erkannten Rechtecken
+auszuwählen, welche als neue Position des Balls erkannt wird. Da im Allgemeinen nie
+zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet, wir nennen die folgenden Ansätze daher
+auch \textit{konsumierende Ansätze}. FIXME: das ist falsch, konsumierend $\neq$ feste Ballanzahl.
  
  \begin{enumerate}
  \item Nächste Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegung und nah aneinander fliegender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt -> Beachtung von "springenden" Bällen.
@@ -281,10 +374,14 @@ Konsumierende Ansätze, feste Ballanzahl:
  \item Verbesserung: Nicht linear, sondern Flugbahn vorberechnen. Linearer Bewegungsvektor wird als Tangente an Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochtmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
   \end{enumerate}
   
-Nicht konsumierende Ansätze, variable Ballanzahl:
+  
+Im Gegensatz dazu sind die folgenden nicht konsumierende Ansätze zu sehen, bei denen
+wir auch eine variable Ballanzahl erlauben. FIXME: das ist falsch, siehe oben
   
 \begin{enumerate}
 	\item wenn langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
+	\item wie Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern
+	aus den letzten 3 Frames berechnet mit \lstinline{np.polyfit}.
 \end{enumerate}
 
 
@@ -358,6 +455,14 @@ IMM-M.Sc.: ISBN 87-643-0008-0 \qquad ISSN 1601-233X\\
 Technical University of Denmark, Informatics and Mathematical Modelling\\
 Kongens Lyngby, Denmark, 2008.\\
 \url{http://www.imm.dtu.dk/English/Research/Image_Analysis_and_Computer_Graphics/Publications.aspx?lg=showcommon&id=223656}
+
+\bibitem{kober}
+Jens Kober$^{1}$, Matthew Glisson, and Michael Mistry$^{2}$,\\
+{\em Playing Catch and Juggling with a Humanoid Robot}.\\
+Disney Research, Pittsburgh, USA,\\
+$^{1}$ Bielefeld University, Germany,\\
+$^{2}$ University of Birmingham, UK\\
+FIXME.
 
 \end{thebibliography}
 
