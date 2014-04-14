@@ -24,6 +24,7 @@ from SlowmotionFilter import SlowmotionFilter
 from RgbDepthFilter import RgbDepthFilter
 from SimpleBall import SimpleBallCollection
 from TrajectoryBall import TrajectoryBallCollection
+from PreciseTrajectoryBall import PreciseTrajectoryBallCollection
 from MinimalBall import MinimalBallCollection
 from KalmanFilter import KalmanFilter
 from DummyBallFilter import DummyBallFilter
@@ -48,6 +49,8 @@ class Kinector(object):
 
         if 'trajectory' in args:
             self.ballcollection = TrajectoryBallCollection()
+        elif 'precise' in args:
+            self.ballcollection = PreciseTrajectoryBallCollection()
         elif 'minimal' in args:
             self.ballcollection = MinimalBallCollection()
         else:
