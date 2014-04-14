@@ -13,11 +13,13 @@ class RectsFilter(object):
         self.font = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
 
 
-    def nullify(self, i):
+    def _nullify(self, i):
         return i if i > 0 else 0
 
     def filter(self, rgb, depth, args = {}):
 
+        # custom depth input (from CutOffFilter)
+        # I think this is so that we do not destroy the original depth. rubbish?
         if 'depth_out' in args:
             my_depth = args['depth_out']
 
@@ -29,7 +31,6 @@ class RectsFilter(object):
         contour = cv.FindContours(depth_cv, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
         points = []
 
-        rectcount = 0
         ball_list = [] # collect ballpositions in loop
         while contour:
             x,y,w,h = cv.BoundingRect(list(contour))
@@ -39,32 +40,21 @@ class RectsFilter(object):
             t = 2 # tolerance threshold
             minsize = 5
             if x > t and y > t and x+w < self.WIDTH - t and y+h < self.HEIGHT - t and w > minsize and h > minsize:
-            # if True:
-                rectcount += 1
-                # draw rect
                 x -= 5
                 y -= 5
                 w += 10
                 h += 10
-                x, y = self.nullify(x), self.nullify(y) # why is this necessary now?
-
+                x, y = self._nullify(x), self._nullify(y) # why is this necessary now?
 
                 ball_center = (x+w/2, y+h/2)
                 ball_radius = min(w/2, h/2)
-                # if x>170: # FIXME: this only removes the annoying noise rects in the dummy data (bottom left corner)
                 ball_list.append(dict(position=ball_center, radius=ball_radius))
+
+                # Draw rectancle with info
                 cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
                 cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
-                # circles = self.findHoughCircles(rgb_cv[y:y+h, x:x+w])
-                # if len(circles) > 1:
-                #     circles = circles[:1] # only the first circle for now
-                # for circle_x, circle_y, r in circles:
-                #     if 0 < circle_x-r and circle_x+r < w and 0 < circle_y-r and circle_y+r<h:
-                #         cv.Circle(rgb_cv, (x+int(circle_x), int(y+circle_y)), int(r), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
+
         args['balls'].addPositions(ball_list)
-        f = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
-        cv.PutText(rgb_cv, 'Rect/ball:', (20, 20), f, (255, 255, 255))
-        cv.PutText(rgb_cv, "%s / %s" % (str(rectcount), len(ball_list)) , (50 + rectcount * 15, 20), f, (0, 0, 0))
 
         # and back to numpy with this...
         rgb = np.copy(rgb_cv)[:,:,::-1]

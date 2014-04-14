@@ -71,6 +71,8 @@ class Kinector(object):
             self.filters.append(CannyFilter())
         if 'cutoff' in args:
             self.filters.append(CutOffFilter())
+        if 'drawrects' in args:
+            self.filters.append(RectsFilter())
         if 'detectball' in args:
             self.filters.append(RectsFilter())
             self.filters.append(DrawBallsFilter())
