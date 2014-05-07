@@ -10,12 +10,17 @@ class DrawBallsFilter(object):
     def filter(self, rgb, depth, args={}):
         rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
 
+        # draw line (center of juggling pattern)
+        centerX = args['centerX']
+        cv.Line(rgb_cv, (centerX, 0), (centerX, 480), (200,200,200), thickness=2, lineType=8, shift=0)
+
+
         # draw hands
         if 'hands' in args:
             leftHand = args['hands'].left
             rightHand = args['hands'].right
             for hand in (leftHand, rightHand):
-                cv.Circle(rgb_cv, (hand.x, hand.y), 40, (128, 255, 255), thickness=-1, lineType=8, shift=0)
+                cv.Circle(rgb_cv, (hand.x, hand.y), 15, (128, 255, 255), thickness=-1, lineType=8, shift=0)
 
 
         # draw balls

@@ -54,8 +54,9 @@ class RectsFilter(object):
                 cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
                 cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
 
-        args['hands'].addPositions(ball_list)
-        args['balls'].addPositions(ball_list)
+        # update hands, remember the unused positions
+        args['only_balls'] = args['hands'].addPositions(ball_list, args)
+        args['balls'].addPositions(ball_list, args)
 
         # and back to numpy with this...
         rgb = np.copy(rgb_cv)[:,:,::-1]

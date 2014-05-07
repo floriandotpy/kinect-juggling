@@ -112,7 +112,11 @@ class TrajectoryBallCollection(object):
         # self.frameQueue = FrameQueue(length=10)
         self.lastFrame = []
 
-    def addPositions(self, positions=[]):
+    def addPositions(self, positions=[], args={}):
+        self.lastFrame = positions
+
+        # forget positions that are known to be hands
+        positions = args['only_balls']
 
         # remember last frame before using current frame
         if len(self.lastFrame) == 0:
@@ -120,12 +124,12 @@ class TrajectoryBallCollection(object):
             return
 
         # update existing balls if possible
-        for ball in self.balls:
-            for pos in positions:
-                if ball.matches(pos):
-                    print "match!"
-                    positions.remove(pos)
-                    ball.update(pos)
+        # for ball in self.balls:
+        #     for pos in positions:
+        #         if ball.matches(pos):
+        #             print "match!"
+        #             positions.remove(pos)
+        #             ball.update(pos)
 
         # launch new balls
         for oldPos in self.lastFrame:
@@ -133,16 +137,15 @@ class TrajectoryBallCollection(object):
                 oldX, oldY = oldPos['position']
                 newX, newY = newPos['position']
 
-                isAbove = newY < oldY - 5
+                isAbove = newY < oldY
                 # isAbove = True
                 isNotTooHigh = abs(newY - oldY) < 60
                 isCloseX = abs(newX - oldX) < 30
-                midX = 351 # FIXME: dynamic calculation (mid point between outermost rects)
+                midX = args['centerX'] # FIXME: dynamic calculation (mid point between outermost rects)
                 isInward = (oldX < newX and oldX < midX) or (oldX > newX and oldX > midX)
 
-                # if isAbove and isCloseX and isNotTooHigh and isInward:
                 if isAbove and isCloseX and isNotTooHigh:
-                    # upwards movement!
+                # upwards movement!
                     self.launchTrajectory(oldPos['position'], newPos['position'], meta={'old': oldPos, 'new': newPos})
 
         # move balls

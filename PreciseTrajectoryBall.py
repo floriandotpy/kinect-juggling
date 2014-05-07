@@ -85,7 +85,7 @@ class PreciseTrajectoryBallCollection(object):
         self.lastFrame = []
         self.frames = [] # remember old frames
 
-    def addPositions(self, positions=[]):
+    def addPositions(self, positions=[], args={}):
 
         # remember up to 10 frames, keep order
         if len(self.frames) >= 10:

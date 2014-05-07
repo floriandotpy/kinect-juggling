@@ -25,20 +25,34 @@ class HandCollection(object):
         self.right = Hand((200, 200))
         self.isFirstStep = True
 
-    def addPositions(self, ball_positions):
-        positions = [b['position'] for b in ball_positions]
-        centerX = 360
+    def addPositions(self, ball_positions, args):
+        # use a copy
+        positions = list(ball_positions)
 
-        allLeft = filter(lambda p: p[0] <= centerX, positions)
-        if len(allLeft) > 0:
-            lowestLeft = sorted(allLeft, key=lambda p: -1*p[1])[0]
-            if self.isFirstStep or self.left.isClose(lowestLeft):
-                self.left.update(lowestLeft)
+        # determine center of juggling pattern
+        if len(positions) > 0:
+            centerX = sum([b['position'][0] for b in positions]) / len(positions)
+        else:
+            centerX = 320
+        args['centerX'] = centerX
 
-        allRight = filter(lambda p: p[0] > centerX, positions)
-        if len(allRight) > 0:
-            lowestRight = sorted(allRight, key=lambda p: -1*p[1])[0]
-            if self.isFirstStep or self.right.isClose(lowestRight):
-                self.right.update(lowestRight)
+        handProps = [(self.left, lambda p: p['position'][0] <= centerX),
+            (self.right, lambda p: p['position'][0] > centerX)]
+
+        for hand, filterKey in handProps:
+            # filter in right and left positions
+            filtered = filter(filterKey, positions)
+            if len(filtered) > 0:
+                lowest = sorted(filtered, key=lambda p: -1*p['position'][1])[0]
+                lowestPosition = lowest['position']
+                # if self.isFirstStep or hand.isClose(lowestPosition):
+
+                hand.update(lowestPosition)
+                positions.remove(lowest)
 
         self.isFirstStep = False
+
+        # return without the positions used to update the hands
+        return positions
+
+

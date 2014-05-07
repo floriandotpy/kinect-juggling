@@ -40,7 +40,7 @@ class MinimalBallCollection(object):
     def __init__(self):
         self.balls = []
 
-    def addPositions(self, ball_list):
+    def addPositions(self, ball_list, args={}):
 
         # first call?
         if not len(self.balls):
