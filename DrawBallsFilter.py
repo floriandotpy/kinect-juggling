@@ -10,6 +10,15 @@ class DrawBallsFilter(object):
     def filter(self, rgb, depth, args={}):
         rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
 
+        # draw hands
+        if 'hands' in args:
+            leftHand = args['hands'].left
+            rightHand = args['hands'].right
+            for hand in (leftHand, rightHand):
+                cv.Circle(rgb_cv, (hand.x, hand.y), 40, (128, 255, 255), thickness=-1, lineType=8, shift=0)
+
+
+        # draw balls
         balls = args['balls'].balls
         for ball in balls:
             cv.Circle(rgb_cv, ball.position, ball.radius, ball.colour, thickness=-1, lineType=8, shift=0)

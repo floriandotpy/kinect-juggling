@@ -28,6 +28,7 @@ from PreciseTrajectoryBall import PreciseTrajectoryBallCollection
 from MinimalBall import MinimalBallCollection
 from KalmanFilter import KalmanFilter
 from DummyBallFilter import DummyBallFilter
+from HandTracking import HandCollection
 import imgtools
 
 
@@ -46,7 +47,10 @@ class Kinector(object):
         else:
             self.buffer = None
 
+        # track hands
+        self.hands = HandCollection()
 
+        # detected balls are collected
         if 'trajectory' in args:
             self.ballcollection = TrajectoryBallCollection()
         elif 'precise' in args:
@@ -118,7 +122,9 @@ class Kinector(object):
         args = {}
 
         # where we will collect our balls
+        # FIXME: needed in each step?
         args['balls'] = self.ballcollection
+        args['hands'] = self.hands
 
         if self.buffer:
             self.buffer.add(depth)
