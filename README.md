@@ -1,9 +1,7 @@
-Bildverarbeitung
+kinect-juggling
 ================
 
-Collected code samples for a university project in computer graphics and image
-processing, mainly working with the Kinect. For now this is just demo code
-until we start working on something serious.
+Realtime tracking of juggling objects using the depth information of the Microsoft Kinect. This is the Result - well, work in progress - of a university project in computer graphics and image processing. 
 
 Requirements
 ===
@@ -22,12 +20,13 @@ Run it
 * Then just run `python <script>` for whatever script you like. Well, right now there's just one.
 * By default, you'll want to `python main.py --detectball --cutoff  --simplehand --dummymode`
 
+Current state
+===
+
+Ball detection and tracking works pretty well.
+
 TODO / Ideas
 ===
 
-* Filter potential ball positions to only include circular shapes 
- in depth image. 
- Demo*: `python main.py --cutoff--dummymode --showdepth --slowmotion`
- Pretty sure hands can already be filtered in most positions (not all, but that is okay)
- In Code: `RectsFilter.py:51` `ball_list.append(dict(position=ball_center, radius=ball_radius))` only execute this, if the detected shape is kind of circular
-* there MUST be a bug in `TrajectoryBall.py` - the idea should work better than it does right now. Find this!
+* be more robust about the position of the juggler (in particular with regards to distance from the Kinect)
+* use the tracking data for more information: count objects, analyse tossing height, detect actual juggling pattern (siteswaps?)
