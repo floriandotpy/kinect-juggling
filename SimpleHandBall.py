@@ -1,5 +1,6 @@
 # tmp
 import cv
+import math
 import numpy as np
 from Util import getcolour
 
@@ -83,6 +84,7 @@ class SimpleHandBall(object):
 class SimpleHandBallCollection(object):
     def __init__(self):
         self.balls = []
+        self.ballcounter = BallCounter()
 
     def addPositions(self, ball_list=[], args={}):
 
@@ -104,5 +106,19 @@ class SimpleHandBallCollection(object):
         for ball in ball_list:
             self.balls.append(SimpleHandBall(ball['position'], radius=ball['radius']))
 
+        self.ballcounter.update(self.balls)
+        args['ballcounter'] = self.ballcounter
 
 
+class BallCounter(object):
+    """docstring for BallCount"""
+    def __init__(self):
+        self.count = None
+        self.last = []
+        self.length = 8 # how many frames to analyse
+
+    def update(self, balls):
+        self.last.append(len(balls))
+        if len(self.last) > self.length:
+            self.count = sum(self.last[::-1][:self.length]) / (self.length*1.0)
+            self.count = int(math.ceil(self.count)) + 1

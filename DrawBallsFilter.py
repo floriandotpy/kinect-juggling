@@ -50,6 +50,11 @@ class DrawBallsFilter(object):
             # direction = ball.directionVector()
             # cv.Line(rgb_cv, ball.position, (ball.position[0]-direction[0], ball.position[1]-direction[1]), ball.colour, thickness=3, lineType=8, shift=0)
 
+        # balls counter
+        if args['ballcounter'].count:
+            cv.PutText(rgb_cv, 'Ball count: %d' % args['ballcounter'].count, (20, 20), self.font, (255, 255, 255))
+
+
         rgb = np.copy(rgb_cv)[:,:,::-1]
 
         return rgb, depth

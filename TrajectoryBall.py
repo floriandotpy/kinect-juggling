@@ -85,31 +85,10 @@ class TrajectoryBall(object):
         self.t += 1
 
 
-class FrameQueue(object):
-    """docstring for FrameQueue"""
-    def __init__(self, length=10):
-        super(FrameQueue, self).__init__()
-        self.length = length
-        self._queue = [[] for _ in xrange(self.length)]
-        self.i = 0
-
-    def push(self, frame):
-        self._queue[self.i] = frame
-        self.i = (self.i + 1) % self.length
-
-    def fetch(self, n=0):
-        """Fetch an older frame, n=-1 for the last frame, n=-2 for
-        the second-to-last frame etc. Do not use n>0 for future frames."""
-        if n < -1*self.length:
-            raise IndexError("You cannot go further back in time. Possible: %d, Requested: %d" % (-1*self.length, n))
-        return self._queue[n]
-
-
 class TrajectoryBallCollection(object):
     def __init__(self):
         self.positions = []
         self.balls = []
-        # self.frameQueue = FrameQueue(length=10)
         self.lastFrame = []
 
     def addPositions(self, positions=[], args={}):
