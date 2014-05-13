@@ -115,7 +115,7 @@ class BallCounter(object):
     def __init__(self):
         self.count = None
         self.last = []
-        self.length = 8 # how many frames to analyse
+        self.length = 15 # how many frames to analyse
 
     def update(self, balls):
         self.last.append(len(balls))
