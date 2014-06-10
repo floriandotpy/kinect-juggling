@@ -195,7 +195,39 @@ versprechen.
 
 \section{Lösungsidee}
 
-image Processing Pipeline
+Als erste Lösungsidee haben wir in Anlehnung an die betrachtete Arbeit mit dem 
+jonglierenden Roboter eine eigene Zusammenstellung von durchzuführenden Bildverarbeitungsschritten erarbeitet wie in Abbildung FIXME zu sehen.
+
+Die Verarbeitung wird auf den Einzelbildern durchgeführt, die Ergebnisse der 
+einzelnen Bilder werden dann kombiniert.  
+
+\begin{enumerate}
+\item Auf den Tiefendaten werden ab einem bestimmten Tiefenwert (\textit{threshold}) 
+	alle Tiefeninformationen abgeschnitten. Jongleur und fliegende Jonglierbälle sind
+	somit freigestellt.
+\item Auf den reduzierten Tiefendaten werden nun lokale Maxima bestimmt, welche die 
+	Jonglierbälle sein müssen, da sie sich näher an der Kinect befinden als der 
+	Jongleur. Hier sind auch die Hände enthalten.
+\item Die gefundenen Maxima sind mögliche Kandidaten für tatsächlich erkannte 
+	Jonglierbälle. 
+\item Die entsprechenden Regionen werden als Maske für die RGB Daten verwendet.
+\item In den interessanten Regionen der RGB Daten wird eine Erkennung für runde 
+	Objekte durchgeführt. Dies wird mit einer \textit{Hough Transformation} gelöst.
+\item Die nun erkannten Bälle werden aufgeteilt und den einzelnen Bällen zugeordnet.
+\item Für jeden Ball liegt nun also eine Reihe von Positionen vor. Um zu einer 
+	flüssigen Flugbewegung zu gelangen wird die Flugbahn jedes Balls mit Hilfe eines
+	\textit{Kalman-Filters} modelliert und laufend aktualisiert. Mit dieser stetigen
+	Positionsinformation kann die Position eines Balles also programmseitig jederzeit 
+	abgefragt werden.
+\end{enumerate}
+
+
+% FIXME: label etc
+\includegraphics[scale=0.14]{img/processing-pipeline.png}
+
+Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der Arbeit 
+auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig 
+kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
 
 \section{Umsetzung}
 
@@ -411,6 +443,14 @@ Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu
 
 Robustheit.
 
+  - Position des Jongleurs (Bildzentrum VS Bildrand. Abstand zur Kinect)
+  
+  - Objekte am Bildrand (bewegte vs nicht bewegte)
+  
+  - Ungleichmäßiges Jongliermuster
+  
+  - Variation der Bälleanzahl
+
 Effizienz. Speedup-Möglichkeiten?
 
 Anwendungsrelevanz.
@@ -419,11 +459,48 @@ Anwendungsrelevanz.
 
 Projekte nehmen als Grundlage für einfache Programme / Spiele.
 
-- Objekte zählen
+\subsection{Objekte zählen}
 
-- Würfe zählen
+Mit den erkannten momentan fliegenden Objekten haben wir als erste Anwendung einen
+einfachen Zähler geschrieben, der die tatsächliche Anzahl der im Muster befindlichen Objekte zu bestimmen versucht.
 
-- ... ?
+Denke wäre eine Verfolgung der Objekte über einen längeren Zeitraum, um auch 
+unabhängig voneinander erkannte Objekte in ihrer Identität zu bestimmen. Tatsächlich
+ist ein deutlich simplerer Ansatz aber bereits sehr effektiv, indem über eine 
+längere Anzahl Frames geschaut wird, wie viele Objekte in der Luft sind. Es wird der 
+Durchschnitt dieser Werte gebildet und aufgerundet. Auf diesen Wert wird dann noch 
+$1$ addiert, um zur tatsächlichen Anzahl zu gelangen. Dies ist der Tatsache 
+geschuldet, dass beim normalen Jongliermuster zu jeder Zeit mindestens ein Objekt in der Hand ruht, es kann also davon ausgegangen werden, dass maximal $n - 1$ Objekte 
+gleichzeitig in der Luft sind.
+
+Ausprobieren auf echten Daten hat ergeben, dass beim Mitteln über $15$ Frames
+ein zuverlässiges Bestimmen des tatsächlichen Wertes möglich ist.
+
+\begin{lstlisting}[language=Python]
+class BallCounter(object):
+    """Determine the actual number of objects in the juggling pattern."""
+    def __init__(self):
+        self.count = None
+        self.last = []
+        self.length = 15 # how many frames to analyse
+
+    def update(self, balls):
+        self.last.append(len(balls))
+        if len(self.last) > self.length:
+            self.count = sum(self.last[::-1][:self.length]) / (self.length*1.0)
+            self.count = int(math.ceil(self.count)) + 1
+\end{lstlisting}
+
+
+% FIXME: label etc
+\includegraphics[scale=0.5]{img/ballcount-1.png}
+
+\includegraphics[scale=0.5]{img/ballcount-2.png}
+
+
+\subsection{Würfe zählen}
+
+\subsection{... ?}
 
 \section{Fazit}
 

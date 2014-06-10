@@ -111,7 +111,7 @@ class SimpleHandBallCollection(object):
 
 
 class BallCounter(object):
-    """docstring for BallCount"""
+    """Determine the actual number of objects in the juggling pattern."""
     def __init__(self):
         self.count = None
         self.last = []
