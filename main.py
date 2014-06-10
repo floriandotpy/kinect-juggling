@@ -108,7 +108,6 @@ class Kinector(object):
 
     def snapshot(self, rgb):
         filename = "snapshots/frame-%d.png" % int(time.time()*1000)
-        # rescaled = (255.0 / rgb.max() * (rgb - rgb.min())).astype(np.uint8)
 
         im = Image.fromarray(rgb)
         im.save(filename)
@@ -134,8 +133,7 @@ class Kinector(object):
             img = cv.fromarray(np.array(rgb[:,:,::-1]))
         else:
             # reduce depth from 2048 to 256 values
-            depth = depth /16
-            # print depth[220:225, 280:285]
+            depth = depth / 16
 
             a = np.ndarray(shape=(480,640,3), dtype=np.uint8)
             a[:,:,0] = depth

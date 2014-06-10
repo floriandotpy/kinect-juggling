@@ -1,12 +1,9 @@
-# tmp
-import cv
 import math
-import numpy as np
 from src.Util import getcolour
 
 
 class SimpleHandBall(object):
-    """docstring for Ball"""
+    """Represents a single ball mid-air, with its positions being updated every frame."""
     def __init__(self, position, radius=10, meta=None):
         self.colour = getcolour()
         self.position = position
@@ -27,9 +24,6 @@ class SimpleHandBall(object):
         if len(self.positions) < n:
             return (0, 0)
         else:
-            # positions = self.positions[:-n]
-            # x = sum([p[0] for p in positions])/n
-            # y = sum([p[1] for p in positions])/n
             last_pos = self.positions[-1]
             x = self.position[0] - last_pos[0]
             y = self.position[1] - last_pos[1]
@@ -109,6 +103,10 @@ class SimpleHandBallCollection(object):
         self.ballcounter.update(self.balls)
         args['ballcounter'] = self.ballcounter
 
+
+"""
+    A first application example. TODO: move this to src.application package
+"""
 
 class BallCounter(object):
     """Determine the actual number of objects in the juggling pattern."""
