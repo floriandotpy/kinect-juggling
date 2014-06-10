@@ -4,7 +4,7 @@ try:
     import vigra as vi
 except:
     print "ERROR: vigra not installed. Cannot use temporal filtering"
-from DelayedBuffer import DelayedBuffer
+from src.DelayedBuffer import DelayedBuffer
 
 class TemporalFilter(object):
     def __init__(self, minSize=100, maxRegions=50, erosion=True):

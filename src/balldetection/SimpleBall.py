@@ -1,7 +1,7 @@
 # tmp
 import cv
 import numpy as np
-from Util import getcolour
+from src.Util import getcolour
 
 
 class SimpleBall(object):

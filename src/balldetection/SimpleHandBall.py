@@ -2,7 +2,7 @@
 import cv
 import math
 import numpy as np
-from Util import getcolour
+from src.Util import getcolour
 
 
 class SimpleHandBall(object):

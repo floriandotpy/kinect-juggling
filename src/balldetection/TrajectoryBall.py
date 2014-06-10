@@ -1,4 +1,4 @@
-from Util import getcolour
+from src.Util import getcolour
 
 class TrajectoryBall(object):
     def __init__(self, lowerPoint, upperPoint, meta=None):

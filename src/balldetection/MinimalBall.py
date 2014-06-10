@@ -10,8 +10,7 @@ should look like.
 import cv
 import numpy as np
 import random
-from Util import getcolour
-
+from src.Util import getcolour
 
 class MinimalBall(object):
     """docstring for Ball"""

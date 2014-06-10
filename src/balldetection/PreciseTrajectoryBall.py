@@ -1,6 +1,6 @@
 import numpy as np
 import warnings
-from Util import getcolour
+from src.Util import getcolour
 
 # mute that one annoying warning
 warnings.simplefilter('ignore', np.RankWarning)

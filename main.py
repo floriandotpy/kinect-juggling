@@ -8,45 +8,45 @@ import numpy as np
 import time
 import cv
 from PIL import Image
-from NoFilter import NoFilter
-from BackgroundFilter import BackgroundFilter
-from RectsFilter import RectsFilter
-from DiscoFilter import DiscoFilter
-from OverlayFilter import OverlayFilter
-from CannyFilter import CannyFilter
-from CutOffFilter import CutOffFilter
-from DepthHolesFilter import DepthHolesFilter
-from MaximaFilter import MaximaFilter
-from HoughFilter import HoughFilter
-from TemporalFilter import TemporalFilter
-from DrawBallsFilter import DrawBallsFilter
-from SlowmotionFilter import SlowmotionFilter
-from RgbDepthFilter import RgbDepthFilter
-from SimpleBall import SimpleBallCollection
-from SimpleHandBall import SimpleHandBallCollection
-from TrajectoryBall import TrajectoryBallCollection
-from PreciseTrajectoryBall import PreciseTrajectoryBallCollection
-from MinimalBall import MinimalBallCollection
-from KalmanFilter import KalmanFilter
-from DummyBallFilter import DummyBallFilter
-from HandTracking import HandCollection
-import imgtools
+
+from src.NoFilter import NoFilter
+
+# preprocessing
+from src.preprocessing.BackgroundFilter import BackgroundFilter
+from src.preprocessing.RectsFilter import RectsFilter
+from src.preprocessing.OverlayFilter import OverlayFilter
+from src.preprocessing.CannyFilter import CannyFilter
+from src.preprocessing.CutOffFilter import CutOffFilter
+from src.preprocessing.DepthHolesFilter import DepthHolesFilter
+from src.preprocessing.MaximaFilter import MaximaFilter
+from src.preprocessing.HoughFilter import HoughFilter
+from src.preprocessing.TemporalFilter import TemporalFilter
+
+# ball detection
+from src.balldetection.SimpleBall import SimpleBallCollection
+from src.balldetection.SimpleHandBall import SimpleHandBallCollection
+from src.balldetection.TrajectoryBall import TrajectoryBallCollection
+from src.balldetection.PreciseTrajectoryBall import PreciseTrajectoryBallCollection
+from src.balldetection.MinimalBall import MinimalBallCollection
+from src.balldetection.HandTracking import HandCollection
+
+# visualization
+from src.visual.DrawBallsFilter import DrawBallsFilter
+from src.visual.SlowmotionFilter import SlowmotionFilter
+from src.visual.RgbDepthFilter import RgbDepthFilter
+
+# application
+from src.application.KalmanFilter import KalmanFilter
 
 
 class Kinector(object):
     """ Does awesome stuff with the Kinect. """
-    def __init__(self, kinect, args=[], buffersize=3):
+    def __init__(self, kinect, args=[]):
         self.running = False
         self.record = 'record' in args
         self.show = 'depth' if 'depth' in args else 'rgb'
 
         self.kinect = kinect
-
-        # TODO: implement useful buffer
-        if 'buffer' in args:
-            self.buffer = imgtools.SmoothBuffer(buffersize=2)
-        else:
-            self.buffer = None
 
         # track hands
         self.hands = HandCollection()
@@ -66,14 +66,10 @@ class Kinector(object):
         # init filters
         self.filters = []
 
-        if 'dummyball' in args:
-            self.filters.append(DummyBallFilter())
         if 'withholes' not in args:
             self.filters.append(DepthHolesFilter())
         if 'swapbackground' in args:
             self.filters.append(BackgroundFilter('bg.jpg'))
-        if 'disco' in args:
-            self.filters.append(DiscoFilter())
         if 'canny' in args:
             self.filters.append(CannyFilter())
         if 'cutoff' in args:
@@ -129,10 +125,6 @@ class Kinector(object):
         args['balls'] = self.ballcollection
         args['hands'] = self.hands
 
-        if self.buffer:
-            self.buffer.add(depth)
-            args['buffer'] = self.buffer
-
         for filter in self.filters:
             rgb, depth = filter.filter(rgb, depth, args)
 
@@ -168,14 +160,14 @@ if __name__ == '__main__':
 
     dummymode = "--dummymode" in sys.argv or "-d" in sys.argv
     if dummymode:
-        from KinectDummy import KinectDummy
+        from src.kinect.KinectDummy import KinectDummy
         kinect = KinectDummy()
     else:
         try:
-            from Kinect import Kinect
+            from src.kinect.Kinect import Kinect
             kinect = Kinect()
         except ImportError:
-            from KinectDummy import KinectDummy
+            from kinect.KinectDummy import KinectDummy
             kinect = KinectDummy()
             dummymode = True;
 
