@@ -18,14 +18,9 @@ class RectsFilter(object):
 
     def filter(self, rgb, depth, args = {}):
 
-        # custom depth input (from CutOffFilter)
-        # I think this is so that we do not destroy the original depth. rubbish?
-        if 'depth_out' in args:
-            my_depth = args['depth_out']
-
         # We'll need open CV for this.
         rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
-        depth_cv = cv.fromarray(np.array(my_depth[:,:], dtype=np.uint8))
+        depth_cv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
 
         storage = cv.CreateMemStorage(0)
         contour = cv.FindContours(depth_cv, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)

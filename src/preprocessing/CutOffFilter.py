@@ -9,6 +9,5 @@ class CutOffFilter(object):
         subset_holes = (depth == 0)
         white[subset_objects] = 2047
         white[subset_holes] = 0
-        argv['depth_out'] = white
 
-        return rgb, depth
+        return rgb, white
