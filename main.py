@@ -165,7 +165,7 @@ if __name__ == '__main__':
             from src.kinect.Kinect import Kinect
             kinect = Kinect()
         except ImportError:
-            from kinect.KinectDummy import KinectDummy
+            from src.kinect.KinectDummy import KinectDummy
             kinect = KinectDummy()
             dummymode = True;
 
