@@ -139,16 +139,45 @@ Datenströme an die Konsole liefert. Da die Kinect über einen USB-Anschluss ver
 kann sie an konventionellen Rechnern angeschlossen und betrieben werden. Eine 
 quelloffene Implementierung zur Unterstützung der Kinect ist das freenect Projekt,
 das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbeit
-als Bibliothek für Python verwendet wurde. FIXME: Quellen.
+als Bibliothek für Python verwendet wurde.\cite{openkinect}\cite{libfreenect}
 
-Die Videoquelle der Kinect liefert standardmäßig 30 (JA?) Bilder pro Sekunde mit einer
-Auflösung von 640x480 und 8 bit Farbtiefe. Die Tiefendaten stammen von einer 
+FIXME: Abbildung Kinect mit gelabelten Komponenten?
+
+Die Videoquelle der Kinect liefert standardmäßig 30 Bilder pro Sekunde mit einer
+Auflösung von 640x480 und 8 bit Farbtiefe. Tatsächlich kann sie mit
+einer Auflösung von 640x512 aufnehmen (oder sogar 1280x1024 und 10 fps), aber die 
+Auflösung wird an die der Tiefenkamera angepasst, so dass die reduzierte Auflösung 
+ausgegeben wird. Die Tiefendaten stammen von einer 
 Infrarot-Kamera und liefern bei gleicher Bildfrequenz 2048 verschiedene 
-Tiefenwerte (11bit). Aus der Funktionsweise der Infrarotkamera ergibt sich, dass
-die Kinect in Umgebungen starker Infrarotstrahlung (beispielsweise im Tageslicht)
-nur beschränkt einsatzfähig ist. 
+Tiefenwerte (11bit). Das Tiefenbild deckt einen Bereich von 0,8 m bis 3,5 m von der
+Kinect aus ab, bei der in 2m Entfernung eine Auflösung von 3 mm in der Bildebene und
+1 cm in der Tiefenebene erreicht wird. Aus der Funktionsweise der Infrarotkamera
+ergibt sich, dass die Kinect in Umgebungen starker Infrarotstrahlung (beispielsweise
+im Tageslicht) nur beschränkt einsatzfähig ist.\cite{hacking}
 
-FIXME: Erklären wie das mit diesem projizierten Punktemuster funktioniert. 
+FIXME: Erklären wie das mit diesem projizierten Punktemuster funktioniert.
+
+Um das Tiefenbild zu erhalten, besitzt die Kinect zwei Hardware-Komponenten, einen
+Infrarot-Laser und eine Infrarot-Kamera. Der IR-Laser strahlt Licht mit einer Wellenlänge
+von 830 nm, welches ein bekanntes Rausch-Muster erzeugt. Dieses Rausch-Muster enthält
+mitunter neun hellere Punkte, die über das Muster verteilt sind.\\
+Die Kinect nutzt die Streifenprojektion (auch Streifenlichttopometrie genannt), um ein
+räumliches Bild zu erfassen. So wird das vom Laser erzeugte bekannte Rauschmuster mit der
+in einem festen Abstand zum Laser befestigten IR-Kamera erfasst. Weicht das aufgenommene
+Bild von dem bekannten Rausch-Muster ab, kann davon ausgegangen werden, dass dies durch
+Objekte im Raum, die das Muster stören, verursacht wird. Mit Hilfe der helleren Punkten werden
+alle Punkte zugeordnet und es kann ein räumliches Bild errechnet werden.
+
+FIXME: Abbildung Rausch-Muster des IR-Lasers
+
+Mögliche Störungen entstehen durch die Stärke der Laserdiode und der Wellenlänge des Lichts.
+Die IR-Kamera der Kinect hat einen Infrarot-Pass-Filter, der nur Licht im Bereich von 830 nm
+hindurch lässt, um nicht durch anderes Licht (wie beispielsweise Fernbedienungen) geblendet zu
+werden. Dennoch gibt es Lichtquellen, wie das Sonnenlicht, welches genügend Licht mit einer
+Wellenlänge von 830 nm  beinhaltet, um die Kinect blenden zu können. So kann bei starkem
+Tageslicht oder im freien von Fehlverhalten bis zur Unnutzbarkeit der Kinect gerechet werden.
+
+FIXME: Beispielkinectprojekte!
 
 \section{Recherche: Ein jonglierender Roboter} 
 
@@ -525,6 +554,7 @@ Jeff Kramer, Nicolas Burrus, Florian Echtler, Daniel Herrera C., Matt Parker\\
 ISBN 978-1-4302-3867-6\\
 Springer Science+Business Media New York, 2012.
 
+% DIES IST EIN BEISPIELEINTRAG!
 \bibitem{ole}
 Ole Helvig Jensen,\\
 {\em Implementing the Viola-Jones Face Detection Algorithm}\\
@@ -540,6 +570,14 @@ Disney Research, Pittsburgh, USA,\\
 $^{1}$ Bielefeld University, Germany,\\
 $^{2}$ University of Birmingham, UK\\
 FIXME.
+
+\bibitem{openkinect}
+{\em OpenKinect project}\\
+\url{http://openkinect.org/wiki/Main_Page} (accessed on 2014-06-12).
+
+\bibitem{libfreenect}
+{\em libfreenect GitHub repository}\\
+\url{https://github.com/OpenKinect/libfreenect} (accessed on 2014-06-12).
 
 \end{thebibliography}
 
