@@ -5,7 +5,7 @@ import scipy.ndimage.filters as filters
 
 class MaximaFilter(object):
 
-    def filter(self, rgb, depth, argv = {}):
+    def filter(self, rgb, depth, balls, argv = {}):
         # TODO ROLF
         # http://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
         neighborhood_size = 100
@@ -40,6 +40,6 @@ class MaximaFilter(object):
 
         # return cv.fromarray(np.array(rgb[:,:,::-1], dtype=np.uint8)), depth
 
-        return rgb, depth
+        return rgb, depth, balls
 
         # return maxima

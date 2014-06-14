@@ -23,12 +23,12 @@ from src.preprocessing.HoughFilter import HoughFilter
 from src.preprocessing.TemporalFilter import TemporalFilter
 
 # ball detection
-from src.balldetection.SimpleBall import SimpleBallCollection
-from src.balldetection.SimpleHandBall import SimpleHandBallCollection
+from src.balldetection.SimpleBall import SimpleBallFilter
+from src.balldetection.SimpleHandBall import SimpleHandBallFilter
 from src.balldetection.TrajectoryBall import TrajectoryBallCollection
 from src.balldetection.PreciseTrajectoryBall import PreciseTrajectoryBallCollection
-from src.balldetection.MinimalBall import MinimalBallCollection
-from src.balldetection.HandTracking import HandCollection
+from src.balldetection.MinimalBall import MinimalBallFilter
+from src.balldetection.HandTracking import HandTrackingFilter
 
 # visualization
 from src.visual.DrawBallsFilter import DrawBallsFilter
@@ -49,19 +49,15 @@ class Kinector(object):
         self.kinect = kinect
 
         # track hands
-        self.hands = HandCollection()
+        # self.hands = HandCollection()
 
         # detected balls are collected
         if 'trajectory' in args:
             self.ballcollection = TrajectoryBallCollection()
         elif 'precise' in args:
             self.ballcollection = PreciseTrajectoryBallCollection()
-        elif 'minimal' in args:
-            self.ballcollection = MinimalBallCollection()
         elif 'simplehand' in args:
-            self.ballcollection = SimpleHandBallCollection()
-        else:
-            self.ballcollection = SimpleBallCollection()
+            self.ballcollection = SimpleHandBallFilter()
 
         # init filters
         self.filters = []
@@ -78,6 +74,18 @@ class Kinector(object):
             self.filters.append(RectsFilter())
         if 'detectball' in args:
             self.filters.append(RectsFilter())
+
+        if 'handtracking' in args:
+            self.filters.append(HandTrackingFilter())
+
+        if 'minimal' in args:
+            self.filters.append(MinimalBallFilter())
+        elif 'simplehand' in args:
+            self.filters.append(SimpleHandBallFilter())
+        else:
+            self.ballcollection = SimpleBallFilter()
+
+        if 'detectball' in args:
             self.filters.append(DrawBallsFilter())
         if 'overlay' in args:
             self.filters.append(OverlayFilter())
@@ -116,16 +124,17 @@ class Kinector(object):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
         (rgb, depth) = self.kinect.get_frame(record=self.record)
+        balls = []
 
         args = {}
 
         # where we will collect our balls
         # FIXME: needed in each step?
-        args['balls'] = self.ballcollection
-        args['hands'] = self.hands
+        # args['balls'] = self.ballcollection
+        # args['hands'] = self.hands
 
         for filter in self.filters:
-            rgb, depth = filter.filter(rgb, depth, args)
+            rgb, depth, balls = filter.filter(rgb, depth, balls, args)
 
 
         if self.show == 'rgb':

@@ -32,7 +32,7 @@ class HoughFilter(object):
 
         return circles
 
-    def filter(self, rgb, depth, argv = {}):
+    def filter(self, rgb, depth, balls, argv = {}):
         # circles = self.findHoughCircles(depth)
         circles = self.findHoughCirclesfromRGB(rgb)
 
@@ -42,4 +42,4 @@ class HoughFilter(object):
             if (x-r > 0 and x+r < 640 and y-r > 0 and y+r < 460):
                 cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(abs(r)), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
 
-        return rgb, depth
+        return rgb, depth, balls

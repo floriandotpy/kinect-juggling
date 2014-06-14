@@ -6,7 +6,7 @@ class SlowmotionFilter(object):
         self.delay = delay
 
 
-    def filter(self, rgb, depth, args={}):
+    def filter(self, rgb, depth, balls, args={}):
         time.sleep(self.delay)
 
-        return rgb, depth
+        return rgb, depth, balls

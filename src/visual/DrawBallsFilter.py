@@ -7,7 +7,7 @@ class DrawBallsFilter(object):
         self.font = cv.InitFont(cv.CV_FONT_HERSHEY_PLAIN, 1.0, 1.0)
 
 
-    def filter(self, rgb, depth, args={}):
+    def filter(self, rgb, depth, balls, args={}):
         rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
 
         # draw line (center of juggling pattern)
@@ -24,7 +24,7 @@ class DrawBallsFilter(object):
 
 
         # draw balls
-        balls = args['balls'].balls
+        # balls = args['balls'].balls
         for ball in balls:
             cv.Circle(rgb_cv, ball.position, ball.radius, ball.colour, thickness=-1, lineType=8, shift=0)
             # highlight rects that this ball is based upon
@@ -51,10 +51,10 @@ class DrawBallsFilter(object):
             # cv.Line(rgb_cv, ball.position, (ball.position[0]-direction[0], ball.position[1]-direction[1]), ball.colour, thickness=3, lineType=8, shift=0)
 
         # balls counter
-        if args['ballcounter'].count:
+        if 'ballcounter' in args and args['ballcounter'].count:
             cv.PutText(rgb_cv, 'Ball count: %d' % args['ballcounter'].count, (20, 20), self.font, (255, 255, 255))
 
 
         rgb = np.copy(rgb_cv)[:,:,::-1]
 
-        return rgb, depth
+        return rgb, depth, balls

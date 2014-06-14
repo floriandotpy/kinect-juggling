@@ -13,7 +13,7 @@ class TemporalFilter(object):
         self.maxRegions = maxRegions
         self.erosion = erosion
 
-    def filter(self, rgb, depth, args = {}):
+    def filter(self, rgb, depth, balls, args = {}):
 
         self.buffer.add(depth)
 
@@ -56,4 +56,4 @@ class TemporalFilter(object):
         else:
             d = depth
 
-        return rgb, d
+        return rgb, d, balls

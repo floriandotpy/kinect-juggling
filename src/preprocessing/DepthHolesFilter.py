@@ -4,7 +4,7 @@ class DepthHolesFilter(object):
         self.foreground = foreground;
         self.background = background;
 
-    def filter(self, rgb, depth, args = {}):
+    def filter(self, rgb, depth, balls, args = {}):
 
         shadow = (depth <= self.foreground)
         depth[shadow] = 4095
@@ -12,4 +12,4 @@ class DepthHolesFilter(object):
         bg = (depth > self.background)
         depth[bg] = 4095
 
-        return rgb, depth
+        return rgb, depth, balls

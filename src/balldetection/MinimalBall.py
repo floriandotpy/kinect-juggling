@@ -11,48 +11,30 @@ import cv
 import numpy as np
 import random
 from src.Util import getcolour
+from src.balldetection.Ball import Ball
 
-class MinimalBall(object):
-    """docstring for Ball"""
-    def __init__(self, position, radius=10, meta=None):
-        self.colour = getcolour()
-        self.position = position
-        self.radius = radius
-        self.meta = meta
-        self.positions = [] # collect older positions
+class MinimalBallFilter(object):
 
-    def updatePosition(self, ball, radius=10):
-        self.positions = self.positions[:2] # keep positions list short
-        self.positions.append(self.position)
-        self.position = ball['position']
-        self.radius = radius
-
-    def futurePosition(self, trajectory=False):
-        # this one doesnt to future predction, return current position instead
-        return self.position
-
-    def __str__(self):
-        return "Ball at %d/%d" % self.position
-
-
-class MinimalBallCollection(object):
     def __init__(self):
         self.balls = []
 
-    def addPositions(self, ball_list, args={}):
+    def filter(self, rgb, depth, ball_list, args = {}):
 
         # first call?
-        if not len(self.balls):
+        if len(self.balls) == 0:
             # only instantiate balls if we have 3 positions right now
-            if len(ball_list) != 3:
-                return
-            for ball in ball_list:
-                self.balls.append(MinimalBall(ball['position'], radius=ball['radius']))
+            if len(ball_list) == 3:
+                for ball in ball_list:
+                    self.balls.append(Ball(ball['position'], radius=ball['radius']))
         else: # find the correct ball to update
             # minmal (bad) solution: just pick any position
             for i in xrange(len(self.balls)):
                 if i < len(ball_list):
-                    self.balls[i].updatePosition(ball_list[i])
+                    self.balls[i].updatePosition(ball_list[i]['position'])
+
+        return rgb, depth, self.balls
+
+
 
 
 

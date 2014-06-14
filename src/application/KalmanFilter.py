@@ -20,7 +20,7 @@ class KalmanFilter(object):
 		y = v * t * np.degrees(np.sin(b) - (9.81/2) * t**2)
 		return (y,x)
 
-	def filter(self, rgb, depth, argv = {}):
+	def filter(self, rgb, depth, balls, argv = {}):
 		p1 = (480, 0)
 		p2 = (470, 10)
 		points = []
@@ -33,4 +33,4 @@ class KalmanFilter(object):
    #      for (x,y) in points:
 			# cv.Circle(cv.fromarray(rgb), (int(x),int(y)), int(abs(r)), cv.RGB(0, 0, 255), thickness=-1, lineType=8, shift=0)
 
-		return rgb, depth
+		return rgb, depth, balls

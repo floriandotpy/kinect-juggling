@@ -72,11 +72,6 @@ class TrajectoryBall(object):
 
         return distance < 20
 
-    def update(self, position_raw):
-        position = position_raw['position']
-        self._initTrajectory(self.position, position)
-        self.position = position
-
 
     def step(self):
         if self.position:
@@ -92,14 +87,14 @@ class TrajectoryBallCollection(object):
         self.lastFrame = []
 
     def addPositions(self, positions=[], args={}):
-        self.lastFrame = positions
 
         # forget positions that are known to be hands
         positions = args['only_balls']
 
+        self.lastFrame = positions
+
         # remember last frame before using current frame
         if len(self.lastFrame) == 0:
-            self.lastFrame = positions
             return
 
         # update existing balls if possible

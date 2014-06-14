@@ -17,7 +17,7 @@ class CannyFilter(object):
 
     #     return rgb, np.asarray(mat2)
 
-    def filter(self, rgb, depth, argv = {}):
+    def filter(self, rgb, depth, balls, argv = {}):
 
 		img = np.asarray(depth)
 		# img = cv.fromarray(depth, cv.CV_8UC1)
@@ -38,4 +38,4 @@ class CannyFilter(object):
 		rgb = np.empty((w, h, 3), dtype=np.uint8)
 		rgb[:, :, :] = img[:, :, np.newaxis]
 
-		return rgb, depth
+		return rgb, depth, balls

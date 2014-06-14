@@ -14,10 +14,10 @@ class BackgroundFilter(object):
         # load background image
         self.img = np.asarray(Image.open(background_src))
 
-    def filter(self, rgb, depth, args = {}):
+    def filter(self, rgb, depth, balls, args = {}):
 
         # Remove the background based on the depth field
         subset = depth > self.threshold
         rgb[subset] = self.img[subset]
 
-        return rgb, depth
+        return rgb, depth, balls

@@ -19,13 +19,13 @@ class Hand(object):
         isCloseY = abs(self.y - otherY) < threshold
         return isCloseX and isCloseY
 
-class HandCollection(object):
+class HandTrackingFilter(object):
     def __init__(self):
         self.left = Hand((100, 100))
         self.right = Hand((200, 200))
         self.isFirstStep = True
 
-    def addPositions(self, ball_positions, args):
+    def filter(self, rgb, depth, ball_positions, args):
         # use a copy
         positions = list(ball_positions)
 
@@ -53,6 +53,6 @@ class HandCollection(object):
         self.isFirstStep = False
 
         # return without the positions used to update the hands
-        return positions
+        return rgb, depth, positions
 
 

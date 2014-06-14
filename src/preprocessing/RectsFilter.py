@@ -16,7 +16,7 @@ class RectsFilter(object):
     def _nullify(self, i):
         return i if i > 0 else 0
 
-    def filter(self, rgb, depth, args = {}):
+    def filter(self, rgb, depth, balls, args = {}):
 
         # We'll need open CV for this.
         rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
@@ -50,13 +50,13 @@ class RectsFilter(object):
                 cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
 
         # update hands, remember the unused positions
-        args['only_balls'] = args['hands'].addPositions(ball_list, args)
-        args['balls'].addPositions(ball_list, args)
+        # args['only_balls'] = args['hands'].addPositions(ball_list, args)
+        # args['balls'].addPositions(ball_list, args)
 
         # and back to numpy with this...
         rgb = np.copy(rgb_cv)[:,:,::-1]
 
-        return rgb, depth
+        return rgb, depth, ball_list
 
     def findHoughCircles(self, rgb):
         rgb = np.copy(rgb)
