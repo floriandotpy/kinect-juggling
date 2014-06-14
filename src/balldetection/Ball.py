@@ -30,6 +30,9 @@ class SimpleBall(Ball):
         super(SimpleBall, self).__init__(position, radius, meta, max_history)
         self.closeThreshold = 40 # pixel distance for 2 balls to be considered "close"
 
+    def __str__(self):
+        return "Ball at %d/%d" % self.position
+
     def directionVector(self):
         n = 2
         if len(self.positions) < n:
@@ -60,7 +63,7 @@ class SimpleBall(Ball):
     def isClose(self, otherBall, future=True):
         otherPosition = otherBall['position']
         myPosition = self.futurePosition(True) if future else self.position
-        return (self.distance(otherPosition, self.futurePosition(True)) < self.closeThreshold)
+        return (self.distance(otherPosition, myPosition) < self.closeThreshold)
 
     def futurePosition(self, trajectory=False):
         if trajectory:

@@ -15,12 +15,17 @@ class SimpleHandBallFilter(object):
 
         # try to update balls, remove non-updated balls
         for ball in self.balls:
+
+            # TODO: do not store this at the ball object.
+            # use dict instead: updated[ball_instance] = False
             ball.updatedAlready = False
+
             for new_ball in ball_list:
                 if ball.isClose(new_ball, future=False):
-                    ball.updatePosition(new_ball['position'], radius=new_ball['radius'])
+                    ball.updatePosition(new_ball['position'])
                     ball.updatedAlready = True
                     ball_list.remove(new_ball)
+
             if not ball.updatedAlready:
                 self.balls.remove(ball)
 
@@ -31,7 +36,7 @@ class SimpleHandBallFilter(object):
         self.ballcounter.update(self.balls)
         args['ballcounter'] = self.ballcounter
 
-        return rgb, depth, self.balls
+        return rgb, depth, list(self.balls)
 
 
 """

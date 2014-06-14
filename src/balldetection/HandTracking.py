@@ -23,11 +23,13 @@ class HandTrackingFilter(object):
     def __init__(self):
         self.left = Hand((100, 100))
         self.right = Hand((200, 200))
-        self.isFirstStep = True
 
     def filter(self, rgb, depth, ball_positions, args):
         # use a copy
         positions = list(ball_positions)
+        args['hands'] = True
+        args['hand_left'] = self.left
+        args['hand_right'] = self.right
 
         # determine center of juggling pattern
         if len(positions) > 0:
@@ -36,6 +38,7 @@ class HandTrackingFilter(object):
             centerX = 320
         args['centerX'] = centerX
 
+        # two properties fo match each hand (left & right)
         handProps = [(self.left, lambda p: p['position'][0] <= centerX),
             (self.right, lambda p: p['position'][0] > centerX)]
 
@@ -45,12 +48,9 @@ class HandTrackingFilter(object):
             if len(filtered) > 0:
                 lowest = sorted(filtered, key=lambda p: -1*p['position'][1])[0]
                 lowestPosition = lowest['position']
-                # if self.isFirstStep or hand.isClose(lowestPosition):
 
                 hand.update(lowestPosition)
                 positions.remove(lowest)
-
-        self.isFirstStep = False
 
         # return without the positions used to update the hands
         return rgb, depth, positions

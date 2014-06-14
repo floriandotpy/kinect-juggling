@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-'''
-    Based on demo_freenect.py from the https://github.com/amiller/libfreenect-goodies.git
-'''
-
 import numpy as np
 import time
 import cv
@@ -49,15 +45,6 @@ class Kinector(object):
         self.kinect = kinect
 
         # track hands
-        # self.hands = HandCollection()
-
-        # detected balls are collected
-        if 'trajectory' in args:
-            self.ballcollection = TrajectoryBallCollection()
-        elif 'precise' in args:
-            self.ballcollection = PreciseTrajectoryBallCollection()
-        elif 'simplehand' in args:
-            self.ballcollection = SimpleHandBallFilter()
 
         # init filters
         self.filters = []
@@ -70,8 +57,6 @@ class Kinector(object):
             self.filters.append(CannyFilter())
         if 'cutoff' in args:
             self.filters.append(CutOffFilter())
-        if 'drawrects' in args:
-            self.filters.append(RectsFilter())
         if 'detectball' in args:
             self.filters.append(RectsFilter())
 
@@ -83,7 +68,7 @@ class Kinector(object):
         elif 'simplehand' in args:
             self.filters.append(SimpleHandBallFilter())
         else:
-            self.ballcollection = SimpleBallFilter()
+            self.filters.append(SimpleBallFilter())
 
         if 'detectball' in args:
             self.filters.append(DrawBallsFilter())
