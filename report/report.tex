@@ -141,8 +141,6 @@ quelloffene Implementierung zur Unterstützung der Kinect ist das freenect Proje
 das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbeit
 als Bibliothek für Python verwendet wurde.\cite{openkinect}\cite{libfreenect}
 
-FIXME: Abbildung Kinect mit gelabelten Komponenten?
-
 Die Videoquelle der Kinect liefert standardmäßig 30 Bilder pro Sekunde mit einer
 Auflösung von 640x480 und 8 bit Farbtiefe. Tatsächlich kann sie mit
 einer Auflösung von 640x512 aufnehmen (oder sogar 1280x1024 und 10 fps), aber die 
@@ -155,7 +153,7 @@ Kinect aus ab, bei der in 2m Entfernung eine Auflösung von 3 mm in der Bildeben
 ergibt sich, dass die Kinect in Umgebungen starker Infrarotstrahlung (beispielsweise
 im Tageslicht) nur beschränkt einsatzfähig ist.\cite{hacking}
 
-FIXME: Erklären wie das mit diesem projizierten Punktemuster funktioniert.
+{\color{red} FIXME: Abbildung Kinect mit gelabelten Komponenten?}
 
 Um das Tiefenbild zu erhalten, besitzt die Kinect zwei Hardware-Komponenten, einen
 Infrarot-Laser und eine Infrarot-Kamera. Der IR-Laser strahlt Licht mit einer Wellenlänge
@@ -168,7 +166,7 @@ Bild von dem bekannten Rausch-Muster ab, kann davon ausgegangen werden, dass die
 Objekte im Raum, die das Muster stören, verursacht wird. Mit Hilfe der helleren Punkten werden
 alle Punkte zugeordnet und es kann ein räumliches Bild errechnet werden.
 
-FIXME: Abbildung Rausch-Muster des IR-Lasers
+{\color{red} FIXME: Abbildung Rausch-Muster des IR-Lasers}
 
 Mögliche Störungen entstehen durch die Stärke der Laserdiode und der Wellenlänge des Lichts.
 Die IR-Kamera der Kinect hat einen Infrarot-Pass-Filter, der nur Licht im Bereich von 830 nm
@@ -179,31 +177,26 @@ Tageslicht oder im freien von Fehlverhalten bis zur Unnutzbarkeit der Kinect ger
 
 \subsection{Beispielprojekte mit der Kinect}
 
-Hier ein paar Beispielprojekte, die mit Hilfe der Kinect durchgeführt wurden, um die vielfältige
-Einsatzmöglichkeit zu zeigen.
+Mit der Kinect lassen sich viele Ideen umsetzen. So gibt es ein Projekt, bei dem Spielzeugautos und
+-figuren vor der Kinect verschoben werden, eine Software erkennt diese und stellt diese Bewegungsabläufe
+in einer virtuellen Welt als Animation dar.\cite{3dpuppetry} Weitere Projekte beschäftigten sich
+damit, ein 3D-Modell eines Menschen mit nur einer Kinect aufzunehmen,\cite{kinectavatar} oder eine an eine Kamera
+befestigte Kinect mit zusätzlichem Bewegungssensor misst die Bewegungen beim Fotografieren, um die
+entstehende Bewegungsschärfe aus dem Foto hinauszurechnen.\cite{motiondeblurring} Eine Forschungsgruppe
+hat einem humanoiden Roboter mit der Kinect die Fähigkeit verliehen, ihm zugeworfene Bälle zu fangen.\cite{kober}
+In der Videographie nimmt ein Projekt mit der Kinect RGBZ-Videos auf, in der nachträglich beispielsweise die
+Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 
-FIXME: Beispielkinectprojekte! (soll sowas rein? Lieber ein Absatz statt einzelne Unterkapitel?) (zu jedem ein Beispielbild?)
-
-\subsubsection{3D Puppetry: A Kinect-based Interface for 3D Animation}
-In diesem Projekt wurde ein System entwickelt, mit dem 
-
-\subsubsection{KinectAvatar: Fully Automatic Body Capture Using a Single Kinect}
-
-\subsubsection{Accurate Motion Deblurring using Camera Motion Tracking and Scene Depth}
-
-\subsubsection{Playing Catch and Juggling with a Humanoid Robot}
-
-\subsubsection{Coherent Spatiotemporal Filtering, Upsampling and Rendering of RGBZ Videos}
-
-\subsubsection{A Multi-Link-Flexible Robot Arm Catching Thrown Balls}
+{\color{red} FIXME: Beispielkinectprojekte Bilder}
 
 \section{Recherche: Ein jonglierender Roboter} 
 
 Im Vorfeld der ersten eigenen Implementierungsversuche sind wir bei der 
-Paper-Recherche auf eine Arbeit von FIXME gestoßen, die zumindest in Teilen
-eine ähnliche Aufgabenstellung verfolgte. Unter dem Titel "Playing catch and juggling 
-with a humanoid robot" untersuchte die Gruppe des Disney Research Center (FIXME)
-einen humaoiden Roboter, der auf ihn zugeworfene Bälle fangen und zurückwerfen soll.
+Paper-Recherche auf eine Arbeit von Jens Kober, Matthew Glisson und Michael Mistry
+gestoßen, die zumindest in Teilen eine ähnliche Aufgabenstellung verfolgte.
+Unter dem Titel {\em Playing Catch and Juggling with a Humanoid Robot}\cite{kober}
+untersuchte die Gruppe des Disney Research Center\cite{disneyresearch} einen
+humanoiden Roboter, der auf ihn zugeworfene Bälle fangen und zurückwerfen soll.
 In der Entwicklung dieses Systems war ein Teil der Gesamtaufgabe ein 
 bild- und tiefendatenverarbeitendes System, das mit einer der Kinect sehr ähnlichen
 Kamera arbeitete.
@@ -213,7 +206,12 @@ Kette von Verarbeitungsschritten, die als Eingabe eine Folge von RGB- und Tiefen
 nahm und als Ausgabe die aktuelle Position und zukünftige berechnete Flugbahn 
 liefern. 
 
-FIXME: Processing Pipeline
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.31]{img/koberpipeline.jpg}
+    \caption{Bildverarbeitungs-Pipeline im Paper. ({\em Bildquelle: Playing Catch and Juggling with a Humanoid Robot\cite{kober}})}
+    \label{koberpipeline}
+\end{figure}
 
 Die gelöste Aufgabe in dieser Arbeit ist also von der Grundidee her also eine ganz
 ähnliche, weshalb wir den Grundaufbau der Verarbeitungsschritte auch in unserem 
@@ -224,26 +222,27 @@ gezeigt haben.
 
 Hierbei ist zuerst zu nennen, dass die betrachteten Bälle bei uns sehr viel kleiner
 waren, da wir einen tatsächlich jonglierenden Menschen betrachtet haben. In der
-Arbeit mit dem Roboter wurden sehr große Bälle verwendet, die von den werfenden
-Menschen mit beiden Händen gehalten und geworfen wurden.
+Arbeit mit dem Roboter wurden größere Bälle verwendet, und zu einer Zeit befindet
+sich größtenteils immer nur ein Ball in der Luft.
 
-Hierdurch ergeben sich auch längere Wurfbahnen, die tendenziell auch weiter 
-auseinander liegen. Wie später in der Arbeit zu sehen sein wird, ist das normale
-Jongliermuster mit zwei Händen teilweise so klein, dass es schwer wird, dicht 
-aneinander vorbei fliegende Bälle voneinander zu unterscheiden.
+Da in diesem Projekt die Bälle von einer Person dem Roboter zugeworfen werden,
+ergeben sich auch längere Wurfbahnen und eine längere Flugzeit pro Ball. Wie
+später in der Arbeit zu sehen sein wird, ist das normale Jongliermuster mit zwei
+Händen teilweise so klein, dass es schwer wird, dicht aneinander vorbei fliegende
+Bälle voneinander zu unterscheiden.
 
 Zusätzlich wurde in der Arbeit mit dem Roboter auf verschiedenfarbige Bälle 
 zugegriffen, um diese voneinander zu unterscheiden. Dies ist eine Rahmenbedingung,
 die wir so nicht wählen wollten, da die RGB-Werte, die die Kinect liefert, sehr stark 
-von den Beleuchtungsbedingungen abhängen und bei den verschwischten Objekten, wie
-wir sie in den Kinect-Aufnahmen sehen, keine robuste Erkennung zu ermöglichen 
-versprechen.
+von den Beleuchtungsbedingungen abhängen und bei den verwischten Objekten, wie
+wir sie in den Kinect-Aufnahmen sehen, keine robuste Erkennung möglich ist.
 
 
 \section{Lösungsidee}
 
 Als erste Lösungsidee haben wir in Anlehnung an die betrachtete Arbeit mit dem 
-jonglierenden Roboter eine eigene Zusammenstellung von durchzuführenden Bildverarbeitungsschritten erarbeitet wie in Abbildung FIXME zu sehen.
+jonglierenden Roboter eine eigene Zusammenstellung von durchzuführenden Bildverarbeitungsschritten
+erarbeitet wie in Abbildung \ref{ourpipeline} zu sehen.
 
 Die Verarbeitung wird auf den Einzelbildern durchgeführt, die Ergebnisse der 
 einzelnen Bilder werden dann kombiniert.  
@@ -268,9 +267,12 @@ einzelnen Bilder werden dann kombiniert.
 	abgefragt werden.
 \end{enumerate}
 
-
-% FIXME: label etc
-\includegraphics[scale=0.14]{img/processing-pipeline.png}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.14]{img/processing-pipeline.png}
+    \caption{Unsere Bildverarbeitungs-Pipeline im ersten Entwurf.}
+    \label{ourpipeline}
+\end{figure}
 
 Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der Arbeit 
 auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig 
@@ -287,7 +289,7 @@ eines Schleifendurchlaufes wird ein neuer RGB Frame und die zugehörigen
 Tiefendaten geholt. Danach folgt schrittweise Verarbeitung dieser Daten je nach 
 gewünschtem Zweck. 
 
-FIXME: Einfacher Programmablauf, Blockdiagramm? Nur wenn wir noch Platz brauchen
+{\color{red} FIXME: Einfacher Programmablauf, Blockdiagramm? Nur wenn wir noch Platz brauchen}
 
 Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene 
 Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
@@ -328,9 +330,9 @@ Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht
 vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
 
 
-FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)
+{\color{red} FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)}
 
-FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen
+{\color{red} FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen}
 
 
 \subsection{Programmfluss}
@@ -395,14 +397,37 @@ Es liegt nun
 für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich 
 zusammen aus tatsächlichen Ballpositionen, Positionen in denen sich die Hände befassen sowie potentiell weiteren Hindernissen im Sichtfeld der Kinect, wobei wir diese in unseren Testdaten vermeiden haben. Bei den tatsächlichen Ballpositionen ist zu beachten, dass diese etwas ungenau sind und mit mehreren Pixeln vom tatsächlichen Ballmittelpunkt abweichen können.
 
-% FIXME: label etc
-\includegraphics[scale=0.5]{img/rects-1.png}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/rects-1.png}
+    \vspace{-0.5cm}
+    \caption{FIXME}
+    \label{rects-1}
+\end{figure}
 
-\includegraphics[scale=0.5]{img/rects-2.png}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/rects-2.png}
+    \vspace{-0.5cm}
+    \caption{FIXME}
+    \label{rects-2}
+\end{figure}
 
-\includegraphics[scale=0.5]{img/rects-3.png}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/rects-3.png}
+    \vspace{-0.5cm}
+    \caption{FIXME}
+    \label{rects-3}
+\end{figure}
 
-\includegraphics[scale=0.5]{img/rects-4.png}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/rects-4.png}
+    \vspace{-0.5cm}
+    \caption{FIXME}
+    \label{rects-4}
+\end{figure}
 
 Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiellen
 Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames 
@@ -539,10 +564,21 @@ class BallCounter(object):
 \end{lstlisting}
 
 
-% FIXME: label etc
-\includegraphics[scale=0.5]{img/ballcount-1.png}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/ballcount-1.png}
+    \vspace{-0.5cm}
+    \caption{FIXME}
+    \label{ballcount-1}
+\end{figure}
 
-\includegraphics[scale=0.5]{img/ballcount-2.png}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/ballcount-2.png}
+    \vspace{-0.5cm}
+    \caption{FIXME}
+    \label{ballcount-2}
+\end{figure}
 
 
 \subsection{Würfe zählen}
@@ -565,7 +601,7 @@ Lerneffekt, Frustration, Bewertung des Endprodukts
 \bibliographystyle{plain}
 \begin{thebibliography}{99}
 
-%\cite{violajones}
+%\cite{hacking}
 \bibitem{hacking}
 Jeff Kramer, Nicolas Burrus, Florian Echtler, Daniel Herrera C., Matt Parker\\
 {\em Hacking the Kinect}\\
@@ -582,12 +618,20 @@ Kongens Lyngby, Denmark, 2008.\\
 \url{http://www.imm.dtu.dk/English/Research/Image_Analysis_and_Computer_Graphics/Publications.aspx?lg=showcommon&id=223656}
 
 \bibitem{kober}
-Jens Kober$^{1}$, Matthew Glisson, and Michael Mistry$^{2}$,\\
+Jens Kober$^{1,2}$, Matthew Glisson$^{2}$, and Michael Mistry$^{2,3}$,\\
 {\em Playing Catch and Juggling with a Humanoid Robot}.\\
-Disney Research, Pittsburgh, USA,\\
+$^{2}$ Disney Research Pittsburgh, USA\\
 $^{1}$ Bielefeld University, Germany,\\
-$^{2}$ University of Birmingham, UK\\
-FIXME.
+$^{3}$ University of Birmingham, UK.
+
+\bibitem{disneyresearch}
+Jens Kober$^{1,2}$, Matthew Glisson$^{2}$, and Michael Mistry$^{2,3}$,\\
+\note{Disney Research Project Web Page}\\
+{\em Playing Catch and Juggling with a Humanoid Robot}.\\
+$^{2}$ Disney Research Pittsburgh, USA\\
+$^{1}$ Bielefeld University, Germany,\\
+$^{3}$ University of Birmingham, UK\\
+\url{http://www.disneyresearch.com/project/juggling_robot} (accessed on 2014-06-22).
 
 \bibitem{openkinect}
 {\em OpenKinect project}\\
@@ -621,12 +665,6 @@ Christian Richardt$^{1,2}$, Carsten Stoll$^{1}$, Neil A. Dodgson$^{2}$, Hans-Pet
 $^{1}$ MPI Informatik,\\
 $^{1}$ University of Cambridge,\\
 EUROGRAPHICS Volume 31, Number 2, 2012.
-
-\bibitem{robotarm}
-Jörn Malzahn, Anh Son Phung, Torsten Bertram\\
-{\em A Multi-Link-Flexible Robot Arm Catching Thrown Balls}\\
-Institute of Control Theory and Systems Engineering, Technische Universität Dortmund,\\
-Germany, 2012.
 
 \end{thebibliography}
 
