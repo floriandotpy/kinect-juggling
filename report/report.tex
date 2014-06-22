@@ -529,9 +529,23 @@ Anwendungsrelevanz.
 
 \section{Anwendungsmöglichkeiten}
 
-Projekte nehmen als Grundlage für einfache Programme / Spiele.
+Die Grundidee des Projektes bestand in der Erstellung eines Systems zum Erkennen und 
+Verfolgen von Jonglierbällen in Echtzeit. Als Ziel hinter dieser Idee ist die 
+Möglichkeit gesehen, mit den gewonnenen Informationen verschiedene Anwendungen zu 
+ermöglichen. Das Projekt kann im aktuellen Zustand als Grundlage genommen werden 
+für einfache Programme und Spiele.
 
-\subsection{Objekte zählen}
+\subsection{Idee: Ein interaktiver Jongliertrainer}
+
+Als denkbare Anwendung auf Basis der von uns erstellten Vorverarbeitung ist ein
+interaktiver Jongliertrainer zu nennen. Ein solches Programm würde automatisch die 
+Qualität und Güte eines Jongliermusters erkennen und so über die Zeit den Fortschritt
+der jonglierenden Person aufzeichnen.
+
+Hierzu sind mehrere Grundaufgaben zu lösen, dessen Implementierung wir teilweise
+bereits in unser Projekt aufgenommen haben.
+
+\subsubsection{Objekte zählen}
 
 Mit den erkannten momentan fliegenden Objekten haben wir als erste Anwendung einen
 einfachen Zähler geschrieben, der die tatsächliche Anzahl der im Muster befindlichen Objekte zu bestimmen versucht.
@@ -581,9 +595,89 @@ class BallCounter(object):
 \end{figure}
 
 
-\subsection{Würfe zählen}
+\subsubsection{Würfe zählen}
 
-\subsection{... ?}
+Eine weitere Möglichkeit ist das Zählen von aufeinander folgenden Würfen. Dies ist 
+bereits ein Schritt in die Richtung eines Jongliertrainers, der den Fortschritt eines
+Jongleurs über eine gewisse Zeit aufzeichnet und misst.
+
+Als Herausforderung bei der Implementierung ist zuerst die Tatsache zu nennen, dass
+es in den von uns bisher betrachteten Testdaten öfter vorkommt, dass ein Ball in 
+einem Frame nicht erkannt wird, da der Sensor hier keine zuverlässigen Informationen
+liefert. Im bisherigen Modell wird dadurch das Ballobjekt verworfen und erst im
+darauf folgenden Frame ein neues initialisiert. Das Zählen von Würfen stimmt
+also nicht mit dem Zählen von Ball-Initialisierungen überein.
+
+Denkbare Lösungsansätze wären hier, die zwei (oder mehr) Teile einer unterbrochenen
+Wurfparabel zu erkennen und den Zwischenschritt zu interpolieren, um die gesamte
+Wurfbahn als einen einzelnen Wurf aufzufassen.
+
+Wird die zeitliche Verteilung der Würfe aufgezeichnet, lässt sich auch analysieren,
+wie gleichmäßig der Jonglier-Rhythmus ist. Auch dies ist ein wichtiger Faktor 
+
+\subsubsection{Wurfhöhen messen}
+
+Ein gutes Jongliermuster zeichnet sich durch seiner Gleichmäßigkeit aus. Dies trifft 
+sowohl auf  
+
+\subsection{Idee: Siteswaps erkennen}
+
+Bisher haben wir immer über die Grundmuster beim Jonglieren gesprochen, bei denen
+Bälle im gleichmäßigen Rhythmus auf gleicher Höhe immer die gleichen Wurfbahnen 
+durchlaufen. Tatsächlich existieren komplexere Jongliermuster, die gewissen Regeln 
+folgen müssen, damit in einem gleichmäßigen Rhythmus jongliert werden kann, die Bälle 
+verschieden hohe Flugbahnen verfolgen können, und dabei nie zwei Objekte zur gleichen
+Zeit in der Hand landen.
+
+Eine Notation zur Aufzeichnung solche Muster ist die \textit{Siteswap-Notation}, ein
+entsprechend jongliertes Muster wird verkürzt als \textit{Siteswap} bezeichnet. 
+Vereinfacht gesagt sind Siteswaps für das Jonglieren so etwas wie Noten für Musiker.
+Die Notation besteht hierbei grundlegend aus Zahlenreihen, wobei jede Stelle der
+Reihe einem Wurf entspricht, der Wert an der Stelle bestimmt die Höhe des Wurfes. 
+
+Der Siteswap \textit{531} etwa besteht aus drei Würfen. Die \textit{5} entspricht 
+einem Wurf der Höhe von einer regulären 5-Ball-Jonglage, die \textit{3} entsprechend 
+der Höhe einer 3-Ball-Jonglage. Da laut offizieller Regelung (FIXME source) eine 
+Jonglage erst dann als Jonglieren zählt, wenn mehr Objekte als Hände beteiligt sind, 
+haben die Werte Zwei, Eins und Null eine Sonderbedeutung. Die Null im Siteswap 
+bezeichnet eine leere Position zu diesem Takt, die Eins ist ein Übergeben des 
+Objektes von einer in die andere Hand und die Zwei bedeutet ein Festhalten des Balles
+während einer Zählzeit.
+
+Die konkreten Wurfhöhen sind hierbei nicht von der Zahlenvorschrift festegelegt, sie 
+bezeichnen lediglich relative Höhenabstände zueinander. 
+
+Siteswaps sind zudem periodisch zu verstehen, können also fortlaufend jongliert 
+werden. Der oben betrachtete Siteswap \textit{531} ist also gleichbedeutend mit 
+\textit{531531531$\dots$}.
+
+Tatsächlich tragen die Zahlen bereits viel Information, die nicht erst beim 
+Jonglieren sichtbar wird. So ist ein Siteswap immer nur mit einer bestimmten 
+Objektanzahl möglich, die dem Durchschnitt der einzelnen Wurfwerte entspricht.
+Teilt man also die Quersumme von \textit{531} ($= 9$) durch die Anzahl der Würfe 
+($3$), sieht man, dass dies tatsächlich ein 3-Ball-Muster ist. Hierbei sind nur 
+ganzzahlige Ergebnisse möglich. \textit{541} etwa wäre kein valider Siteswap und ist
+nicht jonglierbar.
+
+Wie an Hand dieser kurzen Einführung bereits deutlich wird, bieten Siteswaps sich gut 
+zur automatischen Analyse an. Möglich und denkbar ist also eine Anwendung, die an 
+Hand der von unserem System gelieferten Daten automatisch Siteswaps erkennt.
+
+Hierbei wären folgende grundlegenden Schritte notwendig.
+
+\begin{enumerate}
+\item Würfe mit ihren absoluten Wurfhöhen aufzeichnen
+\item Würfe nach Abwurfzeit sortieren
+\item Relative Wurfhöhen bestimmen
+\item Bei möglichen Mehrdeutigkeiten das Wissen aus der Siteswap Theorie nutzen
+\end{enumerate}
+
+Mit Hilfe dieser Erkennung ist es denkbar, dem Akteur vor der Kinect Aufgaben an Hand 
+von Jongliermustern zu geben, die erfolgreich jongliert werden müssen. Ein Muster
+kann animiert vorjongliert werden, der Akteur muss hierbei nicht einmal mit der 
+Zahlentheorie konfrontiert werden. So ist ein einfaches Level-basiertes System 
+denkbar, das einen Jonglieranfänger vom Grundmuster zu komplexeren Mustern und
+sogar mehr als drei Jonglierobjekten führt.
 
 \section{Fazit}
 
