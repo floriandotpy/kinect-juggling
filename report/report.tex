@@ -318,7 +318,7 @@ zu müssen.
 Waren die Filter ursprünglich als isolierte Einheiten mit simplem 
 Input-Output-Verhalten von Bild- bzw. Tiefendaten gedacht, fiel uns schnell auf,
 dass einige Filter Zusatzinformationen liefern, die von anderen Filtern gebraucht 
-werden. Um Filter nicht intern Unteraufrufe von von anderen Filtern oder Komponenten
+werden. Um Filter nicht intern Unteraufrufe von anderen Filtern oder Komponenten
 ausführen zu lassen (dies wäre ebenfalls eine denkbare Lösung), entschieden wir uns
 für ein Objekt, das von der Hauptkomponente des Programms in jeden Filter 
 hineingereicht wird und in dem jeder Filter Informationen ablegen und abfragen kann.
@@ -343,13 +343,19 @@ Normieren aux XXX Tiefenwerte
 
 \subsubsection{Schritt 2: Regions Of Interest isolieren}
 
-Hintergrund entfernen, Bälle freistellen. Zwei Ansätze:
+Um den Hintergrund zu entfernen und die Bälle freizustellen, wurden zwei Ansätze getestet:
 
-A. keine Objekte auf Tiefenebene zwischen Spieler und Kinect, auch nicht am Rand. Tiefenwerte aber einem gewissen Wert einfach abschneiden. Annahme: Spieler steht auf Linie oder ähnlich. Tiefendaten binarisieren.
+\begin{itemize}
+\item[A.]Möglichst keine Objekte in der Tiefenebene zwischen dem Spieler und der Kinect platzieren, auch nicht am Rand. Die Tiefenwerte
+werden nun ab einem gewissen Wert einfach abgeschnitten, so dass in diesen im optimalen Fall nur noch die Bälle sowie die Hände des
+Jongleurs verbleiben. Hier wird also die Annahme getroffen, dass der Spieler auf einer Linie oder ähnlichem in einem festen Abstand zur
+Kinect steht. Die Tiefendaten werden nun noch binarisiert.
+\item[B.]Mit einem temporalen Filter sich bewegende Regionen isolieren. Dieses erlaubt auch störende Objekte wie Stühle am Rand sowie
+einen flexiblen Abstand des Spielers zur Kinect. Nach einer Implementierung wurde aber deutlich, dass das Verfahren bei schnellen Bewegungen
+(wie dem Ballwurf) nicht zuverlässig ist. Außerdem traten vermehrt Probleme mit unscharfen Objekträndern und Rauschen auf, die aber mit Funktionen der VIGRA\cite{vigra} kompensiert werden konnten. Die Probleme mit schnellen Bewegungen verlieben aber und es kamen noch technische Hürden hinzu, wie die VIGRA\cite{vigra} als weitere Abhängigkeit.
+\end{itemize}
 
-B. Mit temporalem Filtering sich bewegende Regionen isolieren. Erlaubt auch störende Objekte wie Stühle am Rand, Erfahrung aber nicht so gut, da das Verfahren bei schneller Bewegung (Ballwurf) nicht zuverlässig ist. Außerdem Probleme mit unscharfen Objekträndern und Rauschen. Außerdem technische Hürden (Vigra als weitere Abhängigkeit).
-
-Bewertung: Ansatz A völlig ausreichend für unsere Zwecke. Einschränkung der Spielerposition nicht störend, da dies sogar interaktiv durchgeführt werden (so lange nach vorne gehen, bis System vernünftige Werte liefert - kein aufwändiges Abmessen nötig).
+Wir stellten fest, dass Ansatz A völlig ausreichend für unsere Zwecke ist. Die Einschränkung der Spielerposition ist ebenfalls nicht störend, da dies sogar interaktiv durchgeführt werden kann (so lange nach vorne gehen, bis das System vernünftige Werte liefert - kein aufwändiges Abmessen nötig). Weiterhin redgt dies sogar den Spieler an, seine Ballwürfe kontrolliert durchzuführen, ohne dass diese ihn zu Positionsveränderungen zwingen.
 
 \subsubsection{Schritt 3: Bälle in Frame-Folgen einander zuordnen}
 
@@ -358,8 +364,9 @@ Kleine Rechtecke und solche, die den Bildrahmen berühren, werden hierbei bereit
 
 Durch die resultierende Liste von Rechtecken wird iteriert und jeder 
 Rechteckmittelpunkt als mögliche Ballposition aufgefasst (die kürzere Rechteckskante
-wird vorerst als Balldurchmesser gespeichert, vorerst aber ignoriert). 
+wird als Balldurchmesser gespeichert, vorerst aber ignoriert).
 
+\vspace{0.5cm}
 \begin{lstlisting}[language=Python,caption={RectsFilter.py, Ausschnitt}]
 # ...
 
@@ -394,8 +401,7 @@ wird vorerst als Balldurchmesser gespeichert, vorerst aber ignoriert).
 \end{lstlisting}
 
 Es liegt nun
-für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich 
-zusammen aus tatsächlichen Ballpositionen, Positionen in denen sich die Hände befassen sowie potentiell weiteren Hindernissen im Sichtfeld der Kinect, wobei wir diese in unseren Testdaten vermeiden haben. Bei den tatsächlichen Ballpositionen ist zu beachten, dass diese etwas ungenau sind und mit mehreren Pixeln vom tatsächlichen Ballmittelpunkt abweichen können.
+für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich aus tatsächlichen Ballpositionen, Positionen in denen sich die Hände befinden sowie potentiell weiteren Hindernissen im Sichtfeld der Kinect zusammen, wobei wir diese in unseren Testdaten vermieden haben. Bei den tatsächlichen Ballpositionen ist zu beachten, dass diese etwas ungenau sind und mit mehreren Pixeln vom tatsächlichen Ballmittelpunkt abweichen können.
 
 \begin{figure}[H]
     \centering
@@ -433,7 +439,7 @@ Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiell
 Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames 
 hinweg eine neue Position einem bestehenden Ball zuordnen soll.
 
-Dies ist der aufwändigste Schritt wie sich herausgestellt hat, zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben.
+Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben.
 
 Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine 
 Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die 
@@ -442,9 +448,9 @@ Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl de
 Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele false-positives
 erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle 
 während des Fluges. Bei Betrachtung der Beispielaufnahmen (siehe oben) wird auch 
-deutlich, dass eine vermutete Position teilweise ein deutlich von der tatsächlichen
+deutlich, dass eine vermutete Position teilweise deutlich von der tatsächlichen
 Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen Gewinn 
-ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- udn 
+ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- und 
 Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu 
 stützen.
 
@@ -453,39 +459,37 @@ Projektablaufes mehrere Problemquellen identifizieren können, die die verschied
 Ansätze unterschiedlich stark beeinflussen:
 
 \begin{itemize}
- \item Hände sind auch als Rechtecke enthalten 
- \item Bälle fliegen sehr nah, teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes zu sehen ist und als eine mögliche Ballposition untersucht wird
- \item Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange Strecken zurück, teilweise sehr große (Pixelanzahl angeben?) 
- \item Mindestabstand zur Kinect resultiert in kleinem Jongliermuster, das verstärkt die problematischen Faktoren
- \item Teilweise fehlt eine Region in einem erkannten Frame
+ \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten.
+ \item Die Bälle fliegen sehr nahe beieinander und teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes Rechteck zu sehen ist und als eine mögliche Ballposition untersucht wird.
+ \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück. (Pixelanzahl angeben?)
+ \item Der Mindestabstand zur Kinect resultiert in einem kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
+ \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon.
 \end{itemize}
  
 Diese Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
 uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
-in zwei Gruppen unterteilen, in die erste Gruppe, bei der von vorneherein von einer
-festen Ballanzahl ausgegangen wird und die zweiter Gruppe, der bei dynamisch auch wechselnde Ballanzahlen erlaubt sind.
-
+in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
+festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
 
 Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
 zu jeder bereits existierenden Ballinstanz eine Position aus den erkannten Rechtecken
-auszuwählen, welche als neue Position des Balls erkannt wird. Da im Allgemeinen nie
+auszuwählen, welche als neue Position des Balls festgelegt wird. Da im Allgemeinen nie
 zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet, wir nennen die folgenden Ansätze daher
 auch \textit{konsumierende Ansätze}. FIXME: das ist falsch, konsumierend $\neq$ feste Ballanzahl.
  
  \begin{enumerate}
- \item Nächste Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegung und nah aneinander fliegender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt -> Beachtung von "springenden" Bällen.
- \item Verbesserungsansatz: erwartete Ballposition wird approximiert mit vorheriger Bewegung (linearer Bewegungsvektor). Teilweise besser, aber schwierig, die initiale Bewegung zu Erkennen, auch weiterhin Probleme mit Lücken in den Informationen.
- \item Verbesserung: Nicht linear, sondern Flugbahn vorberechnen. Linearer Bewegungsvektor wird als Tangente an Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochtmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
-  \end{enumerate}
+ \item Die zwei sich am nächsten Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegungen und nahe aneinander passierender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt $\rightarrow$ Beachtung von ``springenden'' Bällen.
+ \item Verbesserungsansatz: Die erwartete Ballposition wird mit der vorherigen Bewegung (linearer Bewegungsvektor) approximiert. Dies ist teilweise besser, aber trotzdem noch schwierig, die initiale Bewegung zu Erkennen. Hierbei verbleiben auch weiterhin Probleme mit Lücken in den Informationen.
+ \item Weitere Verbesserung: Keinen linearen Bewegungsvektor nutzen, sondern die Flugbahn vorberechnen. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
+ \end{enumerate}
   
   
 Im Gegensatz dazu sind die folgenden nicht konsumierende Ansätze zu sehen, bei denen
 wir auch eine variable Ballanzahl erlauben. FIXME: das ist falsch, siehe oben
   
 \begin{enumerate}
-	\item wenn langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
-	\item wie Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern
-	aus den letzten 3 Frames berechnet mit \lstinline{np.polyfit}.
+	\item Wenn eine langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
+	\item Wie der Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames mit \lstinline{np.polyfit} berechnet.
 \end{enumerate}
 
 
@@ -501,15 +505,32 @@ Das fehlt uns noch. Aber aus den gelieferten Daten wollen wir dann höher-leveli
 
 Der Kalman Filter kann sich bewegende Objekte beobachten und Schätzungen zur aktuellen oder auch zukünftigen Position machen.
 
-In diesem Projekt wird er dazu verwendet, die Bälle zu beobachten und die weitere Flugbahn zu bestimmen. Damit kann eine voraussichtliche Flugbahn in die Ausgabe gezeichnet werden, aber auch in der internen Verfolgung und Zuordnung der Bälle spielen die Ergebnisse eine wichtige Rolle.
+In diesem Projekt wird er dazu verwendet, die Bälle zu beobachten und die weitere Flugbahn abzuschätzen. Damit kann eine voraussichtliche Flugbahn in die Ausgabe gezeichnet werden, aber auch in der internen Verfolgung und Zuordnung der Bälle spielen die Ergebnisse eine wichtige Rolle.
 
-Der Kalman Filter besteht aus zwei Funktionen, einem {\tt predict} und einem {\tt update}. Im {\tt predict} wird mit Informationen zur Art der Bewegung und mit mindestens einer Ortsinformation zum Zeitpunkt {\tt t} eine Schätzung zum Ort im Zeitpunkt {\tt t+1} gemacht. Ein {\tt predict} kann beliebig oft hintereinander ausgeführt werden.
+Der Kalman Filter besteht in der Theorie aus zwei Teilen, einem {\tt predict} und einem {\tt update}.\\
+Im {\tt predict} wird mit Informationen zur Art der Bewegung und mit mindestens einer Ortsinformation zum Zeitpunkt {\tt t} eine Schätzung zum Ort im Zeitpunkt {\tt t+1} gemacht.
+Ein {\tt predict} kann beliebig oft hintereinander ausgeführt werden.
 
 Im {\tt update} wird die aktuell gespeicherte Ortsinformation mit extern gewonnen Daten aktualisiert. Die hier gemessene Abweichung zwischen Schätzung und tatsächlichen Daten kann natürlich auch zur weiteren Schätzung eingebracht werden. Ein {\tt update} wird nicht mehrmals hintereinander ausgeführt.
 
+In diesem Projekt wird eine sehr einfache Implementierung des Kalman Filters verwendet, bei dem {\color{red} FIXME}
+
 \subsection{Herausforderungen}
 
-Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über?
+{\color{red}Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über?}
+
+Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
+
+Einige dieser Ansätze, die uns Schwierigkeiten bereitet haben, werden hier kurz vorgestellt, das Problem der Idee aufgezeigt, und wie wir sie letzten Endes doch implementiert haben - oder warum sie es nicht in die Software schafften.\\
+Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeit, sondern schrieben wild drauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
+
+\subsubsection{Hough}
+
+\subsubsection{Kalman}
+
+\subsubsection{Temporal Filter}
+
+\subsubsection{FIXME}
 
 \subsection{Bewertung der Umsetzung}
 
@@ -702,15 +723,6 @@ Jeff Kramer, Nicolas Burrus, Florian Echtler, Daniel Herrera C., Matt Parker\\
 ISBN 978-1-4302-3867-6\\
 Springer Science+Business Media New York, 2012.
 
-% DIES IST EIN BEISPIELEINTRAG!
-\bibitem{ole}
-Ole Helvig Jensen,\\
-{\em Implementing the Viola-Jones Face Detection Algorithm}\\
-IMM-M.Sc.: ISBN 87-643-0008-0 \qquad ISSN 1601-233X\\
-Technical University of Denmark, Informatics and Mathematical Modelling\\
-Kongens Lyngby, Denmark, 2008.\\
-\url{http://www.imm.dtu.dk/English/Research/Image_Analysis_and_Computer_Graphics/Publications.aspx?lg=showcommon&id=223656}
-
 \bibitem{kober}
 Jens Kober$^{1,2}$, Matthew Glisson$^{2}$, and Michael Mistry$^{2,3}$,\\
 {\em Playing Catch and Juggling with a Humanoid Robot}.\\
@@ -748,17 +760,17 @@ Yan Cui$^{1}$, Will Chang, Tobias Nöll$^{1}$, Didier Stricker$^{1}$\\
 $^{1}$ Augmented Vision, DFKI,\\
 German Research Center for Artificial Intelligence.
 
-\bibitem{motiondeblurring}
-Hyeoungho Bae, Charless C. Fowlkes, Pai H. Chou\\
-{\em Accurate Motion Deblurring using Camera Motion Tracking and Scene Depth}\\
-University of California, Irvine.
-
 \bibitem{rgbzvideos}
 Christian Richardt$^{1,2}$, Carsten Stoll$^{1}$, Neil A. Dodgson$^{2}$, Hans-Peter Seidel$^{1}$, Christian Theobalt$^{1}$\\
 {\em Coherent Spatiotemporal Filtering, Upsampling and Rendering of RGBZ Videos}\\
 $^{1}$ MPI Informatik,\\
 $^{1}$ University of Cambridge,\\
 EUROGRAPHICS Volume 31, Number 2, 2012.
+
+\bibitem{vigra}
+Ullrich Köthe und viele weitere Mitwirkende\\
+{\em The VIGRA Computer Vision Library Version 1.10.0}\\
+\url{http://ukoethe.github.io/vigra/} (accessed on 2014-06-24).
 
 \end{thebibliography}
 
