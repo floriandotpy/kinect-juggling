@@ -524,7 +524,37 @@ Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implemen
 Einige dieser Ansätze, die uns Schwierigkeiten bereitet haben, werden hier kurz vorgestellt, das Problem der Idee aufgezeigt, und wie wir sie letzten Endes doch implementiert haben - oder warum sie es nicht in die Software schafften.\\
 Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeit, sondern schrieben wild drauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
 
-\subsubsection{Hough}
+\subsubsection{Hough-Transformation}
+Die Hough-Transform wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
+Ursprünglich wurde das Verfahren zum Finden von geraden Linien von Hough patentiert, jedoch dann von Duda und Hart verbessert und auch das Finden von Kreisen bzw. Kurven ermöglicht.
+
+Das Finden von Geraden wird so erreicht, dass für jeden Kantenpunkt (die vorher mit einem Kantendetektor, wie z.B. dem Canny-Algorithmus, gefunden werden) alle möglichen Geraden, die durch diesen Punkt gehen, aufgestellt werden, und von diesen die Parameter im Parameterraum abgebildet werden.\\
+Anfangs wurden die Steigung und der y-Achsenabschnitt verwendet, doch da sich Probleme bei Kanten parallel zur y-Achse ergaben, wird nun die Hessesche Normalform der Geraden verwendet und als Parameter ein Winkel $\alpha$, in welchem ein Vektor vom Koordinatenursprung orthogonal eine Gerade schneidet, die durch den zu betrachtenden Punkt geht, verwendet. Der weitere Parameter ist die Länge dieses Vektors, bzw. der Abstand vom Ursprung bis zur Geraden, die orthogonal unseren Hilfsvektor schneidet.
+
+\begin{figure}[H]
+  \centering
+      \includegraphics[scale=1.1]{img/Hough1.png}
+  \caption{Anstatt Steigung und y-Achsenabschnitt werden als Parameter $\alpha$ und d genommen.}
+\end{figure}
+Wenn dies nun für alle vorhandene Kantenpunkte gemacht wird, werden im Parameterraum eine dementsprechende Anzahl von Kurven (oder Geraden) abgebildet, die einen exakten, oder ungefähren Schnittpunkt besitzen sollten. Die Parameter, die an diesem Punkt abgelesen werden, stellen die Parameter für unsere Kante im Bild durch die Kantenpunkte dar.\\\\
+\begin{figure}[H]
+  \centering
+      \includegraphics[scale=1.1]{img/Hough2.png}
+  \caption{Überschneidung der Kurven im Parameterraum geben an, welche Parameter für die gesuchte Gerade zu nutzen sind.}
+\end{figure}
+Möchte man nun einen Kreis im Bild finden, werden von den Kantenpunkten alle möglichen Kreisgleichungen aufgestellt, dementsprechend als Parameter der Radius und der Mittelpunkt $(x,y)$ gewählt, womit wir einen dreidimensionalen Parameterraum haben.\\
+Unter berücksichtigung eines Maximalwertes für den Radius tut man dies für alle Kantenpunkte, und anschließend lässt sich im Parameterraum wieder ein Schnittpunkt ablesen, an der sich die Parameter des gesuchten Kreises befinden.\\\\
+\begin{figure}[H]
+  \centering
+      \includegraphics[scale=1.1]{img/Hough3.png}
+  \caption{Es entstehen Kegeln, an denen sich wieder ein Schnittpunkt bildet.}
+\end{figure}
+Dieses kann man für beliebige Formen anwenden, die durch eine Parameterdarstellung definiert werden können, aber je mehr Parameter vorhanden sind, desto aufwändiger wird auch die Berechnung werden.
+
+Dieses Verfahren sollte genutzt werden, um die genauen Ballpositionen im Tiefen- oder auch RGB-Bild zu bestimmen. Wenn möglich, sollte nach dem Filtern nach Regions of Interest im Tiefenbild auf diesen gefundenen Regionen die Hough-Transformation durchgeführt werden, um Kreise bzw. Bälle zu finden, oder auch Regionen ohne Bälle ausschließen zu können.\\
+Genutzt haben wir die Implementation der Hough-Transformation der OpenCV\cite{opencv}-Bibliothek. Hierbei wurde festgestellt, dass durch Einstellen der Parameter der Funktion die Kreiserkennung sehr fein bestimmt werden kann. Da, wie in Abbildungen \ref{rects-1} bis \ref{rects-4} zu sehen ist, die Bälle fast nie als saubere Kreise mit scharfen Kanten aufgenommen werden, war das Feintuning der Parameter unmöglich. Entweder wurde sehr grob eingestellt, so dass alle Bälle zwar erkannt wurden, dabei aber noch viel mehr False-Positives entstanden, oder es wurde so fein eingestellt, dass nur sehr sauber aufgenomme Bälle erkannt wurden. Bei letzterem wurden insgesamt aber viel zu wenige Bälle gefunden, so dass durch Einsetzen dieses Verfahren in unserem Fall kein Vorteil, sondern nur Nachteile entstanden.\\
+Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beansprucht und durch viel Kreisdetektion die ausgegebene Frame-Rate sank. Bei guten Aussichten des Algorithmus' \\
+FIXME Satz beenden, dass mit Einbindung von Algorithmus in C o.ä. bestimmt schneller, oder durch eigene Implementierung evtl besser
 
 \subsubsection{Kalman}
 
@@ -716,6 +746,10 @@ Lerneffekt, Frustration, Bewertung des Endprodukts
 \bibliographystyle{plain}
 \begin{thebibliography}{99}
 
+{\color{red}
+\bibitem{FIXME}
+FIXME Bibliothek evtl. etwas sortieren oder so}
+
 %\cite{hacking}
 \bibitem{hacking}
 Jeff Kramer, Nicolas Burrus, Florian Echtler, Daniel Herrera C., Matt Parker\\
@@ -771,6 +805,17 @@ EUROGRAPHICS Volume 31, Number 2, 2012.
 Ullrich Köthe und viele weitere Mitwirkende\\
 {\em The VIGRA Computer Vision Library Version 1.10.0}\\
 \url{http://ukoethe.github.io/vigra/} (accessed on 2014-06-24).
+
+\bibitem{hough}
+Richard O. Duda, Peter E. Hart,\\
+{\em Use of the Hough Transformation to detect lines and curves in pictures}\\
+Technical Note 36, Artificial Intelligence Center, April 1971,\\
+Published in the  Comm. ACM, Vol 15, No. 1 (11-15), January 1972.\\
+\url{http://www.ai.sri.com/pubs/files/tn036-duda71.pdf} (accessed on 2014-06-25).
+
+\bibitem{opencv}
+OpenCV (Open Source Computer Vision)\\
+\url{http://opencv.org/}  (accessed on 2014-06-25).
 
 \end{thebibliography}
 
