@@ -552,9 +552,10 @@ Unter berücksichtigung eines Maximalwertes für den Radius tut man dies für al
 Dieses kann man für beliebige Formen anwenden, die durch eine Parameterdarstellung definiert werden können, aber je mehr Parameter vorhanden sind, desto aufwändiger wird auch die Berechnung werden.
 
 Dieses Verfahren sollte genutzt werden, um die genauen Ballpositionen im Tiefen- oder auch RGB-Bild zu bestimmen. Wenn möglich, sollte nach dem Filtern nach Regions of Interest im Tiefenbild auf diesen gefundenen Regionen die Hough-Transformation durchgeführt werden, um Kreise bzw. Bälle zu finden, oder auch Regionen ohne Bälle ausschließen zu können.\\
-Genutzt haben wir die Implementation der Hough-Transformation der OpenCV\cite{opencv}-Bibliothek. Hierbei wurde festgestellt, dass durch Einstellen der Parameter der Funktion die Kreiserkennung sehr fein bestimmt werden kann. Da, wie in Abbildungen \ref{rects-1} bis \ref{rects-4} zu sehen ist, die Bälle fast nie als saubere Kreise mit scharfen Kanten aufgenommen werden, war das Feintuning der Parameter unmöglich. Entweder wurde sehr grob eingestellt, so dass alle Bälle zwar erkannt wurden, dabei aber noch viel mehr False-Positives entstanden, oder es wurde so fein eingestellt, dass nur sehr sauber aufgenomme Bälle erkannt wurden. Bei letzterem wurden insgesamt aber viel zu wenige Bälle gefunden, so dass durch Einsetzen dieses Verfahren in unserem Fall kein Vorteil, sondern nur Nachteile entstanden.\\
-Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beansprucht und durch viel Kreisdetektion die ausgegebene Frame-Rate sank. Bei guten Aussichten des Algorithmus' \\
-FIXME Satz beenden, dass mit Einbindung von Algorithmus in C o.ä. bestimmt schneller, oder durch eigene Implementierung evtl besser
+Genutzt haben wir die Implementation der Hough-Transformation in der OpenCV\cite{opencv}-Bibliothek. Hierbei wurde festgestellt, dass durch Einstellen der Parameter der Funktion die Kreiserkennung sehr fein bestimmt werden kann. Da, wie in Abbildungen \ref{rects-1} bis \ref{rects-4} zu sehen ist, die Bälle fast nie als saubere Kreise mit scharfen Kanten aufgenommen werden, war das Feintuning der Parameter unmöglich. Entweder wurde sehr grob eingestellt, so dass alle Bälle zwar erkannt wurden, dabei aber noch viel mehr False-Positives entstanden, oder es wurde so fein eingestellt, dass nur sehr sauber aufgenomme Bälle erkannt wurden. Bei letzterem wurden insgesamt aber viel zu wenige Bälle gefunden, so dass durch Einsetzen dieses Verfahren in unserem Fall kein Vorteil, sondern nur Nachteile entstanden.\\
+Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beansprucht und durch viel Kreisdetektion die ausgegebene Frame-Rate sank.
+
+Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B. mit Cython, dieser Leistungsverlust ausgeglichen werden könnte. Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, wurde dagegen entschieden. Durch geschicktes filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
 
 \subsubsection{Kalman}
 
@@ -766,7 +767,7 @@ $^{3}$ University of Birmingham, UK.
 
 \bibitem{disneyresearch}
 Jens Kober$^{1,2}$, Matthew Glisson$^{2}$, and Michael Mistry$^{2,3}$,\\
-\note{Disney Research Project Web Page}\\
+Disney Research Project Web Page\\
 {\em Playing Catch and Juggling with a Humanoid Robot}.\\
 $^{2}$ Disney Research Pittsburgh, USA\\
 $^{1}$ Bielefeld University, Germany,\\
