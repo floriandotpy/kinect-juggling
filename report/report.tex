@@ -557,7 +557,9 @@ Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beanspruch
 
 Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B. mit Cython, dieser Leistungsverlust ausgeglichen werden könnte. Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, wurde dagegen entschieden. Durch geschicktes filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
 
-\subsubsection{Kalman}
+\subsubsection{Kalman-Filter}
+
+
 
 \subsubsection{Temporal Filter}
 
