@@ -510,23 +510,45 @@ Das fehlt uns noch. Aber aus den gelieferten Daten wollen wir dann höher-leveli
 
 \subsubsection{Kalman Filter}
 
-{\color{red} FIXME: alles überarbeiten, mehr, nochmal nachlesen, wie's wirklich ist, Schaubilder}
+{\color{red} FIXME: Schaubilder}
 
-Der Kalman Filter kann sich bewegende Objekte beobachten und Schätzungen zur aktuellen oder auch zukünftigen Position machen.
+Der Kalman Filter ist ein in 1960 von Rudolf E. Kálmán vorgestellter Algorithmus, welcher aus mehreren ungenauen Messungen versucht, die tatsächlichen Daten, die diesen Messungen zu Grunde liegen, zu estimieren.\cite{kalman} Solche Ungenauigkeiten können durch die Messsensoren entstehen, wenn diese aus verschiedenen Gründen nicht präzise genug aufnehmen können, oder auch durch ein Rauschen der Aufnahmequelle. Mit dem Kalman-Filter können so über einen bestimmten Zeitraum aufgenommene Daten mit möglichst vielem Wissen über potentielle Messabweichungen genauer bestimmt werden, als mit nur einzelnen Messungen.
 
-In diesem Projekt wird er dazu verwendet, die Bälle zu beobachten und die weitere Flugbahn abzuschätzen. Damit kann eine voraussichtliche Flugbahn in die Ausgabe gezeichnet werden, aber auch in der internen Verfolgung und Zuordnung der Bälle spielen die Ergebnisse eine wichtige Rolle.
+Dieser Algorithmus wird heutzutage in vielen Bereichen eingesetzt, sehr oft aber in der Navigationstechnologie von Fahrzeugen aller Art. Die Position eines Fahrzeuges wird beispielsweise über GPS empfangen. Diese Technologie kann selbst mit einer zusätzlichen Korrektur (WAAS/EGNOS-Korrektursignale mit Hilfe von Bodenstationen\cite{waas}\cite{egnos}) die Position auf ca. 5-20m bei reinem GPS und etwa 1-3m genau mit Korrektur bestimmen. 1-3m Genauigkeit kann bei privaten Fahrzeugen mit Navigationsgerät reichen, dennoch sähe es merkwürdig aus, würde die eigene Position selbst bei Stillstand hin und her springen. Bei der Navigation in einer Großstadt kann bei 3m Ungenauigkeit die kleine Gasse verfehlt werden, und auf der falschen Straßenseite fahren täte man laut Gerät auch andauernd.\\
+Weiterhin gibt es Fortbewegungsmittel, die vielleicht sogar ein automatisches Fahrsystem verbaut haben, bei dem eine exakte Positionsbestimmung notwendig wird.
 
-Der Kalman Filter besteht in der Theorie aus zwei Teilen, einem {\tt predict} und einem {\tt update}.\\
-Im {\tt predict} wird mit Informationen zur Art der Bewegung und mit mindestens einer Ortsinformation zum Zeitpunkt {\tt t} eine Schätzung zum Ort im Zeitpunkt {\tt t+1} gemacht.
-Ein {\tt predict} kann beliebig oft hintereinander ausgeführt werden.
+So können weitere Sensoren verbaut werden, die zusammen mit dem GPS eine genauere Positions- und Bewegungsbestimmung ermöglichen, aber selbst bei diesen können erneut Messungenauigkeiten auftreten. Mit dem Kalman Filter können so alle aufgenommene Daten mit dem Wissen über die Art der Bewegung und Annahmen zu Messfehlern verfeinert werden. Zusätzlich kann der Algorithmus mit den bisher gesammelten Daten eine Schätzung über die Position in der Zukunft machen. Wie erwähnt nutzt dieser Algorithmus alle bisher aufgenommenen Daten, jedoch werden diese als Markow-Kette modeliert, so dass eine interne Formel immer mit den neusten Daten angepasst wird und keine Iteration über alle vergangenen Daten notwendig ist. Dadurch können diese Berechnungen in Echtzeit erfolgen, was sie für die Navigationstechnologie so wertvoll macht.
 
-Im {\tt update} wird die aktuell gespeicherte Ortsinformation mit extern gewonnen Daten aktualisiert. Die hier gemessene Abweichung zwischen Schätzung und tatsächlichen Daten kann natürlich auch zur weiteren Schätzung eingebracht werden. Ein {\tt update} wird nicht mehrmals hintereinander ausgeführt.
+Eine einfache Implementierung dieses Kalman Filters besitzt zwei Funktionen, einem {\tt predict} und einem {\tt update}.
 
-In diesem Projekt wird eine sehr einfache Implementierung des Kalman Filters verwendet, bei dem {\color{red} FIXME}
+Im {\tt predict} wird mit Informationen zur Art der Bewegung und mit mindestens einer Ortsinformation zum Zeitpunkt {\tt t-1} eine Schätzung zum Ort im Zeitpunkt {\tt t} gemacht. Zusätzlich werden hierbei die Sensordaten im Zeitpunkt {\tt t} geschätzt. Ein {\tt predict} kann beliebig oft hintereinander ausgeführt werden.
+\begin{align}
+\overline{x}_{t} = A_{t}x_{t-1} + B_{t}u_{t} + \varepsilon_{t} \label{eq:predict1}\\
+\overline{z}_{t} = H_{t}\overline{x}_{t} + \varepsilon_{t} \label{eq:predict2}
+\end{align}
+
+In Formel \eqref{eq:predict1} wird die voraussichtliche Position zum Zeitpunkt {\tt t}, $\overline{x}_{t}$, berechnet. Hierbei ist $A_{t}$ das Bewegungsmodell, das auf die Position zum Zeitpunk {\tt t-1} angewandt wird, also bei einem Kraftfahrzeug wäre dies die Geschwindigkeit und Richtung im Zeitabschnitt {\tt t-1} bis {\tt t}, welche auf die vorige Position des Fahrzeuges gerechnet werden, um die aktuelle Position zu bestimmen.\\
+$u_{t}$ ist ein Vektor, der bekannte Störungen darstellt, multipliziert mit einer Matrix $B_{t}$, welche dynamisch angepasst wird.\\
+$\varepsilon_{t}$ ist noch zusätzliches Rauschen, welche mit einer Normalverteilung einbezogen werden.
+
+In Formel \eqref{eq:predict2} wird die Ausgabe der Sensoren zum Zeitpunkt {\tt t}, $\overline{z}_{t}$, geschätzt. Es wird hierbei die geschätzte Position $\overline{x}_{t}$ mit einer Beobachtungsmatrix $H_{t}$ multipliziert, welche die Abweichung von tatsächlicher Position zu beobachteter Position beinhaltet. Zusätzlich wird hier ebenfalls ein Rauschen in Form einer Normalverteilung hinzuaddiert.
+
+Im {\tt update} wird die aktuell gespeicherte Ortsinformation mit den extern gewonnen Sensordaten aktualisiert. Die hier gemessene Abweichung zwischen Schätzung und tatsächlichen Daten kann natürlich auch zur weiteren Schätzung eingebracht werden. Ein {\tt update} wird nicht mehrmals hintereinander ausgeführt.
+\begin{align}
+x_{estimate} = \overline{x}_{t} + K(z_{t} - \overline{z}_{t}) \label{eq:update}
+\end{align}
+
+Formel \eqref{eq:update} stellt ein {\tt update} dar. Mit der Abweichung zwischen den neuen Sensordaten $z_{t}$ und den geschätzten Sensordaten $\overline{z}_{t}$ wird die vorher geschätzte Position zum Zeitpunkt {\tt t}, $\overline{x}_{t}$, angepasst, so dass die angenommene Position $x_{estimate}$ errechnet wird.
+
+Einem {\tt update} geht immer ein {\tt predict} voran, jedoch kann ein {\tt predict} beliebig oft, mit neuen Zeiten, hintereinander ausgeführt werden. Hierdurch werden Schätzungen über die Position des beobachteten Objekts zu weiteren Zeiten berechnet, deren Genauigkeit, abhängig von Art der Bewegung und Abweichungen von dieser, meist mit größerer Zeit ungenauer werden. Jedoch können diese bei ausreichendem Wissen über Bewegung und Störungen für eine gewisse Zeit ausreichend genau sein, um mit ihnen zu arbeiten.
+
+In diesem Projekt sollte er bzw. eine Vereinfachung dessen dazu verwendet werden, durch Beobachten der einzelnen Bälle die voraussichtlichen Flugbahnen dieser zu bestimmen, um die Möglichkeit zu haben, diesen in den Ausgabestream als Lernhilfe einzuzeichnen. Aber selbst hierfür muss eine Beobachtung von einzelnen Bällen mit einer eindeutigen Zuordnung dieser von Frame zu Frame funktionieren, wofür der Algorithmus ebenfalls eingesetzt wird. Denn selbst wenn von Frame zu Frame alle Bälle erkannt werden, besteht die Hürde, einen Ball aus einem Frame eindeutig demselben Ball im nächsten Frame zuzuordnen.
+
+So ist in diesem Projekt das bewegte Objekt ein Ball und die Art der Bewegung eine Wurfparabel. Der Einfachkeit halber und da in diesen Zeiten vorkommende Abweichungen klein wären, außerdem eine Genauigkeit auf Pixelebene nicht notwendig ist, sind keine Störfaktoren einberechnet worden. Als Sensor wird die Kinect benutzt, mit der auf vorher beschriebene Weise die einzelnen Bälle gefunden werden.
 
 \subsection{Herausforderungen}
 
-{\color{red}Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über?}
+{\color{red}Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über? Vielleicht nochmal die Reihenfolge sortieren.}
 
 Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
 
@@ -567,8 +589,10 @@ Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beanspruch
 Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B. mit Cython, dieser Leistungsverlust ausgeglichen werden könnte. Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, wurde dagegen entschieden. Durch geschicktes filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
 
 \subsubsection{Kalman-Filter}
+{\color{red} kA, könnte hier noch 1-2 kleine Absätze zu unserem Vorgehen reinschreiben}
 
-
+\subsubsection{Local Maxima}
+{\color{red} Anfängliche Idee mit der Ballfindung über Local Maxima beschreiben, wodurch auch ein dynamischer Abstand zur Kinect möglich gewesen wäre und warum wir es doch nicht haben}
 
 \subsubsection{Temporal Filter}
 
@@ -745,6 +769,10 @@ Zahlentheorie konfrontiert werden. So ist ein einfaches Level-basiertes System
 denkbar, das einen Jonglieranfänger vom Grundmuster zu komplexeren Mustern und
 sogar mehr als drei Jonglierobjekten führt.
 
+\section{Stand der Forschung}
+
+Was Flo mit Benjamin besprochen hatte, noch ein paar aktuelle Forschungsansätzen zu Kinect u.ä. vorstellen, die mit unserem Thema zu tun haben
+
 \section{Fazit}
 
 Lerneffekt, Frustration, Bewertung des Endprodukts
@@ -830,7 +858,24 @@ Published in the  Comm. ACM, Vol 15, No. 1 (11-15), January 1972.\\
 
 \bibitem{opencv}
 OpenCV (Open Source Computer Vision)\\
-\url{http://opencv.org/}  (accessed on 2014-06-25).
+\url{http://opencv.org/} (accessed on 2014-06-25).
+
+\bibitem{kalman}
+Rudolf E. Kálmán\\
+{\em A New Approach to Linear Filtering and Prediction Problems}\\
+Transaction of the ASME, Journal of Basic Engineering, 35-45,\\
+Research Institute for Advanced Study, Baltimore, Md., 1960.\\
+\url{http://www.cs.unc.edu/~welch/kalman/media/pdf/Kalman1960.pdf} (accessed on 2014-06-26).
+
+\bibitem{waas}
+Federal Aviation Administration\\
+Frequently Asked Questions - WAAS\\
+\url{http://www.faa.gov/about/office_org/headquarters_offices/ato/service_units/techops/navservices/gnss/faq/waas/} (accessed on 2014-06-26).
+
+\bibitem{egnos}
+European Space Agency\\
+What is EGNOS?
+\url{http://www.esa.int/Our_Activities/Navigation/The_present_-_EGNOS/What_is_EGNOS} (accessed on 2014-06-26).
 
 \end{thebibliography}
 
