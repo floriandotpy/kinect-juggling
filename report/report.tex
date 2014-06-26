@@ -97,19 +97,72 @@
 \tableofcontents
 \newpage
 
-\input{chapter/einleitung}
+\section{Einleitung}
 
-\section{Motivation}
+Mit Markteinführung der Microsoft Kinect im November 2010 (FIXME?) steht in vielen 
+Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der 
+Verfügbarkeit des eigentlichen Unterhaltungsgerätes steht auch für an 
+wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zu Verfügung,  
+das für vielfältige Aufgaben im Bereich der Bildverarbeitung verwendet werden kann.
 
-Mit den technischen Möglichkeiten eines Tiefen- und Bilddaten liefernden Systems 
-(konkret: Microsoft Kinect) soll in dieser Arbeit versucht werden, das Wurfmuster
-eines mit Bällen jonglierenden Akteurs zu analysieren.
+Mit den technischen Möglichkeiten dieses Tiefen- und Bilddaten liefernden Systems 
+soll in dieser Arbeit versucht werden, das Wurfmuster eines mit Bällen jonglierenden 
+Akteurs zu erfassen und zu analysieren. % analysieren??
 
-Ein Jongleur wirft Jonglierbälle in einem Muster, das möglichst gleichmäßig ist.
+Im Rahmen des Masterprojekts Bildverarbeitung haben wir uns zwei Semester lang mit 
+der Kinect beschäftigt und in einem von Erfolgen und Fehlschlägen gefüllten Prozess
+versucht, die fliegenden Bälle eines jonglierenden Akteurs in Echtzeit zu verfolgen.
+
+Ein funktionierendes Endergebnis wurde erzielt, das wir in dieser Arbeit vorstellen.
+Zugleich dokumentieren wir unsere Herangehensweise und umreißen relevante Arbeiten 
+auf dem Gebiet, die uns Anregung gegeben haben. Ausgehend von einer grundsätzlichen
+Lösungsidee betrachten wir unseren ersten Ansatz, beschreiben die dabei aufgetretenen
+Probleme und führen so nach und nach auf das Endergebnis. Hierbei werden wir auch
+über die Implementierung sprechen, die von uns gewählte Softwarearchitektur 
+erläutern und dokumentieren.
+
+Das Endergebnis wird dann bewertet und aus den zu Anfang genannten Zielen 
+hinsichtlich des Erfolges evaluiert. % WTF schreibe ich hier?
+
+\newpage
+\section{Vorüberlegung}
+
+Bevor eine konkrete Zielsetzung getroffen wird, treffen wir ein paar Vorüberlegungen, 
+die uns zu Projektbeginn begegneten. In der Ideenfindungsphase des Projektes kam uns 
+sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu 
+verbinden. 
+
+Dieses \textit{``irgendwie''} war schwer zu greifen und zu definieren, da keiner von 
+uns Erfahrung im Bereich der Tiefendatenverarbeitung hatte und mögliche 
+Schwierigkeiten schwer abzuschätzen waren. 
+
+Die Idee zu einer interaktiven Anwendung zum Trainieren des Jonglierens kam uns 
+relativ schnell, doch sobald wir anfingen, eine tatsächliche Anwendung konkret zu
+umreißen, wurde uns die Komplexität eines solchen Unterfangens bewusst. Um aber
+an der uns zusagenden Grundidee weiter zu arbeiten, wollten wir uns im Rahmen des 
+Projektes mit den bildverarbeitenden Grundkomponenten beschäftigen, die aus
+den Bild- und Tiefendaten der Kinect heraus die Jonglierbälle erkennt, verfolgt,
+und in irgendeiner Form sinnvolle Informationen über die bewegten Objekte aus diesen 
+Daten generiert.
+
+Der Einfachheit halber setzen wir uns zu Beginn mit dem Grundmuster des Jonglierens, 
+der Kaskade auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch 
+haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Aus dieser
+Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle 
+erhofft. Im Laufe der Arbeit hat sich dann heraus gestellt, dass diese starre Annahme
+uns zu einer nur wenig robusten Lösung führte. In der am Ende des Projektes 
+stehenden Lösung ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
+und das System bestimmt an Hand der berechneten Daten sogar die Gesamtzahl der 
+im Jongliermuster befindlichen Objekte.
+
+Zunächt aber betrachten wir unser ursprüngliches Modell. In der ersten
+Grundüberlegung wird deutlich, dass ein Jongleur Jonglierbälle 
+in einem Muster wirft, das möglichst gleichmäßig ist.
 So ist der Höhepunkt der Flugbahn idealerweise konstant auf der gleichen Höhe.
 Zum Analysieren des Jongliermusters wäre dies also bereits ein erstes Kriterium, 
 die \textit{Güte eines Jongliermusters} automatisiert zu bewerten.
 
+% FIXME: Das klingt ja schon so nach Jongliertrainer. Das ist ja hier Quatsch
 Denkbar sind auch weitere Anwendungen, wie etwa das automatische Zählen von 
 erfolgreich gefangenen Würfen. Eine computergesteuerte Erfassung der insgesamten
 Wurfzahl ist ein einfaches Kriterium für eine \textit{Leistungsbewertung des 
@@ -130,6 +183,10 @@ Ein Akteur befindet sich hierbei im Bildzentrum in einem wohl definierten Abstan
 zur Kinect. Es werden drei matte Bälle beliebiger Farbe jongliert. Um das Ergebnis
 unabhängig von der Szenenbeleuchtung zu halten, sollen die Tiefendaten ausreichend
 Information für das eindeutige Identifizieren der Bälle liefern.
+
+Die Anwendung soll eine Grundlage liefern, um auf Grundlage den gewonnen Information
+heraus konkrete weitere Anwendungen zu schreiben. 
+
 
 \section{Möglichkeiten der Kinect}
 
