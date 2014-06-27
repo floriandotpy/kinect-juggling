@@ -658,8 +658,28 @@ Was über Local Maxima schreiben, Verfahren, was wir versucht haben, was nicht g
 Wie wir es in das Projekt einbringen wollten, was wir stattdessen gemacht haben
 
 \subsubsection{Temporal Filter}
+\label{sec:temporal}
 
-\subsubsection{FIXME}
+FIXME Thiemo
+
+\subsubsection{Technische Herausforderungen}
+
+Im Laufe des gesamten Projektes haben wir drei Projektteilnehmer verteilt auf drei
+Betriebssystemen gearbeitet (Mac OS, Windows, Ubuntu). Da wir gerade dank
+unseres flexiblen Filterkonzeptes gut arbeitsteilig arbeiten konnten, haben wir
+nicht von Anfang an auf die Integrierbarkeit unserer Komponenten geachtet. 
+
+Der funktionierende Temporalfilter (siehe \ref{sec:temporal}) etwa wurde mit Hilfe
+der Bildverarbeitungsbibliothek VIGRA (FIXME source) implementiert. Die 
+Python-Bindings hierfür liegen nicht auf allen Systemen in gleich guter Verfügbarkeit 
+vor (zumindest war es uns auf Mac OS nicht möglich, diese ohne Mac Ports zum Laufen 
+zu bekommen, da die per \lstinline{pip install} verfügbare Version veraltet ist und
+scheinbar nicht mehr gepflegt wird. (FIXME source)
+
+Da der Temporalfilter zum einen der einzige Filter mit VIGRA Abhängigkeit war, und
+der Filter zudem nicht die gewünschten Vorteile geliefert hat, die wir uns erhofft
+hatten, haben wir diesen Filter nicht weiter in der Entwicklung betrachtet und so
+auch die zusätzliche Dependency eingespart.
 
 \section{Finale Umsetzung}
 \label{sec:final}
@@ -836,9 +856,39 @@ sogar mehr als drei Jonglierobjekten führt.
 
 Was Flo mit Benjamin besprochen hatte, noch ein paar aktuelle Forschungsansätzen zu Kinect u.ä. vorstellen, die mit unserem Thema zu tun haben
 
+Aber vielleicht eher direkt in den Abschnitten, wo wir über die Ansätze sprechen,
+die wir gewählt haben?
+
 \section{Fazit}
 
-Lerneffekt, Frustration, Bewertung des Endprodukts
+Im Laufe des Projektes haben wir uns intensiv mit der Echtzeitverarbeitung von 
+Tiefendaten auseinander gesetzt und sind über viele nicht funktionierende
+Ansätze zu einem Ergebnis gekommen, das robust und mit flexibler Anzahl von 
+Objekten das Muster eines Jongleurs erfasst. Unsere für die erfolgreiche 
+Implementierung getroffenen Annahmen über den Aufbau der Kinect und die Position des
+Jongleurs im Raum sind nicht all zu einschränkend, so dass einer tatsächlichen
+Anwendung der entwickelten Software nichts im Wege steht.
+
+Die Software kann als Grundlage verwendet werden für weitere Anwendungen mit
+der Kinect und Jonglierbewegungen. Dies haben wir beispielhaft am Anwendungsfall 
+des Zählens von Jonglierbällen gezeigt und weitere mögliche Entwicklungen 
+vorgeschlagen und die nötigen Schritt umrissen.
+
+In unserer Arbeitsweise ist uns deutlich geworden, dass die Arbeit an praktischen
+Projekten einen großen Lerneffekt hat und auch die zahlreichen Fehlversuche mit
+wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu einer
+funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen 
+Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
+sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt 
+besser zu verfolgen um ihn auch sicher stellen zu können. %FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?
+
+Als Endergebnis des Projektes gelangen wir erfolgreich zu einer quelloffenen und flexibel 
+erweiterbaren Software, die robust unsere selbst gestellte Aufgabe löst. Zudem haben
+bei der Arbeit mit den verwendeten Libraries viel gelernt und dem 
+\lstinline{libfreenect} in der Open Source Community bei der Verbesserung der
+Code Basis helfen können.
+
+
 
 
 \newpage
