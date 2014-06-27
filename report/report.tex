@@ -651,11 +651,13 @@ Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B.
 \subsubsection{Local Maxima}
 {\color{red} Anfängliche Idee mit der Ballfindung über Local Maxima beschreiben, wodurch auch ein dynamischer Abstand zur Kinect möglich gewesen wäre und warum wir es doch nicht haben}
 
-Mit Local Maxima werden lokale Maxima, also positive extreme Datenpunkte in einer lokal begrenzten Umgebung, bezeichnet.
+Mit Local Maxima werden lokale Maxima, also positive extreme Datenpunkte in einer lokal begrenzten Umgebung, bezeichnet.\\
+Anfangs hatten wir die Idee, über lokale Maxima die Bälle im Tiefenbild zu finden. Dies würde bedeuten, dass im Tiefenbild nach allen Datenpunktanhäufungen gesucht wird, die möglichst nahe der Kamera sind, dabei aber innerhalb eines gegebenen Radius bleiben. Diese sollen zusätzlich von Datenpunkten umgeben sein, die einen deutlichen Abstand nach hinten zu diesen Datenpunktanhäufungen besitzen.\\
+Umgangssprachlich würden wir also alle Objekte bestimmter Größe suchen, die sich in einem bestimmten Abstand zu ihrem Hintergrund befinden. Damit ließe sich ein flexibler Abstand von Jongleur zu Kinect bewerkstelligen, es könnte damit sogar eine Ortsveränderung des Spielers während der Jonglage verarbeiten.
 
-Was über Local Maxima schreiben, Verfahren, was wir versucht haben, was nicht geklappt hat
+FIXME Was über Local Maxima schreiben, Verfahren, was wir versucht haben, was nicht geklappt hat
 
-Wie wir es in das Projekt einbringen wollten, was wir stattdessen gemacht haben
+FIXME Wie wir es in das Projekt einbringen wollten, was wir stattdessen gemacht haben
 
 \subsubsection{Temporal Filter}
 
