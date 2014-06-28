@@ -348,20 +348,42 @@ kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
 \section{Finale Umsetzung}
 \label{sec:final}
 
-Im Folgenden stellen wir die finale Lösung vor, welche wir als das Endergebnis des 
-Projektes präsentieren. Die zahlreichen Ansätze, die wir verfolgt haben, um zu
-diesem Punkt zu gelangen, stellen wir im folgenden Kapitel vor (siehe \ref{sec:ansaetze}).
+Im Folgenden stellen wir die finale Lösung vor, welche das Endergebnis des
+Projektes darstellt. Die zahlreichen Ansätze, die wir währenddessen verfolgt haben, um zu
+diesem Punkt zu gelangen, stellen wir im hieran anschießenden Kapitel vor (siehe \ref{sec:ansaetze}).
 
 \subsection{Programmstruktur}
 
-{\color{red}FIXME: Einleitung zu Filtern (muss mit den Ansätzen zusammenpassen)}
+Das Programm besteht im Kern aus einer Schleife, in der die folgenden vier Schritte endlos wiederholt werden:
+\begin{enumerate}
+  \item Benutzereingabe verarbeiten
+  \item Aktuelle Bilddaten abfragen
+  \item Bilddaten verarbeiten
+  \item Bilddaten anzeigen
+\end{enumerate}
 
-Jeder Filter verfügt
-nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
-Parameter. Das \lstinline{argv} Dictionary wird nun lediglich für das Ablegen von
-Meta-Informationen verwendet, wie etwas Zusatzinfos zur Visualisierung.
+Beim Starten des Programms über die Konsole wird zunächst die Kinect initialisiert.
+Im Normalfall ist eine Kinect angeschlossen, welche dann mit Hilfe der freenect {\color{red}FIXME: cite} Bibliothek angesteuert wird. Diese liefert dann die Bild- und Tiefendaten der Kinect Kamera bzw. des Tiefensensors. Wenn keine reale Kinect zur Verfügung steht, kann alternativ auch eine Dummy-Kinect-Instanz die RGB- und Tiefenbilder bereitstellen. In diesem Fall werden zuvor aufgenommene Bildsequenzen in einer Schleife zurückgegeben um so den Datenfluss einer echten Kinect zu simulieren.
+Im Anschluss daran werden sämtliche Filter initialisiert, die in der Verarbeitungsphase zum Einsatz kommen sollen.
 
-Als Ergebnis des Filter wird ein Drei-Tupel zurückgegeben, so dass ein minimaler Filter ohne Funktionalität wie folgt aussieht.
+Welche Filter aktiviert und ob eine reale Kinect verwendet oder stattdessen simuliert werden soll, kann beim Programmaufruf über die Konsole festgelegt werden. Dazu wird eine beliebige Anzahl an Parametern an das Programm übergeben. So gehört zu jedem Filter ein entsprechender Kommandozeilen-Parameter, durch den der Filter aktiviert werden kann. {\color{red}FIXME: Auflistung / Referenz der Parameter?} Dies ermöglicht es, verschiedene Filter je nach Bedarf miteinander zu kombinieren. Gleichzeitig können leicht auch nachträglich noch neue Filter hinzugefügt werden. Zudem gibt es Parameter um die Kinect zu simulieren oder Daten von einer echten Kinect aufzunehmen um diese zu einem späteren Zeitpunkt von der simulierten Kinect wiedegeben lassen zu können. Die Reihenfolge der Parameter hat hierbei keine Bedeutung und wirkt sich nicht auf die Ausführungsreihenfolge der Filter aus.
+
+Nach der Initialisierungsphase beginnt die oben angesprochene Programmschleife.
+In jedem Schleifendurchlauf wird zunächst auf Benutzereingaben reagiert.
+Ein Minimum an Kontrollstrukturen ermöglicht es dem Benutzer einen Screenshot des momentanen RGB- und Tiefenbild zu erzeugen (Leertaste) oder das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
+
+Im nächsten Schritt wird nun entweder von einer realen oder simulierten Kinect ein RGB- und ein Tiefenbild abgefragt. Zudem wird eine leere Liste erzeugt, in der später die Ballpositionen gespeichert werden.
+
+Das Herz und gleichzeitig komplexeste Teil der Anwendung ist die Verarbeitung der Bilddaten.
+Hierzu werden der Reihe nach sämtliche aktiven Filter auf das RGB- und Tiefenbild sowie die Ballpositionen angewandt.
+
+Dazu verfügt jeder Filter nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
+Parameter. Der optionale Parameter \lstinline{argv} ist ein Dictionary und wird lediglich für das Ablegen von
+Meta-Informationen verwendet, wie etwa Zusatzinfos zur Visualisierung.
+
+Als Ergebnis von jedem Filter wird analog zum Filteraufruf ein Drei-Tupel zurückgegeben, bestehend aus RGB- und Tiefenbild sowie der Liste von Ballpositionen. Die so erhaltenen Daten dienen wiederum dem nächsten Filter als Eingabe-Parameter. Somit können die Filter nach und nach die Rohdaten manipulieren und verarbeiten.
+
+Ein minimaler Filter ohne Funktionalität sieht demnach wie folgt aus.
 
 \begin{lstlisting}[language=Python,caption={Grundstruktur eines Filters. In diesem Beispiel werden die Eingabedaten unverändert zurückgegeben.}]
 class DummyFilter(object):
@@ -384,8 +406,16 @@ Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die f
 {\lstinline!src.application!} & Beispielhafte Anwendungen auf Basis unseres Projekts
 \end{tabular}
 
+Nachdem alle Filter ausgeführt wurden, werden die resultierenden Bilder angezeigt. Beim Programmstart kann hierbei auch wieder über einen Parameter festgelegt werden, ob entweder das RGB- oder das Tiefenbild angezeigt werden soll. Damit ist ein Schleifendurchlauf beendet und der nächste Durchgang beginnt mit dem laden der nächsten Bilddaten.
 
 \subsection{Programmfluss}
+
+Die Verarbeitung der Bilddaten durch die Filter lässt sich in mehrere Bereiche unterteilen.
+Zunächst werden die Rohdaten vorverarbeitet um anschließend nur noch mit normalisierten
+Tiefeninformationen zu arbeiten. Im nächsten Schritt werden mögliche Ballpositionen bestimmt.
+Diese werden nun genutzt, um die Ballpositionen zeitlich einem Ballverlauf zuzuordnen, der von einzelnen Tiefenbildern abstrahiert und eine Ballbewegung über mehrere zeitlich aufeinander folgende Bilddaten hinweg beschreibt.
+Im letzten Schritt werden dann aus den Ballverläufen mehrere bereinigte Wurfparabeln erzeugt.
+Die einzelnen Arbeitsschritte werden im folgenden noch detailierter betrachtet.
 
 \subsubsection{Schritt 1: Tiefendaten vorverarbeiten}\label{sec:preprocess}
 
@@ -431,6 +461,7 @@ Das Tiefenbild besitzt an diesen Stellen dementsprechend keine verwendbaren Tief
 Das füllen dieser Löcher im Tiefenbild kann alternativ auch kontext-sensitiv ausgeführt werden. Da die momentane Behandlung jedoch zufriedenstellende Ergebnisse liefert, wurde auf einen komplexeren Algorithmus verzichtet. Dieser würde die Ballerkennung wahrscheinlich nur unwesentlich verbessern und würde somit nur unnötig Rechenzeit beanspruchen.
 {\color{red}FIXME Tiefenbild eines balls vorher und nacher}
 
+{\color{red}FIXME: häh? oben hast du das bild doch schon binarisiert? außerdem ergibt der satz keinen sinn von 256 auf irgendetwas zu reduzieren damit man nur bis 255 arbeitet?! }
 Hatten wir ursprünglich noch überlegt, die Tiefenwerte von 256 bit auf einen
 niedrigeren Wert zu reduzieren, um in der Verarbeitung der Einfachheit halber nur
 mit Werten zwischen 0 und 255 arbeiten zu müssen, so haben wir uns dann doch gegen
@@ -646,13 +677,14 @@ vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
 Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt
 ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im
 \lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden
-gestellt. Daher haben wir das Filterkonzept weiter angepasst. 
+gestellt. Daher haben wir das Filterkonzept weiter angepasst.
 
 FIXME: Pointer finale Umsetzung
 
-\subsection{Erläuterung verwendeter Bildverarbeitungsverfahren}
+\subsection{Weitere Ansätze und Bildverarbeitungsverfahren}
 
-\subsubsection{Temporaler Buffer}
+\subsubsection{Temporale Ballerkennung}
+\label{sec:temporal}
 
 Ein alternativer Ansatz beruht auf der Idee, sämtliche sich nicht bewegende Teile im Tiefenbild herauszufiltern. Motiviert ist dies, um Teile der Vorerarbeitung des Tiefenbildes und der Ballerkennung flexibler zu gestalten. Bei der Vorverarbeitung wird, wie in \ref{sec:preprocess} beschrieben, davon ausgegangen, dass sich der Jongleur in einem bestimmten Abstand zum Kinect-Sensor befindet und seine Hände  die Bälle in einer bestimmte Distanz zu seinem Körper jonglieren. Zudem dürfen keine anderen Objekte,
 beispielsweise Stühle, in der gleichen Ebene stehen und von der Kinect erfasst werden.
@@ -664,6 +696,39 @@ unterscheiden sich die Tiefendaten. Betrachtet man nur die Unterschiede, werden 
 Zudem geschieht dies unabhängig von der Entfernung der Objekte zum Sensor.
 
 Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem verrauschten Differenz-Bild führt. Zudem bewegt sich auch der Körper des Jongleurs leicht beim jonglieren. Das Verfahren hierbei muss also geeignete Maßnahmen implementieren, die diese Störeinflüsse kompensieren.
+
+Da dieser Ansatz verschiedene Tiefenbilder miteinander vergleicht, muss dem Filter Zugriff auf Daten aus der Vergangenheit ermöglicht werden.
+Zu diesem Zweck sammelt der Filter die Tiefenbilder intern in einem Buffer.
+Nachdem zum ersten mal ein Bild im Buffer gespeichert wurde, kann im nächsten Filterdurchgang das momentane Tiefenbild mit dem vorherigen verglichen werden.
+Bei der Implementation des Filters wird hierbei ein Differenzbild in Form eines Binärbildes erzeugt.
+Für jeden Pixel wird überprüft, ob der Tiefenwert im alten Tiefenbild größer ist, als der entsprechende Pixel im aktuellen Tiefenbild.
+Jenachdem wird entweder eine 1 oder eine 0 im Binärbild gespeichert.
+Da bei dieser Betrachtung jeder Pixel unabhängig von den Werten in seiner unmittelbaren Umgebung verarbeitet wird, macht sich hierbei etwaiges Rauschen in den Tiefendaten besonders bemerkbar.
+{\color{red}FIXME Verrauschtes Tiefen-Differenzbild}
+Um diese Fehlerhaften Pixel zu entfernen und falsch positive Ballpositionen zu verhindern, wird das Binärbild zunächst durch Erosion und anschließende Dilatation geglättet.
+Die Bälle im Tiefenbild sind großflächig genug, so dass sie von diesem Vorgang nur bedingt beeinflusst werden.
+Die Chance, durch die Erosion einen Ball komplett zu löschen ist daher nur sehr gering.
+Im Gegensatz dazu verschwindet ein Großteil der verrauschten Pixel.
+Diese bilden selten zusammenhängende Flächen und wenn, dann sind diese nur wenige Pixel groß.
+{\color{red}FIXME Tiefen-Differenzbild nach Erosion + Dilatation}
+Als Nebeneffekt werden hierbei auch einige Bereiche geglättet, in denen Körperbewegungen zu einer temporalen Veränderung im Tiefenbild geführt haben. Da sich der Körper im Vergleich zu den fliegenden Bällen nur mit einer sehr geringen Geschwindigkeit bewegt, entstehen hier auch nur schmalere Bewegungsschatten im Binärbild.
+Nach dieser ersten Glättung des Differenzbildes, werden zusammenhängende Bereiche extrahiert.
+Unter der Annahme, dass die Bälle im Binärbild eine Fläche bilden, die eine Mindestanzahl an Pixeln nicht unterschreitet, findet anschließend eine erneute Überprüfung statt. Alle zusammenhängende Bereiche, die in der Summe zu wenig Pixel haben, werden ignoriert.
+Nur die Bereiche, die groß genug sind, werden gesammelt und als potientelle Bälle in einer Liste gespeichert.
+Diese Liste wird anschließend in der Filterkette weitergerreicht und bildet somit das Ergebnis des temporalen Ballerkennnugsfilters.
+{\color{red}FIXME Ballpositionen}
+
+Große Auswirkung auf die Güte der Ballpositionen hat hierbei der zeitliche Abstand der beiden Tiefenbilder, die zu Beginn verglichen werden. Wenn die Bilder zeitlich so nah beieinander liegen, dass sich die Ballflächen in den beiden Frames teilweise überschneiden, entstehen halbmondförmige Flächen im Binärbild.
+Diese werden dann aber unter Umständen von dem Erosions-Prozess vernichtet.
+Oder aber in der Pixelsumme so stark reduziert, dass sie in der anschließenden Überprüfung aussortiert werden.
+Gleiches kann auch im Scheitepunkt der Wurfparabel auftreten. Auch bei größeren zeitlichen Abständen besitzen die Bälle an dieser Stelle eine zu geringe vertikale Geschwindigkeit um sich in aufeinander folgenden Bildern nicht zu überschneiden.
+{\color{red}FIXME Halbmonde}
+Auf der anderen Seite führt ein zeitlich zu großer Abstand zwischen den zwei Tiefenbildern dazu, dass auch langsame Bewegungen des Jongleurs zu großen Bewegungsschatten führen, die im Folgenden nicht mehr herausgefiltert werden können.
+
+Zur Erosion, Dilatation und zum Finden von zusammenhängenden Bereichen im Binärbild kam hierbei die Bildbearbeitungsbibliothek VIGRA {\color{red}FIXME quelle} zum Einsatz.
+Dies ermöglicht eine effiziente Durchführung der entsprechenden Operationen.
+Dennoch machen sich die zusätzlichen Berechnungen in der Framerate bemerkbar und erschweren die Echtzeitfähigkeit der Ballerkennung. Gepaart mit der teilweise fehlerhaften Ballerkennung,
+bedingt durch die Selbst-Überdeckung der Bälle in den langsameren Teilen der Wurfbewegung, wurde dieser Ansatz letztendlich für die endgültige Lösung verworfen und dementsprechend auch nicht weiter ausgearbeitet.
 
 \subsubsection{Kalman Filter}
 
@@ -752,11 +817,6 @@ Dieses Verfahren, welches bei Testbildern, welche rauscharm mit einem gleichmä�
 So haben wir uns entschieden, keinen flexiblen Abstand des Spielers zur Kinect zuzulassen, sondern diesen festzulegen. Anfangs als Nachteil empfunden, stellten wir aber fest, dass dies schnell akzeptiert werden konnte und den Spielspaß nicht mindert.
 
 Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \ref{sec:roi} beschrieben.
-
-\subsubsection{Temporal Filter}
-\label{sec:temporal}
-
-{\color{red}FIXME Thiemo}
 
 \subsection{Ballerkennung}
 {\color{red} FIXME ROLF Python Code mit Wurfparabel und Erklären usw}
