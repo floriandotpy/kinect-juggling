@@ -12,3 +12,4 @@ snapshots/
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+report/report.pdf
