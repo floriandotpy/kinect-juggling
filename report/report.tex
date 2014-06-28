@@ -348,20 +348,42 @@ kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
 \section{Finale Umsetzung}
 \label{sec:final}
 
-Im Folgenden stellen wir die finale Lösung vor, welche wir als das Endergebnis des
-Projektes präsentieren. Die zahlreichen Ansätze, die wir verfolgt haben, um zu
-diesem Punkt zu gelangen, stellen wir im anschließenden Kapitel vor (siehe \ref{sec:ansaetze}).
+Im Folgenden stellen wir die finale Lösung vor, welche das Endergebnis des
+Projektes darstellt. Die zahlreichen Ansätze, die wir währenddessen verfolgt haben, um zu
+diesem Punkt zu gelangen, stellen wir im hieran anschießenden Kapitel vor (siehe \ref{sec:ansaetze}).
 
 \subsection{Programmstruktur}
 
-{\color{red}FIXME: Einleitung zu Filtern (muss mit den Ansätzen zusammenpassen)}
+Das Programm besteht im Kern aus einer Schleife, in der die folgenden vier Schritte endlos wiederholt werden:
+\begin{enumerate}
+  \item Benutzereingabe verarbeiten
+  \item Aktuelle Bilddaten abfragen
+  \item Bilddaten verarbeiten
+  \item Bilddaten anzeigen
+\end{enumerate}
 
-Jeder Filter verfügt
-nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
-Parameter. Das \lstinline{argv} Dictionary wird nun lediglich für das Ablegen von
-Meta-Informationen verwendet, wie etwas Zusatzinfos zur Visualisierung.
+Beim Starten des Programms über die Konsole wird zunächst die Kinect initialisiert.
+Im Normalfall ist eine Kinect angeschlossen, welche dann mit Hilfe der freenect {\color{red}FIXME: cite} Bibliothek angesteuert wird. Diese liefert dann die Bild- und Tiefendaten der Kinect Kamera bzw. des Tiefensensors. Wenn keine reale Kinect zur Verfügung steht, kann alternativ auch eine Dummy-Kinect-Instanz die RGB- und Tiefenbilder bereitstellen. In diesem Fall werden zuvor aufgenommene Bildsequenzen in einer Schleife zurückgegeben um so den Datenfluss einer echten Kinect zu simulieren.
+Im Anschluss daran werden sämtliche Filter initialisiert, die in der Verarbeitungsphase zum Einsatz kommen sollen.
 
-Als Ergebnis des Filter wird ein Drei-Tupel zurückgegeben, so dass ein minimaler Filter ohne Funktionalität wie folgt aussieht.
+Welche Filter aktiviert und ob eine reale Kinect verwendet oder stattdessen simuliert werden soll, kann beim Programmaufruf über die Konsole festgelegt werden. Dazu wird eine beliebige Anzahl an Parametern an das Programm übergeben. So gehört zu jedem Filter ein entsprechender Kommandozeilen-Parameter, durch den der Filter aktiviert werden kann. {\color{red}FIXME: Auflistung / Referenz der Parameter?} Dies ermöglicht es, verschiedene Filter je nach Bedarf miteinander zu kombinieren. Gleichzeitig können leicht auch nachträglich noch neue Filter hinzugefügt werden. Zudem gibt es Parameter um die Kinect zu simulieren oder Daten von einer echten Kinect aufzunehmen um diese zu einem späteren Zeitpunkt von der simulierten Kinect wiedegeben lassen zu können. Die Reihenfolge der Parameter hat hierbei keine Bedeutung und wirkt sich nicht auf die Ausführungsreihenfolge der Filter aus.
+
+Nach der Initialisierungsphase beginnt die oben angesprochene Programmschleife.
+In jedem Schleifendurchlauf wird zunächst auf Benutzereingaben reagiert.
+Ein Minimum an Kontrollstrukturen ermöglicht es dem Benutzer einen Screenshot des momentanen RGB- und Tiefenbild zu erzeugen (Leertaste) oder das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
+
+Im nächsten Schritt wird nun entweder von einer realen oder simulierten Kinect ein RGB- und ein Tiefenbild abgefragt. Zudem wird eine leere Liste erzeugt, in der später die Ballpositionen gespeichert werden.
+
+Das Herz und gleichzeitig komplexeste Teil der Anwendung ist die Verarbeitung der Bilddaten.
+Hierzu werden der Reihe nach sämtliche aktiven Filter auf das RGB- und Tiefenbild sowie die Ballpositionen angewandt.
+
+Dazu verfügt jeder Filter nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
+Parameter. Der optionale Parameter \lstinline{argv} ist ein Dictionary und wird lediglich für das Ablegen von
+Meta-Informationen verwendet, wie etwa Zusatzinfos zur Visualisierung.
+
+Als Ergebnis von jedem Filter wird analog zum Filteraufruf ein Drei-Tupel zurückgegeben, bestehend aus RGB- und Tiefenbild sowie der Liste von Ballpositionen. Die so erhaltenen Daten dienen wiederum dem nächsten Filter als Eingabe-Parameter. Somit können die Filter nach und nach die Rohdaten manipulieren und verarbeiten.
+
+Ein minimaler Filter ohne Funktionalität sieht demnach wie folgt aus.
 
 \begin{lstlisting}[language=Python,caption={Grundstruktur eines Filters. In diesem Beispiel werden die Eingabedaten unverändert zurückgegeben.}]
 class DummyFilter(object):
@@ -384,8 +406,11 @@ Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die f
 {\lstinline!src.application!} & Beispielhafte Anwendungen auf Basis unseres Projekts
 \end{tabular}
 
+Nachdem alle Filter ausgeführt wurden, werden die resultierenden Bilder angezeigt. Beim Programmstart kann hierbei auch wieder über einen Parameter festgelegt werden, ob entweder das RGB- oder das Tiefenbild angezeigt werden soll. Damit ist ein Schleifendurchlauf beendet und der nächste Durchgang beginnt mit dem laden der nächsten Bilddaten.
 
 \subsection{Programmfluss}
+
+{\color{red}FIXME Zusammenhang: Programmfluss - Filter}
 
 \subsubsection{Schritt 1: Tiefendaten vorverarbeiten}\label{sec:preprocess}
 
