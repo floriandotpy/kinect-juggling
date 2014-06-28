@@ -410,7 +410,12 @@ Nachdem alle Filter ausgeführt wurden, werden die resultierenden Bilder angezei
 
 \subsection{Programmfluss}
 
-{\color{red}FIXME Zusammenhang: Programmfluss - Filter}
+Die Verarbeitung der Bilddaten durch die Filter lässt sich in mehrere Bereiche unterteilen.
+Zunächst werden die Rohdaten vorverarbeitet um anschließend nur noch mit normalisierten
+Tiefeninformationen zu arbeiten. Im nächsten Schritt werden mögliche Ballpositionen bestimmt.
+Diese werden nun genutzt, um die Ballpositionen zeitlich einem Ballverlauf zuzuordnen, der von einzelnen Tiefenbildern abstrahiert und eine Ballbewegung über mehrere zeitlich aufeinander folgende Bilddaten hinweg beschreibt.
+Im letzten Schritt werden dann aus den Ballverläufen mehrere bereinigte Wurfparabeln erzeugt.
+Die einzelnen Arbeitsschritte werden im folgenden noch detailierter betrachtet.
 
 \subsubsection{Schritt 1: Tiefendaten vorverarbeiten}\label{sec:preprocess}
 
@@ -456,6 +461,7 @@ Das Tiefenbild besitzt an diesen Stellen dementsprechend keine verwendbaren Tief
 Das füllen dieser Löcher im Tiefenbild kann alternativ auch kontext-sensitiv ausgeführt werden. Da die momentane Behandlung jedoch zufriedenstellende Ergebnisse liefert, wurde auf einen komplexeren Algorithmus verzichtet. Dieser würde die Ballerkennung wahrscheinlich nur unwesentlich verbessern und würde somit nur unnötig Rechenzeit beanspruchen.
 {\color{red}FIXME Tiefenbild eines balls vorher und nacher}
 
+{\color{red}FIXME: häh? oben hast du das bild doch schon binarisiert? außerdem ergibt der satz keinen sinn von 256 auf irgendetwas zu reduzieren damit man nur bis 255 arbeitet?! }
 Hatten wir ursprünglich noch überlegt, die Tiefenwerte von 256 bit auf einen
 niedrigeren Wert zu reduzieren, um in der Verarbeitung der Einfachheit halber nur
 mit Werten zwischen 0 und 255 arbeiten zu müssen, so haben wir uns dann doch gegen
