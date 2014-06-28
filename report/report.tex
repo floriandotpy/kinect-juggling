@@ -812,6 +812,46 @@ wir auch eine variable Ballanzahl erlauben. FIXME: das ist falsch, siehe oben
 	\item Wie der Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames mit \lstinline{np.polyfit} berechnet.
 \end{enumerate}
 
+{\color{red} FIXME} Hier nochmal Codebeispiel zu den Ansätzen, die Wurfparabel zu berechnen.
+
+In den ersten Versuchen, den Wurf zu modellieren, wurde die Idee von Kalman aufgegriffen und auf sehr einfache Weise versucht, diese umzusetzen. Dazu wurde erst einmal die Bewegung des Balls als eine Wurfparabel bestimmt, dessen mathematische Formel wie folgend ist:
+\begin{align}
+x& = v_{x}t \\
+y& = v_{0}_{y}t - \frac{g}{2}t^{2}
+\end{align}
+Die Bewegung in der x-Achse, also der Horizontalen, ist eine Bewegung mit konstanter Geschwindigkeit $v$ über die Zeit $t$. In der Vertikalen y-Achse wirkt die Schwerkraft mit konstanter Geschwindigkeit $g=9,81 \frac{m}{s^{2}}$ nach unten auf den Ball ein. Hiermit lässt sich eine Position des Balls bei Zeitpunkt $t$ bestimmen, wenn Anfangsposition und Geschwindigkeiten in beide Richtungen bekannt sind. In unserem Fall kann eine Anfangsposition bestimmt werden, jedoch ist aus einem Frame allein die Geschwindigkeit nicht zu bestimmen. Werden mindestens zwei Frames genutzt, und in diesen Bälle gefunden, die einander zugeordnet werden, kann hieraus eine Anfangsposition und zusätzlich eine Richtung sowie Geschwindigkeit gewonnen werden. Da nun anstatt der Geschwindigkeit in horizontaler und vertikaler Richtung nur eine allgemeine Geschwindigkeit des Balles, aber zusätzlich eine Richtung extrahiert werden konnte, werden folgende Formeln für den Ballwurf genutzt:
+\begin{align}
+x(t)& = v_{0}t\cos\beta \\
+y(t)& = v_{0}t\sin\beta - \frac{g}{2}t^{2}
+\end{align}
+Mit $v_{0}$, der Geschwindigkeit des Balles und $\beta$, dem Winkel, in dem der Ball schräg nach oben geworfen wird, kann nun intern der Wurf modelliert werden.
+
+Ein Beispiel einer einfachen Implementierung dessen mit zwei vorgegebenen Ballpositionen:
+
+\begin{lstlisting}[language=Python]
+class SimpleKalmanFilter(object):
+
+    def trajectory(self, (y1, x1), (y2, x2), t):
+        b = np.degrees(np.arctan((y2-y1)/(x2-x1)))  # Winkel, in dem hochgeworfen wird
+        v = np.sqrt((x1 + x2)**2 + (y1 + y2)**2)    # Geschwindigkeit des Balls
+        x = v * t * np.degrees(np.cos(b))
+        y = v * t * np.degrees(np.sin(b) - (9.81/2) * t**2)
+        return (y,x)
+
+    def filter(self, rgb, depth, balls, argv = {}):
+        p1 = (480, 0)
+        p2 = (470, 10)
+        points = []
+
+        for t in xrange(1,10):
+            point = self.trajectory(p1, p2, t)
+            points.append(point)
+
+        return points
+\end{lstlisting}
+Hierbei wird durch Aufruf von {\tt SimpleKalmanFilter.filter} für zwei aufeinanderfolgenden Ballpositionen in einer Schleife für 10 Zeiteinheiten eine voraussichtliche Wurfbahn berechnet und zurückgegeben.
+
+{\color{red}FIXME Warum dies nicht klappt, die nächsten Ansätze und wie es gelöst wurde}
 
 \section{Herausforderungen}
 
