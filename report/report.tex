@@ -346,7 +346,7 @@ kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
 \section{Finale Umsetzung}
 \label{sec:final}
 
-Im Folgenden stellen wir die finale Lösung vor, welche wir als das Endergebnis des 
+Im Folgenden stellen wir die finale Lösung vor, welche wir als das Endergebnis des
 Projektes präsentieren. Die zahlreichen Ansätze, die wir verfolgt haben, um zu
 diesem Punkt zu gelangen, stellen wir im folgenden Kapitel vor (siehe \ref{sec:ansaetze}).
 
@@ -644,13 +644,13 @@ vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
 Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt
 ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im
 \lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden
-gestellt. Daher haben wir das Filterkonzept weiter angepasst. 
+gestellt. Daher haben wir das Filterkonzept weiter angepasst.
 
 FIXME: Pointer finale Umsetzung
 
 \subsection{Erläuterung verwendeter Bildverarbeitungsverfahren}
 
-\subsubsection{Temporaler Buffer}
+\subsubsection{Temporale Ballerkennung}
 
 Ein alternativer Ansatz beruht auf der Idee, sämtliche sich nicht bewegende Teile im Tiefenbild herauszufiltern. Motiviert ist dies, um Teile der Vorerarbeitung des Tiefenbildes und der Ballerkennung flexibler zu gestalten. Bei der Vorverarbeitung wird, wie in \ref{sec:preprocess} beschrieben, davon ausgegangen, dass sich der Jongleur in einem bestimmten Abstand zum Kinect-Sensor befindet und seine Hände  die Bälle in einer bestimmte Distanz zu seinem Körper jonglieren. Zudem dürfen keine anderen Objekte,
 beispielsweise Stühle, in der gleichen Ebene stehen und von der Kinect erfasst werden.
@@ -662,6 +662,39 @@ unterscheiden sich die Tiefendaten. Betrachtet man nur die Unterschiede, werden 
 Zudem geschieht dies unabhängig von der Entfernung der Objekte zum Sensor.
 
 Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem verrauschten Differenz-Bild führt. Zudem bewegt sich auch der Körper des Jongleurs leicht beim jonglieren. Das Verfahren hierbei muss also geeignete Maßnahmen implementieren, die diese Störeinflüsse kompensieren.
+
+Da dieser Ansatz verschiedene Tiefenbilder miteinander vergleicht, muss dem Filter Zugriff auf Daten aus der Vergangenheit ermöglicht werden.
+Zu diesem Zweck sammelt der Filter die Tiefenbilder intern in einem Buffer.
+Nachdem zum ersten mal ein Bild im Buffer gespeichert wurde, kann im nächsten Filterdurchgang das momentane Tiefenbild mit dem vorherigen verglichen werden.
+Bei der Implementation des Filters wird hierbei ein Differenzbild in Form eines Binärbildes erzeugt.
+Für jeden Pixel wird überprüft, ob der Tiefenwert im alten Tiefenbild größer ist, als der entsprechende Pixel im aktuellen Tiefenbild.
+Jenachdem wird entweder eine 1 oder eine 0 im Binärbild gespeichert.
+Da bei dieser Betrachtung jeder Pixel unabhängig von den Werten in seiner unmittelbaren Umgebung verarbeitet wird, macht sich hierbei etwaiges Rauschen in den Tiefendaten besonders bemerkbar.
+{\color{red}FIXME Verrauschtes Tiefen-Differenzbild}
+Um diese Fehlerhaften Pixel zu entfernen und falsch positive Ballpositionen zu verhindern, wird das Binärbild zunächst durch Erosion und anschließende Dilatation geglättet.
+Die Bälle im Tiefenbild sind großflächig genug, so dass sie von diesem Vorgang nur bedingt beeinflusst werden.
+Die Chance, durch die Erosion einen Ball komplett zu löschen ist daher nur sehr gering.
+Im Gegensatz dazu verschwindet ein Großteil der verrauschten Pixel.
+Diese bilden selten zusammenhängende Flächen und wenn, dann sind diese nur wenige Pixel groß.
+{\color{red}FIXME Tiefen-Differenzbild nach Erosion + Dilatation}
+Als Nebeneffekt werden hierbei auch einige Bereiche geglättet, in denen Körperbewegungen zu einer temporalen Veränderung im Tiefenbild geführt haben. Da sich der Körper im Vergleich zu den fliegenden Bällen nur mit einer sehr geringen Geschwindigkeit bewegt, entstehen hier auch nur schmalere Bewegungsschatten im Binärbild.
+Nach dieser ersten Glättung des Differenzbildes, werden zusammenhängende Bereiche extrahiert.
+Unter der Annahme, dass die Bälle im Binärbild eine Fläche bilden, die eine Mindestanzahl an Pixeln nicht unterschreitet, findet anschließend eine erneute Überprüfung statt. Alle zusammenhängende Bereiche, die in der Summe zu wenig Pixel haben, werden ignoriert.
+Nur die Bereiche, die groß genug sind, werden gesammelt und als potientelle Bälle in einer Liste gespeichert.
+Diese Liste wird anschließend in der Filterkette weitergerreicht und bildet somit das Ergebnis des temporalen Ballerkennnugsfilters.
+{\color{red}FIXME Ballpositionen}
+
+Große Auswirkung auf die Güte der Ballpositionen hat hierbei der zeitliche Abstand der beiden Tiefenbilder, die zu Beginn verglichen werden. Wenn die Bilder zeitlich so nah beieinander liegen, dass sich die Ballflächen in den beiden Frames teilweise überschneiden, entstehen halbmondförmige Flächen im Binärbild.
+Diese werden dann aber unter Umständen von dem Erosions-Prozess vernichtet.
+Oder aber in der Pixelsumme so stark reduziert, dass sie in der anschließenden Überprüfung aussortiert werden.
+Gleiches kann auch im Scheitepunkt der Wurfparabel auftreten. Auch bei größeren zeitlichen Abständen besitzen die Bälle an dieser Stelle eine zu geringe vertikale Geschwindigkeit um sich in aufeinander folgenden Bildern nicht zu überschneiden.
+{\color{red}FIXME Halbmonde}
+Auf der anderen Seite führt ein zeitlich zu großer Abstand zwischen den zwei Tiefenbildern dazu, dass auch langsame Bewegungen des Jongleurs zu großen Bewegungsschatten führen, die im Folgenden nicht mehr herausgefiltert werden können.
+
+Zur Erosion, Dilatation und zum Finden von zusammenhängenden Bereichen im Binärbild kam hierbei die Bildbearbeitungsbibliothek VIGRA {\color{red}FIXME quelle} zum Einsatz.
+Dies ermöglicht eine effiziente Durchführung der entsprechenden Operationen.
+Dennoch machen sich die zusätzlichen Berechnungen in der Framerate bemerkbar und erschweren die Echtzeitfähigkeit der Ballerkennung. Gepaart mit der teilweise fehlerhaften Ballerkennung,
+bedingt durch die Selbst-Überdeckung der Bälle in den langsameren Teilen der Wurfbewegung, wurde dieser Ansatz letztendlich für die endgültige Lösung verworfen und dementsprechend auch nicht weiter ausgearbeitet.
 
 \subsubsection{Kalman Filter}
 
