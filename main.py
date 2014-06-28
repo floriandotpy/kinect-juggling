@@ -3,6 +3,7 @@
 import numpy as np
 import time
 import cv
+import cv2
 from PIL import Image
 
 from src.NoFilter import NoFilter
@@ -18,7 +19,7 @@ from src.preprocessing.MaximaFilter import MaximaFilter
 from src.preprocessing.HoughFilter import HoughFilter
 from src.preprocessing.TemporalFilter import TemporalFilter
 
-# ball detection
+# ball detection, hand tracking
 from src.balldetection.SimpleBall import SimpleBallFilter
 from src.balldetection.SimpleHandBall import SimpleHandBallFilter
 from src.balldetection.TrajectoryBall import TrajectoryBallCollection
@@ -41,7 +42,7 @@ class Kinector(object):
         self.running = False
         self.record = 'record' in args
         self.show = 'depth' if 'depth' in args else 'rgb'
-
+        self.paused = False
         self.kinect = kinect
 
         # track hands
@@ -93,11 +94,17 @@ class Kinector(object):
         self.running = True
         while self.running:
             key = cv.WaitKey(5)
-            self.running = key in (-1, 32)
 
-            snapshot = (key == 32) # space bar
+            self.running = key in (-1, 32, 112)
 
-            self._step(snapshot)
+            # "p" pressed: pause/unpause
+            self.paused = not self.paused if (key == 112) else self.paused
+
+            # space bar: take snapshot
+            snapshot = (key == 32)
+
+            if not self.paused:
+                self._step(snapshot)
 
     def snapshot(self, rgb):
         filename = "snapshots/frame-%d.png" % int(time.time()*1000)
@@ -127,7 +134,7 @@ class Kinector(object):
             img = cv.fromarray(np.array(rgb[:,:,::-1]))
         else:
             # reduce depth from 2048 to 256 values
-            depth = depth / 16
+            depth = depth / 8
 
             a = np.ndarray(shape=(480,640,3), dtype=np.uint8)
             a[:,:,0] = depth
