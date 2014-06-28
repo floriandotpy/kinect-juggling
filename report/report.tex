@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{tabularx}
 
 \usepackage{enumitem}
 
@@ -351,7 +352,38 @@ eines Schleifendurchlaufes wird ein neuer RGB Frame und die zugehörigen
 Tiefendaten geholt. Danach folgt schrittweise Verarbeitung dieser Daten je nach 
 gewünschtem Zweck. 
 
-{\color{red} FIXME: Einfacher Programmablauf, Blockdiagramm? Nur wenn wir noch Platz brauchen}
+
+\begin{lstlisting}[language=Python, caption={Jeder Schleifendurchlauf entspricht einem Frame. Mit der SPACE Taste wird der aktuelle Frame als Bild gespeichert, jede andere Taste beendet die Schleife und somit das Programm.}]
+    def loop(self):
+        """ Start the loop which is terminated by hitting a random key. """
+        while self.running:
+            if self.record:
+                self.snapshot()
+            else:
+                self._step()
+            key = cv.WaitKey(5)
+            self.running = key in (-1, 32)
+            if key == 32: # space bar
+                self.snapshot()
+                
+    def _step(self):
+        """ One step of the loop, do not call on its own. Please. """
+        # Get a fresh frame
+        (rgb, depth) = self.kinect.get_frame()
+
+        # ... normalize values 
+        
+        # ... processing
+
+        # transform to open CV representation
+        rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
+
+        # Display image
+        cv.ShowImage('display', rgb_opencv)
+
+\end{lstlisting}
+
+
 
 Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene 
 Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
@@ -396,12 +428,86 @@ vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
 
 {\color{red} FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen}
 
+Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt 
+ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im 
+\lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden 
+gestellt. Daher haben wir das Filterkonzept weiter angepasst. Jeder Filter verfügt 
+nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen 
+Parameter. Das \lstinline{argv} Dictionary wird nun lediglich für das Ablegen von 
+Meta-Informationen verwendet, wie etwas Zusatzinfos zur Visualisierung.
+
+Als Ergebnis des Filter wird ein Drei-Tupel zurückgegeben, so dass ein minimaler Filter ohne Funktionalität wie folgt aussieht.
+
+\begin{lstlisting}[language=Python,caption={Grundstruktur eines Filters. In diesem Beispiel werden die Eingabedaten unverändert zurückgegeben.}]
+class DummyFilter(object):
+
+    def filter(self, rgb, depth, balls, argv = {}):
+    
+        # ...
+    
+        return rgb, white, balls
+\end{lstlisting}
+
+Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Umsetzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen. Die Strukturierung in vier Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
+
+\begin{tabular}{ll}
+\textbf{Package} & \textbf{Inhalt} \vspace{0.1cm} \\ 
+{\lstinline!src.kinect!} & Module zum Ansprechen der Kinect und für Demodaten \\
+{\lstinline!src.preprocessing!} & Filter der Datenvorverarbeitung\\
+{\lstinline!src.balldetection!} & Hand- und Ballerkennung\\
+{\lstinline!src.visual!} & Visualisierung und finale Ausgabe der Daten\\
+{\lstinline!src.application!} & Beispielhafte Anwendungen auf Basis unseres Projekts
+\end{tabular}
 
 \subsection{Programmfluss}
 
 \subsubsection{Schritt 1: Tiefendaten vorverarbeiten}
 
-Normieren aux XXX Tiefenwerte
+Die Kinect liefert Tiefenwerte im Bereich von 0 bis 2047, wobei ein höherer Wert 
+einen größeren Abstand bedeutet. Die 0 steht hierbei für einen Pixel, in dem keine 
+Tiefeninformation vorliegt. 
+
+Für unsere Aufgabe ist Beschaffenheit des Hintergrundes irrelevant. Außerdem nehmen
+wir einen isoliert stehenden Jongleur an. Zwischen der Tiefenebene des Jongleurs
+und dem Sensor befinden sich laut unsere Annahme keine Objekte außer den 
+Jonglierbällen. Ein erster Schritt besteht daher im Binarisieren der Tiefendaten.
+Ab einem festen Abstand zur Kinect werden alle weiter entfernt liegenden Werte auf 0
+(=schwarz) gesetzt. Alle näher am Sensor befindlichen Punkte werden auf 2047 (=weiß)
+gesetzt. Der Schwellwert, an dem diese Binarisierung getroffen wird, ist von uns
+zuerst auf 2100 gesetzt worden, da dies in den von uns aufgezeichneten Testdaten
+genau einer Grenze direkt vor dem Körper des Jongleur entsprach, so dass wir
+die Bälle und Hände des Jongleurs isoliert hatten. Im weiteren Verlauf haben wir mit 
+einer dynamischen Bestimmung dieser Grenze experimentiert, letzten Endes dann aber 
+doch diesen festen Wert belassen. Bei der tatsächlichen Anwendung in Echtzeit 
+positioniert man sich also an einen festgelegten Punkt im Raum. Dies ist tatsächlich 
+auch nicht störend. Da direktes visuelles Feedback von unserer Anwendung deutlich 
+macht, wann man richtig steht, ist auch keine feste Bodenmarkierung nötig. 
+
+{\color{red}FIXME: Bild Tiefendaten -> Binarisiertes Bild}
+
+Auf Grund der Funktionsweise der Kinect mit dem RGB-Sensor und dem knapp daneben
+befindlichen Infrarotsensor sind die RGB- und Tiefendaten leicht gegeneinander
+verschoben. Hierbei hängt die Verschiebung vom Abstand eines Raumpunktes zur Kinect
+ab (Parallaxeffekt). Zwar arbeitet unsere Analyse nur auf den gelieferten 
+Tiefendaten, so dass wir für die Ballerkennung diese Verschiebung ignorieren 
+könnten. Für die Visualisierung überlagen wir aber die gewonnene Information mit
+den RGB-Daten, so dass wir hierfür diesen Fehler korrigieren müssen. Diese
+Korrektur ist daher auch Teil der Vorverarbeitung. Glücklicherweise unterstützt
+die \lstinline{freenect} Bibliothek in der zum Projektzeitpunkt nur als 
+\lstinline{unstable} erhältlichen Version diese Fehlerkorrektur von Haus aus. Nötig 
+ist hierzu lediglich die Angabe eines bestimmten Formats beim Anfordern eines
+Frames von Tiefendaten: \lstinline{freenect.get_depth(format=4)}
+Erzeugt dieser Aufruf einen Fehler, so ist dies ein Hinweis, dass nicht die korrekte
+Version der \lstinline{freenect} Bibliothek verwendet wird.
+
+{\color{red}FIXME: Löcher im Tiefenbild}
+
+Hatten wir ursprünglich noch überlegt, die Tiefenwerte von 256 bit auf einen 
+niedrigeren Wert zu reduzieren, um in der Verarbeitung der Einfachheit halber nur
+mit Werten zwischen 0 und 255 arbeiten zu müssen, so haben wir uns dann doch gegen
+diese Reduzierung entschieden. Lediglich für den Fall der Visualisierung der 
+Tiefendaten führen wir eine entsprechende Transformation durch, um auf Grauwerte
+zwischen 0 und 255 abzubilden.
 
 \subsubsection{Schritt 2: Regions Of Interest isolieren}
 \label{sec:roi}
