@@ -33,10 +33,10 @@
 \usepackage{listings}
 \lstset{
     backgroundcolor=\color[rgb]{0.95,0.95,0.95},
-    columns=flexible, 
-    numbers=left, 
-    numbersep=5pt, 
-    numberstyle=\scriptsize, 
+    columns=flexible,
+    numbers=left,
+    numbersep=5pt,
+    numberstyle=\scriptsize,
     basicstyle=\ttfamily\footnotesize,
     captionpos=b,
     keywordstyle=\color{Mahogany},
@@ -100,111 +100,111 @@
 
 \section{Einleitung}
 
-Mit Markteinführung der Microsoft Kinect im November 2010 (FIXME?) steht in vielen 
-Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der 
-Verfügbarkeit des eigentlichen Unterhaltungsgerätes steht auch für an 
-wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zu Verfügung,  
+Mit Markteinführung der Microsoft Kinect im November 2010 (FIXME?) steht in vielen
+Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der
+Verfügbarkeit des eigentlichen Unterhaltungsgerätes steht auch für an
+wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zu Verfügung,
 das für vielfältige Aufgaben im Bereich der Bildverarbeitung verwendet werden kann.
 
-Mit den technischen Möglichkeiten dieses Tiefen- und Bilddaten liefernden Systems 
-soll in dieser Arbeit versucht werden, das Wurfmuster eines mit Bällen jonglierenden 
+Mit den technischen Möglichkeiten dieses Tiefen- und Bilddaten liefernden Systems
+soll in dieser Arbeit versucht werden, das Wurfmuster eines mit Bällen jonglierenden
 Akteurs zu erfassen und zu analysieren. % analysieren??
 
-Im Rahmen des Masterprojekts Bildverarbeitung haben wir uns zwei Semester lang mit 
+Im Rahmen des Masterprojekts Bildverarbeitung haben wir uns zwei Semester lang mit
 der Kinect beschäftigt und in einem von Erfolgen und Fehlschlägen gefüllten Prozess
 versucht, die fliegenden Bälle eines jonglierenden Akteurs in Echtzeit zu verfolgen.
 
 Ein funktionierendes Endergebnis wurde erzielt, das wir in dieser Arbeit vorstellen.
-Zugleich dokumentieren wir unsere Herangehensweise und umreißen relevante Arbeiten 
+Zugleich dokumentieren wir unsere Herangehensweise und umreißen relevante Arbeiten
 auf dem Gebiet, die uns Anregung gegeben haben. Ausgehend von einer grundsätzlichen
 Lösungsidee betrachten wir unseren ersten Ansatz, beschreiben die dabei aufgetretenen
 Probleme und führen so nach und nach auf das Endergebnis. Hierbei werden wir auch
-über die Implementierung sprechen, die von uns gewählte Softwarearchitektur 
+über die Implementierung sprechen, die von uns gewählte Softwarearchitektur
 erläutern und dokumentieren.
 
-Das Endergebnis wird dann bewertet und aus den zu Anfang genannten Zielen 
+Das Endergebnis wird dann bewertet und aus den zu Anfang genannten Zielen
 hinsichtlich des Erfolges evaluiert. % WTF schreibe ich hier?
 
 \newpage
 \section{Vorüberlegung}
 
-Bevor eine konkrete Zielsetzung getroffen wird, treffen wir ein paar Vorüberlegungen, 
-die uns zu Projektbeginn begegneten. In der Ideenfindungsphase des Projektes kam uns 
-sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu 
-verbinden. 
+Bevor eine konkrete Zielsetzung getroffen wird, treffen wir ein paar Vorüberlegungen,
+die uns zu Projektbeginn begegneten. In der Ideenfindungsphase des Projektes kam uns
+sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu
+verbinden.
 
-Dieses \textit{``irgendwie''} war schwer zu greifen und zu definieren, da keiner von 
-uns Erfahrung im Bereich der Tiefendatenverarbeitung hatte und mögliche 
-Schwierigkeiten schwer abzuschätzen waren. 
+Dieses \textit{``irgendwie''} war schwer zu greifen und zu definieren, da keiner von
+uns Erfahrung im Bereich der Tiefendatenverarbeitung hatte und mögliche
+Schwierigkeiten schwer abzuschätzen waren.
 
-Die Idee zu einer interaktiven Anwendung zum Trainieren des Jonglierens kam uns 
+Die Idee zu einer interaktiven Anwendung zum Trainieren des Jonglierens kam uns
 relativ schnell, doch sobald wir anfingen, eine tatsächliche Anwendung konkret zu
 umreißen, wurde uns die Komplexität eines solchen Unterfangens bewusst. Um aber
-an der uns zusagenden Grundidee weiter zu arbeiten, wollten wir uns im Rahmen des 
+an der uns zusagenden Grundidee weiter zu arbeiten, wollten wir uns im Rahmen des
 Projektes mit den bildverarbeitenden Grundkomponenten beschäftigen, die aus
 den Bild- und Tiefendaten der Kinect heraus die Jonglierbälle erkennt, verfolgt,
-und in irgendeiner Form sinnvolle Informationen über die bewegten Objekte aus diesen 
+und in irgendeiner Form sinnvolle Informationen über die bewegten Objekte aus diesen
 Daten generiert.
 
-Der Einfachheit halber setzen wir uns zu Beginn mit dem Grundmuster des Jonglierens, 
-der Kaskade auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch 
+Der Einfachheit halber setzen wir uns zu Beginn mit dem Grundmuster des Jonglierens,
+der Kaskade auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch
 haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Aus dieser
-Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle 
+Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
 erhofft. Im Laufe der Arbeit hat sich dann heraus gestellt, dass diese starre Annahme
-uns zu einer nur wenig robusten Lösung führte. In der am Ende des Projektes 
+uns zu einer nur wenig robusten Lösung führte. In der am Ende des Projektes
 stehenden Lösung ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
-und das System bestimmt an Hand der berechneten Daten sogar die Gesamtzahl der 
+und das System bestimmt an Hand der berechneten Daten sogar die Gesamtzahl der
 im Jongliermuster befindlichen Objekte.
 
 Zunächt aber betrachten wir unser ursprüngliches Modell. In der ersten
-Grundüberlegung wird deutlich, dass ein Jongleur Jonglierbälle 
+Grundüberlegung wird deutlich, dass ein Jongleur Jonglierbälle
 in einem Muster wirft, das möglichst gleichmäßig ist.
 So ist der Höhepunkt der Flugbahn idealerweise konstant auf der gleichen Höhe.
-Zum Analysieren des Jongliermusters wäre dies also bereits ein erstes Kriterium, 
+Zum Analysieren des Jongliermusters wäre dies also bereits ein erstes Kriterium,
 die \textit{Güte eines Jongliermusters} automatisiert zu bewerten.
 
 % FIXME: Das klingt ja schon so nach Jongliertrainer. Das ist ja hier Quatsch
-Denkbar sind auch weitere Anwendungen, wie etwa das automatische Zählen von 
+Denkbar sind auch weitere Anwendungen, wie etwa das automatische Zählen von
 erfolgreich gefangenen Würfen. Eine computergesteuerte Erfassung der insgesamten
-Wurfzahl ist ein einfaches Kriterium für eine \textit{Leistungsbewertung des 
+Wurfzahl ist ein einfaches Kriterium für eine \textit{Leistungsbewertung des
 jonglierenden Benutzers}.
 
 Die genaue Anwendung ist jedoch nicht Ziel dieser Arbeit. Stattdessen verfahren wir
-in einem bottom-up Herangehen, um von den rohen Bild- und Tiefendaten der Kinect 
+in einem bottom-up Herangehen, um von den rohen Bild- und Tiefendaten der Kinect
 ausgehend Informationen über sich im Bild befindliche Objekte (Jonglierbälle) zu
 erfassen und deren Bewegung zu erkennen. Das Ergebnis ist dann ein Fundament, auf
 dessen Grundlage konkrete Anwendungen entwickelt werden können.
 
 \section{Zielsetzung}
 
-Am Ende dieser Arbeit soll eine Anwendung stehen, die mit Hilfe der Kinect Daten 
-über die Flugbahnen dreier jonglierter Bälle liefert. 
+Am Ende dieser Arbeit soll eine Anwendung stehen, die mit Hilfe der Kinect Daten
+über die Flugbahnen dreier jonglierter Bälle liefert.
 
-Ein Akteur befindet sich hierbei im Bildzentrum in einem wohl definierten Abstand 
+Ein Akteur befindet sich hierbei im Bildzentrum in einem wohl definierten Abstand
 zur Kinect. Es werden drei matte Bälle beliebiger Farbe jongliert. Um das Ergebnis
 unabhängig von der Szenenbeleuchtung zu halten, sollen die Tiefendaten ausreichend
 Information für das eindeutige Identifizieren der Bälle liefern.
 
 Die Anwendung soll eine Grundlage liefern, um auf Grundlage den gewonnen Information
-heraus konkrete weitere Anwendungen zu schreiben. 
+heraus konkrete weitere Anwendungen zu schreiben.
 
 
 \section{Möglichkeiten der Kinect}
 
 Die Kinect ist eine von Microsoft zur Spielekonsole Xbox 360 vertriebene Erweiterung,
-die den Spieler mit einem RGB- und einem Tiefensensor erfasst und diese beiden 
+die den Spieler mit einem RGB- und einem Tiefensensor erfasst und diese beiden
 Datenströme an die Konsole liefert. Da die Kinect über einen USB-Anschluss verfügt,
-kann sie an konventionellen Rechnern angeschlossen und betrieben werden. Eine 
+kann sie an konventionellen Rechnern angeschlossen und betrieben werden. Eine
 quelloffene Implementierung zur Unterstützung der Kinect ist das freenect Projekt,
 das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbeit
 als Bibliothek für Python verwendet wurde.\cite{openkinect}\cite{libfreenect}
 
 Die Videoquelle der Kinect liefert standardmäßig 30 Bilder pro Sekunde mit einer
 Auflösung von 640x480 und 8 bit Farbtiefe. Tatsächlich kann sie mit
-einer Auflösung von 640x512 aufnehmen (oder sogar 1280x1024 und 10 fps), aber die 
-Auflösung wird an die der Tiefenkamera angepasst, so dass die reduzierte Auflösung 
-ausgegeben wird. Die Tiefendaten stammen von einer 
-Infrarot-Kamera und liefern bei gleicher Bildfrequenz 2048 verschiedene 
+einer Auflösung von 640x512 aufnehmen (oder sogar 1280x1024 und 10 fps), aber die
+Auflösung wird an die der Tiefenkamera angepasst, so dass die reduzierte Auflösung
+ausgegeben wird. Die Tiefendaten stammen von einer
+Infrarot-Kamera und liefern bei gleicher Bildfrequenz 2048 verschiedene
 Tiefenwerte (11bit). Das Tiefenbild deckt einen Bereich von 0,8 m bis 3,5 m von der
 Kinect aus ab, bei der in 2m Entfernung eine Auflösung von 3 mm in der Bildebene und
 1 cm in der Tiefenebene erreicht wird. Aus der Funktionsweise der Infrarotkamera
@@ -247,22 +247,22 @@ Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 
 {\color{red} FIXME: Beispielkinectprojekte Bilder}
 
-\section{Recherche: Ein jonglierender Roboter} 
+\section{Recherche: Ein jonglierender Roboter}
 
-Im Vorfeld der ersten eigenen Implementierungsversuche sind wir bei der 
+Im Vorfeld der ersten eigenen Implementierungsversuche sind wir bei der
 Paper-Recherche auf eine Arbeit von Jens Kober, Matthew Glisson und Michael Mistry
 gestoßen, die zumindest in Teilen eine ähnliche Aufgabenstellung verfolgte.
 Unter dem Titel {\em Playing Catch and Juggling with a Humanoid Robot}\cite{kober}
 untersuchte die Gruppe des Disney Research Center\cite{disneyresearch} einen
 humanoiden Roboter, der auf ihn zugeworfene Bälle fangen und zurückwerfen soll.
-In der Entwicklung dieses Systems war ein Teil der Gesamtaufgabe ein 
+In der Entwicklung dieses Systems war ein Teil der Gesamtaufgabe ein
 bild- und tiefendatenverarbeitendes System, das mit einer der Kinect sehr ähnlichen
 Kamera arbeitete.
 
 Kernidee dieses Systems war eine \textit{Image Processing Pipeline}, also eine
 Kette von Verarbeitungsschritten, die als Eingabe eine Folge von RGB- und Tiefendaten
-nahm und als Ausgabe die aktuelle Position und zukünftige berechnete Flugbahn 
-liefern. 
+nahm und als Ausgabe die aktuelle Position und zukünftige berechnete Flugbahn
+liefern.
 
 \begin{figure}[H]
     \centering
@@ -272,9 +272,9 @@ liefern.
 \end{figure}
 
 Die gelöste Aufgabe in dieser Arbeit ist also von der Grundidee her also eine ganz
-ähnliche, weshalb wir den Grundaufbau der Verarbeitungsschritte auch in unserem 
+ähnliche, weshalb wir den Grundaufbau der Verarbeitungsschritte auch in unserem
 Vorgehen übernehmen wollten. Wie wir im Laufe der Programmierung aber feststellten,
-hatte die Arbeit einige Rahmenbedingungen anders gesetzt, so dass wir auf Probleme 
+hatte die Arbeit einige Rahmenbedingungen anders gesetzt, so dass wir auf Probleme
 stießen, die sich in der Arbeit mit dem Roboter offensichtlich nicht so deutlich
 gezeigt haben.
 
@@ -289,39 +289,39 @@ später in der Arbeit zu sehen sein wird, ist das normale Jongliermuster mit zwe
 Händen teilweise so klein, dass es schwer wird, dicht aneinander vorbei fliegende
 Bälle voneinander zu unterscheiden.
 
-Zusätzlich wurde in der Arbeit mit dem Roboter auf verschiedenfarbige Bälle 
+Zusätzlich wurde in der Arbeit mit dem Roboter auf verschiedenfarbige Bälle
 zugegriffen, um diese voneinander zu unterscheiden. Dies ist eine Rahmenbedingung,
-die wir so nicht wählen wollten, da die RGB-Werte, die die Kinect liefert, sehr stark 
+die wir so nicht wählen wollten, da die RGB-Werte, die die Kinect liefert, sehr stark
 von den Beleuchtungsbedingungen abhängen und bei den verwischten Objekten, wie
 wir sie in den Kinect-Aufnahmen sehen, keine robuste Erkennung möglich ist.
 
 
 \section{Lösungsidee}
 
-Als erste Lösungsidee haben wir in Anlehnung an die betrachtete Arbeit mit dem 
+Als erste Lösungsidee haben wir in Anlehnung an die betrachtete Arbeit mit dem
 jonglierenden Roboter eine eigene Zusammenstellung von durchzuführenden Bildverarbeitungsschritten
 erarbeitet wie in Abbildung \ref{ourpipeline} zu sehen.
 
-Die Verarbeitung wird auf den Einzelbildern durchgeführt, die Ergebnisse der 
-einzelnen Bilder werden dann kombiniert.  
+Die Verarbeitung wird auf den Einzelbildern durchgeführt, die Ergebnisse der
+einzelnen Bilder werden dann kombiniert.
 
 \begin{enumerate}
-\item Auf den Tiefendaten werden ab einem bestimmten Tiefenwert (\textit{threshold}) 
+\item Auf den Tiefendaten werden ab einem bestimmten Tiefenwert (\textit{threshold})
 	alle Tiefeninformationen abgeschnitten. Jongleur und fliegende Jonglierbälle sind
 	somit freigestellt.
-\item Auf den reduzierten Tiefendaten werden nun lokale Maxima bestimmt, welche die 
-	Jonglierbälle sein müssen, da sie sich näher an der Kinect befinden als der 
+\item Auf den reduzierten Tiefendaten werden nun lokale Maxima bestimmt, welche die
+	Jonglierbälle sein müssen, da sie sich näher an der Kinect befinden als der
 	Jongleur. Hier sind auch die Hände enthalten.
-\item Die gefundenen Maxima sind mögliche Kandidaten für tatsächlich erkannte 
-	Jonglierbälle. 
+\item Die gefundenen Maxima sind mögliche Kandidaten für tatsächlich erkannte
+	Jonglierbälle.
 \item Die entsprechenden Regionen werden als Maske für die RGB Daten verwendet.
-\item In den interessanten Regionen der RGB Daten wird eine Erkennung für runde 
+\item In den interessanten Regionen der RGB Daten wird eine Erkennung für runde
 	Objekte durchgeführt. Dies wird mit einer \textit{Hough Transformation} gelöst.
 \item Die nun erkannten Bälle werden aufgeteilt und den einzelnen Bällen zugeordnet.
-\item Für jeden Ball liegt nun also eine Reihe von Positionen vor. Um zu einer 
+\item Für jeden Ball liegt nun also eine Reihe von Positionen vor. Um zu einer
 	flüssigen Flugbewegung zu gelangen wird die Flugbahn jedes Balls mit Hilfe eines
 	\textit{Kalman-Filters} modelliert und laufend aktualisiert. Mit dieser stetigen
-	Positionsinformation kann die Position eines Balles also programmseitig jederzeit 
+	Positionsinformation kann die Position eines Balles also programmseitig jederzeit
 	abgefragt werden.
 \end{enumerate}
 
@@ -332,25 +332,25 @@ einzelnen Bilder werden dann kombiniert.
     \label{ourpipeline}
 \end{figure}
 
-Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der Arbeit 
-auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig 
+Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der Arbeit
+auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig
 kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
 
 \section{Anfängliche Umsetzung}
 
-Im Folgenden beschreiben wir die Arbeitsschritte, wie wir sie an Hand unserer 
-Grundplanung ausgeführt haben. Wir gehen dabei auf die Schwierigkeiten ein, auf die 
-wir getroffen sind, wodurch dann deutlich wird, weshalb wir zu unserer endgültigen 
+Im Folgenden beschreiben wir die Arbeitsschritte, wie wir sie an Hand unserer
+Grundplanung ausgeführt haben. Wir gehen dabei auf die Schwierigkeiten ein, auf die
+wir getroffen sind, wodurch dann deutlich wird, weshalb wir zu unserer endgültigen
 Umsetzung gekommen sind. Diese finale Umsetzung beschreiben wir dann im Abschnitt \ref{sec:final}.
 
 \subsection{Programmstruktur}
 
-Die ersten Tests, die wir mit der Kinect und bildverarbeitenden Verfahren 
+Die ersten Tests, die wir mit der Kinect und bildverarbeitenden Verfahren
 ausprobiert haben, bestanden aus wenigen Schritten und wurden in einer
 simplen Schleife gelöst, die bei Druck der ESC Taste verlassen wurde. Zu Beginn
-eines Schleifendurchlaufes wird ein neuer RGB Frame und die zugehörigen 
-Tiefendaten geholt. Danach folgt schrittweise Verarbeitung dieser Daten je nach 
-gewünschtem Zweck. 
+eines Schleifendurchlaufes wird ein neuer RGB Frame und die zugehörigen
+Tiefendaten geholt. Danach folgt schrittweise Verarbeitung dieser Daten je nach
+gewünschtem Zweck.
 
 
 \begin{lstlisting}[language=Python, caption={Jeder Schleifendurchlauf entspricht einem Frame. Mit der SPACE Taste wird der aktuelle Frame als Bild gespeichert, jede andere Taste beendet die Schleife und somit das Programm.}]
@@ -365,14 +365,14 @@ gewünschtem Zweck.
             self.running = key in (-1, 32)
             if key == 32: # space bar
                 self.snapshot()
-                
+
     def _step(self):
         """ One step of the loop, do not call on its own. Please. """
         # Get a fresh frame
         (rgb, depth) = self.kinect.get_frame()
 
-        # ... normalize values 
-        
+        # ... normalize values
+
         # ... processing
 
         # transform to open CV representation
@@ -385,42 +385,42 @@ gewünschtem Zweck.
 
 
 
-Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene 
+Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene
 Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
-Parametrisierung finden mussten. Wir haben uns für ein Konzept von Filtern 
+Parametrisierung finden mussten. Wir haben uns für ein Konzept von Filtern
 entschieden, wobei zu Programmstart eine Liste mit gewünschten Filtern erstellt
 wird und diese in der Hauptschleife nacheinander ausgeführt werden (die Originaldaten
-werden also in den ersten Filter gegeben, das Ergebnis dieses Filters wird als 
+werden also in den ersten Filter gegeben, das Ergebnis dieses Filters wird als
 Eingabe für den zweiten Filter verwendet und das Ergebnis des letzten Filters
 in der Liste wird dann als Gesamtausgabe visuell dargestellt.
 
 Die RGB- und Tiefendaten werden vom freenect Modul als numpy Arrays zurückgegeben.
-Die Ausgabe erfolgt über ein von OpenCV erzeugtes Fenster, welches Daten für 
+Die Ausgabe erfolgt über ein von OpenCV erzeugtes Fenster, welches Daten für
 OpenCV erwartet. Die numpy Arrays müssen also an einer Stelle umgewandelt werden.
-Zusätzlich haben wir schnell festgestellt, dass einige gewünschte Operationen 
-entweder nur in numpy oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches 
-Umwandeln von einem Format in das jeweils andere ist aus Performanz-Gründen 
+Zusätzlich haben wir schnell festgestellt, dass einige gewünschte Operationen
+entweder nur in numpy oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches
+Umwandeln von einem Format in das jeweils andere ist aus Performanz-Gründen
 natürlich zu vermeiden. Um in der Entwicklung nicht immer darauf achten zu müssen,
 welcher Filter welche Eingabe erwartet und welche Ausgabe liefert, haben wir uns dazu
 entschieden, jeden Filter als Eingabe Daten in numpy Darstellung zu liefern und auch
-für die Ausgabe numpy zu erwarten. Dies erlaubt uns eine von außen identische 
-Betrachtung der Filter, auch wenn einige Filter intern eine Umwandlung durchführen 
+für die Ausgabe numpy zu erwarten. Dies erlaubt uns eine von außen identische
+Betrachtung der Filter, auch wenn einige Filter intern eine Umwandlung durchführen
 müssen. Bei etwaigen Problemen wollten wir die Performanz unserer Lösung getrennt
 betrachten, um zu Beginn lediglich über eine funktionierende Lösung nachdenken
 zu müssen.
 
-Waren die Filter ursprünglich als isolierte Einheiten mit simplem 
+Waren die Filter ursprünglich als isolierte Einheiten mit simplem
 Input-Output-Verhalten von Bild- bzw. Tiefendaten gedacht, fiel uns schnell auf,
-dass einige Filter Zusatzinformationen liefern, die von anderen Filtern gebraucht 
+dass einige Filter Zusatzinformationen liefern, die von anderen Filtern gebraucht
 werden. Um Filter nicht intern Unteraufrufe von anderen Filtern oder Komponenten
 ausführen zu lassen (dies wäre ebenfalls eine denkbare Lösung), entschieden wir uns
-für ein Objekt, das von der Hauptkomponente des Programms in jeden Filter 
+für ein Objekt, das von der Hauptkomponente des Programms in jeden Filter
 hineingereicht wird und in dem jeder Filter Informationen ablegen und abfragen kann.
-Natürlich ist dies abhängig von der Reihenfolge der Filter und einige Filter haben 
+Natürlich ist dies abhängig von der Reihenfolge der Filter und einige Filter haben
 als implizite Vorbedingung, dass andere Filter bereits ausgeführt wurden, dies haben
-wir der Einfachheit halber aber nicht expliziert formuliert, im Zweifelsfall wird 
+wir der Einfachheit halber aber nicht expliziert formuliert, im Zweifelsfall wird
 beim ersten Ausführen einer nicht korrekten Filterkombination oder -reihenfolge ein
-Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht 
+Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht
 vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
 
 
@@ -428,12 +428,12 @@ vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
 
 {\color{red} FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen}
 
-Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt 
-ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im 
-\lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden 
-gestellt. Daher haben wir das Filterkonzept weiter angepasst. Jeder Filter verfügt 
-nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen 
-Parameter. Das \lstinline{argv} Dictionary wird nun lediglich für das Ablegen von 
+Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt
+ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im
+\lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden
+gestellt. Daher haben wir das Filterkonzept weiter angepasst. Jeder Filter verfügt
+nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
+Parameter. Das \lstinline{argv} Dictionary wird nun lediglich für das Ablegen von
 Meta-Informationen verwendet, wie etwas Zusatzinfos zur Visualisierung.
 
 Als Ergebnis des Filter wird ein Drei-Tupel zurückgegeben, so dass ein minimaler Filter ohne Funktionalität wie folgt aussieht.
@@ -442,16 +442,16 @@ Als Ergebnis des Filter wird ein Drei-Tupel zurückgegeben, so dass ein minimale
 class DummyFilter(object):
 
     def filter(self, rgb, depth, balls, argv = {}):
-    
+
         # ...
-    
+
         return rgb, white, balls
 \end{lstlisting}
 
 Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Umsetzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen. Die Strukturierung in vier Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
 
 \begin{tabular}{ll}
-\textbf{Package} & \textbf{Inhalt} \vspace{0.1cm} \\ 
+\textbf{Package} & \textbf{Inhalt} \vspace{0.1cm} \\
 {\lstinline!src.kinect!} & Module zum Ansprechen der Kinect und für Demodaten \\
 {\lstinline!src.preprocessing!} & Filter der Datenvorverarbeitung\\
 {\lstinline!src.balldetection!} & Hand- und Ballerkennung\\
@@ -461,51 +461,54 @@ Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die f
 
 \subsection{Programmfluss}
 
-\subsubsection{Schritt 1: Tiefendaten vorverarbeiten}
+\subsubsection{Schritt 1: Tiefendaten vorverarbeiten}\label{sec:preprocess}
 
-Die Kinect liefert Tiefenwerte im Bereich von 0 bis 2047, wobei ein höherer Wert 
-einen größeren Abstand bedeutet. Die 0 steht hierbei für einen Pixel, in dem keine 
-Tiefeninformation vorliegt. 
+Die Kinect liefert Tiefenwerte im Bereich von 0 bis 2047, wobei ein höherer Wert
+einen größeren Abstand bedeutet. Die 0 steht hierbei für einen Pixel, in dem keine
+Tiefeninformation vorliegt.
 
 Für unsere Aufgabe ist Beschaffenheit des Hintergrundes irrelevant. Außerdem nehmen
 wir einen isoliert stehenden Jongleur an. Zwischen der Tiefenebene des Jongleurs
-und dem Sensor befinden sich laut unsere Annahme keine Objekte außer den 
+und dem Sensor befinden sich laut unsere Annahme keine Objekte außer den
 Jonglierbällen. Ein erster Schritt besteht daher im Binarisieren der Tiefendaten.
 Ab einem festen Abstand zur Kinect werden alle weiter entfernt liegenden Werte auf 0
 (=schwarz) gesetzt. Alle näher am Sensor befindlichen Punkte werden auf 2047 (=weiß)
 gesetzt. Der Schwellwert, an dem diese Binarisierung getroffen wird, ist von uns
 zuerst auf 2100 gesetzt worden, da dies in den von uns aufgezeichneten Testdaten
 genau einer Grenze direkt vor dem Körper des Jongleur entsprach, so dass wir
-die Bälle und Hände des Jongleurs isoliert hatten. Im weiteren Verlauf haben wir mit 
-einer dynamischen Bestimmung dieser Grenze experimentiert, letzten Endes dann aber 
-doch diesen festen Wert belassen. Bei der tatsächlichen Anwendung in Echtzeit 
-positioniert man sich also an einen festgelegten Punkt im Raum. Dies ist tatsächlich 
-auch nicht störend. Da direktes visuelles Feedback von unserer Anwendung deutlich 
-macht, wann man richtig steht, ist auch keine feste Bodenmarkierung nötig. 
+die Bälle und Hände des Jongleurs isoliert hatten. Im weiteren Verlauf haben wir mit
+einer dynamischen Bestimmung dieser Grenze experimentiert, letzten Endes dann aber
+doch diesen festen Wert belassen. Bei der tatsächlichen Anwendung in Echtzeit
+positioniert man sich also an einen festgelegten Punkt im Raum. Dies ist tatsächlich
+auch nicht störend. Da direktes visuelles Feedback von unserer Anwendung deutlich
+macht, wann man richtig steht, ist auch keine feste Bodenmarkierung nötig.
 
 {\color{red}FIXME: Bild Tiefendaten -> Binarisiertes Bild}
 
 Auf Grund der Funktionsweise der Kinect mit dem RGB-Sensor und dem knapp daneben
 befindlichen Infrarotsensor sind die RGB- und Tiefendaten leicht gegeneinander
 verschoben. Hierbei hängt die Verschiebung vom Abstand eines Raumpunktes zur Kinect
-ab (Parallaxeffekt). Zwar arbeitet unsere Analyse nur auf den gelieferten 
-Tiefendaten, so dass wir für die Ballerkennung diese Verschiebung ignorieren 
+ab (Parallaxeffekt). Zwar arbeitet unsere Analyse nur auf den gelieferten
+Tiefendaten, so dass wir für die Ballerkennung diese Verschiebung ignorieren
 könnten. Für die Visualisierung überlagen wir aber die gewonnene Information mit
 den RGB-Daten, so dass wir hierfür diesen Fehler korrigieren müssen. Diese
 Korrektur ist daher auch Teil der Vorverarbeitung. Glücklicherweise unterstützt
-die \lstinline{freenect} Bibliothek in der zum Projektzeitpunkt nur als 
-\lstinline{unstable} erhältlichen Version diese Fehlerkorrektur von Haus aus. Nötig 
+die \lstinline{freenect} Bibliothek in der zum Projektzeitpunkt nur als
+\lstinline{unstable} erhältlichen Version diese Fehlerkorrektur von Haus aus. Nötig
 ist hierzu lediglich die Angabe eines bestimmten Formats beim Anfordern eines
 Frames von Tiefendaten: \lstinline{freenect.get_depth(format=4)}
 Erzeugt dieser Aufruf einen Fehler, so ist dies ein Hinweis, dass nicht die korrekte
 Version der \lstinline{freenect} Bibliothek verwendet wird.
 
-{\color{red}FIXME: Löcher im Tiefenbild}
+Durch die Funktionsweise der Kinect, kann keine Tiefeninformationen an Flächen gewonnen werden, die orthogonal zum Sensor der Kinekt stehen, da dort kein Infrarotlicht zum Sensor reflektiert wird.
+Das Tiefenbild besitzt an diesen Stellen dementsprechend keine verwendbaren Tiefenwerte. Stattdessen wird an diesen Positionen der Wert 0 eingefügt. Dies führt an den meisten Objekt-Kanten und insbesondere bei den Jonglierbällen zu einem um das Objekt liegenden Rahmen von Null-Werten. Durch das zuvor angesprochene Binarisieren, werden diese Werte dann im Zuge der Vorverarbeitung auf den maximalen Tiefenwert gesetzt. Aufgrunddessen schrumpfen die Objecte um wenige Pixel. Für die Bälle bedeutet dies, dass deren Durchmesser im Tiefenbild etwas kleiner ist, als der im RGB-Bild. Dies hat aber nur minimale Auswirkungen auf die spätere Erkennung und Bestimmung der Position der Jonglierbälle.
+Das füllen dieser Löcher im Tiefenbild kann alternativ auch kontext-sensitiv ausgeführt werden. Da die momentane Behandlung jedoch zufriedenstellende Ergebnisse liefert, wurde auf einen komplexeren Algorithmus verzichtet. Dieser würde die Ballerkennung wahrscheinlich nur unwesentlich verbessern und würde somit nur unnötig Rechenzeit beanspruchen.
+{\color{red}FIXME Tiefenbild eines balls vorher und nacher}
 
-Hatten wir ursprünglich noch überlegt, die Tiefenwerte von 256 bit auf einen 
+Hatten wir ursprünglich noch überlegt, die Tiefenwerte von 256 bit auf einen
 niedrigeren Wert zu reduzieren, um in der Verarbeitung der Einfachheit halber nur
 mit Werten zwischen 0 und 255 arbeiten zu müssen, so haben wir uns dann doch gegen
-diese Reduzierung entschieden. Lediglich für den Fall der Visualisierung der 
+diese Reduzierung entschieden. Lediglich für den Fall der Visualisierung der
 Tiefendaten führen wir eine entsprechende Transformation durch, um auf Grauwerte
 zwischen 0 und 255 abzubilden.
 
@@ -520,7 +523,7 @@ Jongleurs verbleiben. Hier wird also die Annahme getroffen, dass der Spieler auf
 Kinect steht. Die Tiefendaten werden nun noch binarisiert.
 \item[B.]Mit einem temporalen Filter sich bewegende Regionen isolieren. Dieses erlaubt auch störende Objekte wie Stühle am Rand sowie
 einen flexiblen Abstand des Spielers zur Kinect. Nach einer Implementierung wurde aber deutlich, dass das Verfahren bei schnellen Bewegungen
-(wie dem Ballwurf) nicht zuverlässig ist. Außerdem traten vermehrt Probleme mit unscharfen Objekträndern und Rauschen auf, die aber mit Funktionen der VIGRA\cite{vigra} kompensiert werden konnten. Die Probleme mit schnellen Bewegungen verlieben aber und es kamen noch technische Hürden hinzu, wie die VIGRA\cite{vigra} als weitere Abhängigkeit.
+(wie dem Ballwurf) nicht zuverlässig ist. Außerdem traten vermehrt Probleme mit unscharfen Objekträndern und Rauschen auf, die aber mit Funktionen der VIGRA\cite{vigra} kompensiert werden konnten. Die Probleme mit schnellen Bewegungen verblieben aber und es kamen noch technische Hürden hinzu, wie die VIGRA\cite{vigra} als weitere Abhängigkeit.
 \end{itemize}
 
 Wir stellten fest, dass Ansatz A völlig ausreichend für unsere Zwecke ist. Die Einschränkung der Spielerposition ist ebenfalls nicht störend, da dies sogar interaktiv durchgeführt werden kann (so lange nach vorne gehen, bis das System vernünftige Werte liefert - kein aufwändiges Abmessen nötig). Weiterhin redgt dies sogar den Spieler an, seine Ballwürfe kontrolliert durchzuführen, ohne dass diese ihn zu Positionsveränderungen zwingen.
@@ -530,7 +533,7 @@ Wir stellten fest, dass Ansatz A völlig ausreichend für unsere Zwecke ist. Die
 Bevor potentielle Ballpositionen konkreten Ball-Instanzen zugeordnet werden, findet eine kurze Vorverarbeitung statt, bei der Regionen im binarisierten Ergebnis des vorherigen Schrittes als Rechtecke umzeichnet werden, wofür einfach die OpenCV-Funktion \lstinline{cv.BoundingRect} verwendet wird, die genau diese Aufgabe erfüllt.
 Kleine Rechtecke und solche, die den Bildrahmen berühren, werden hierbei bereits herausgefiltert.
 
-Durch die resultierende Liste von Rechtecken wird iteriert und jeder 
+Durch die resultierende Liste von Rechtecken wird iteriert und jeder
 Rechteckmittelpunkt als mögliche Ballposition aufgefasst (die kürzere Rechteckskante
 wird als Balldurchmesser gespeichert, vorerst aber ignoriert).
 
@@ -604,26 +607,26 @@ für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich
 \end{figure}
 
 Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiellen
-Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames 
+Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames
 hinweg eine neue Position einem bestehenden Ball zuordnen soll.
 
 Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben.
 
-Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine 
-Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die 
+Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
+Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die
 Implementierung einer Hough-Transformation, mit der wir auch begonnen haben.
-Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl der 
+Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl der
 Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele false-positives
-erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle 
-während des Fluges. Bei Betrachtung der Beispielaufnahmen (siehe oben) wird auch 
+erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle
+während des Fluges. Bei Betrachtung der Beispielaufnahmen (siehe oben) wird auch
 deutlich, dass eine vermutete Position teilweise deutlich von der tatsächlichen
-Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen Gewinn 
-ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- und 
-Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu 
+Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen Gewinn
+ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- und
+Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu
 stützen.
 
-Aber auch für die reine Berücksichtigung der Tiefendaten haben wir während des 
-Projektablaufes mehrere Problemquellen identifizieren können, die die verschiedenen 
+Aber auch für die reine Berücksichtigung der Tiefendaten haben wir während des
+Projektablaufes mehrere Problemquellen identifizieren können, die die verschiedenen
 Ansätze unterschiedlich stark beeinflussen:
 
 \begin{itemize}
@@ -633,7 +636,7 @@ Ansätze unterschiedlich stark beeinflussen:
  \item Der Mindestabstand zur Kinect resultiert in einem kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
  \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon.
 \end{itemize}
- 
+
 Diese Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
 uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
 in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
@@ -644,17 +647,17 @@ zu jeder bereits existierenden Ballinstanz eine Position aus den erkannten Recht
 auszuwählen, welche als neue Position des Balls festgelegt wird. Da im Allgemeinen nie
 zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet, wir nennen die folgenden Ansätze daher
 auch \textit{konsumierende Ansätze}. FIXME: das ist falsch, konsumierend $\neq$ feste Ballanzahl.
- 
+
  \begin{enumerate}
  \item Die zwei sich am nächsten Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegungen und nahe aneinander passierender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt $\rightarrow$ Beachtung von ``springenden'' Bällen.
  \item Verbesserungsansatz: Die erwartete Ballposition wird mit der vorherigen Bewegung (linearer Bewegungsvektor) approximiert. Dies ist teilweise besser, aber trotzdem noch schwierig, die initiale Bewegung zu Erkennen. Hierbei verbleiben auch weiterhin Probleme mit Lücken in den Informationen.
  \item Weitere Verbesserung: Keinen linearen Bewegungsvektor nutzen, sondern die Flugbahn vorberechnen. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
  \end{enumerate}
-  
-  
+
+
 Im Gegensatz dazu sind die folgenden nicht konsumierende Ansätze zu sehen, bei denen
 wir auch eine variable Ballanzahl erlauben. FIXME: das ist falsch, siehe oben
-  
+
 \begin{enumerate}
 	\item Wenn eine langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
 	\item Wie der Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames mit \lstinline{np.polyfit} berechnet.
@@ -669,7 +672,16 @@ Das fehlt uns noch. Aber aus den gelieferten Daten wollen wir dann höher-leveli
 
 \subsubsection{Temporaler Buffer}
 
-{\color{red}FIXME Thiemo}
+Ein alternativer Ansatz beruht auf der Idee, sämtliche sich nicht bewegende Teile im Tiefenbild herauszufiltern. Motiviert ist dies, um Teile der Vorerarbeitung des Tiefenbildes und der Ballerkennung flexibler zu gestalten. Bei der Vorverarbeitung wird, wie in \ref{sec:preprocess} beschrieben, davon ausgegangen, dass sich der Jongleur in einem bestimmten Abstand zum Kinect-Sensor befindet und seine Hände  die Bälle in einer bestimmte Distanz zu seinem Körper jonglieren. Zudem dürfen keine anderen Objekte,
+beispielsweise Stühle, in der gleichen Ebene stehen und von der Kinect erfasst werden.
+Der Temporale Filter entstand mit dem Wunsch, diese Einschränkung aufzuweichen und nach Möglichkeit komplett zu eliminieren.
+
+Grundgedanke beim Temporalen Filter ist das Vergleichen von zwei zeitlich nah beieinanderliegenden Tiefenbildern.
+Nur dort, wo sich Objekte in dem Zeitfenster zwischen den Aufnahmezeitpunkten der Tiefenbilder bewegt haben,
+unterscheiden sich die Tiefendaten. Betrachtet man nur die Unterschiede, werden ausschließlich bewegte Objekte gefunden und sämtliche starre Objekte werden automatisch nicht mehr erfasst.
+Zudem geschieht dies unabhängig von der Entfernung der Objekte zum Sensor.
+
+Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem verrauschten Differenz-Bild führt. Zudem bewegt sich auch der Körper des Jongleurs leicht beim jonglieren. Das Verfahren hierbei muss also geeignete Maßnahmen implementieren, die diese Störeinflüsse kompensieren.
 
 \subsubsection{Kalman Filter}
 
@@ -768,19 +780,19 @@ FIXME Wie wir es in das Projekt einbringen wollten, was wir stattdessen gemacht 
 \subsubsection{Temporal Filter}
 \label{sec:temporal}
 
-FIXME Thiemo
+{\color{red}FIXME Thiemo}
 
 \subsubsection{Technische Herausforderungen}
 
 Im Laufe des gesamten Projektes haben wir drei Projektteilnehmer verteilt auf drei
 Betriebssystemen gearbeitet (Mac OS, Windows, Ubuntu). Da wir gerade dank
 unseres flexiblen Filterkonzeptes gut arbeitsteilig arbeiten konnten, haben wir
-nicht von Anfang an auf die Integrierbarkeit unserer Komponenten geachtet. 
+nicht von Anfang an auf die Integrierbarkeit unserer Komponenten geachtet.
 
 Der funktionierende Temporalfilter (siehe \ref{sec:temporal}) etwa wurde mit Hilfe
-der Bildverarbeitungsbibliothek VIGRA (FIXME source) implementiert. Die 
-Python-Bindings hierfür liegen nicht auf allen Systemen in gleich guter Verfügbarkeit 
-vor (zumindest war es uns auf Mac OS nicht möglich, diese ohne Mac Ports zum Laufen 
+der Bildverarbeitungsbibliothek VIGRA (FIXME source) implementiert. Die
+Python-Bindings hierfür liegen nicht auf allen Systemen in gleich guter Verfügbarkeit
+vor (zumindest war es uns auf Mac OS nicht möglich, diese ohne Mac Ports zum Laufen
 zu bekommen, da die per \lstinline{pip install} verfügbare Version veraltet ist und
 scheinbar nicht mehr gepflegt wird. (FIXME source)
 
@@ -797,11 +809,11 @@ auch die zusätzliche Dependency eingespart.
 Robustheit.
 
   - Position des Jongleurs (Bildzentrum VS Bildrand. Abstand zur Kinect)
-  
+
   - Objekte am Bildrand (bewegte vs nicht bewegte)
-  
+
   - Ungleichmäßiges Jongliermuster
-  
+
   - Variation der Bälleanzahl
 
 Effizienz. Speedup-Möglichkeiten?
@@ -810,16 +822,16 @@ Anwendungsrelevanz.
 
 \section{Anwendungsmöglichkeiten}
 
-Die Grundidee des Projektes bestand in der Erstellung eines Systems zum Erkennen und 
-Verfolgen von Jonglierbällen in Echtzeit. Als Ziel hinter dieser Idee ist die 
-Möglichkeit gesehen, mit den gewonnenen Informationen verschiedene Anwendungen zu 
-ermöglichen. Das Projekt kann im aktuellen Zustand als Grundlage genommen werden 
+Die Grundidee des Projektes bestand in der Erstellung eines Systems zum Erkennen und
+Verfolgen von Jonglierbällen in Echtzeit. Als Ziel hinter dieser Idee ist die
+Möglichkeit gesehen, mit den gewonnenen Informationen verschiedene Anwendungen zu
+ermöglichen. Das Projekt kann im aktuellen Zustand als Grundlage genommen werden
 für einfache Programme und Spiele.
 
 \subsection{Idee: Ein interaktiver Jongliertrainer}
 
 Als denkbare Anwendung auf Basis der von uns erstellten Vorverarbeitung ist ein
-interaktiver Jongliertrainer zu nennen. Ein solches Programm würde automatisch die 
+interaktiver Jongliertrainer zu nennen. Ein solches Programm würde automatisch die
 Qualität und Güte eines Jongliermusters erkennen und so über die Zeit den Fortschritt
 der jonglierenden Person aufzeichnen.
 
@@ -831,13 +843,13 @@ bereits in unser Projekt aufgenommen haben.
 Mit den erkannten momentan fliegenden Objekten haben wir als erste Anwendung einen
 einfachen Zähler geschrieben, der die tatsächliche Anzahl der im Muster befindlichen Objekte zu bestimmen versucht.
 
-Denke wäre eine Verfolgung der Objekte über einen längeren Zeitraum, um auch 
+Denke wäre eine Verfolgung der Objekte über einen längeren Zeitraum, um auch
 unabhängig voneinander erkannte Objekte in ihrer Identität zu bestimmen. Tatsächlich
-ist ein deutlich simplerer Ansatz aber bereits sehr effektiv, indem über eine 
-längere Anzahl Frames geschaut wird, wie viele Objekte in der Luft sind. Es wird der 
-Durchschnitt dieser Werte gebildet und aufgerundet. Auf diesen Wert wird dann noch 
-$1$ addiert, um zur tatsächlichen Anzahl zu gelangen. Dies ist der Tatsache 
-geschuldet, dass beim normalen Jongliermuster zu jeder Zeit mindestens ein Objekt in der Hand ruht, es kann also davon ausgegangen werden, dass maximal $n - 1$ Objekte 
+ist ein deutlich simplerer Ansatz aber bereits sehr effektiv, indem über eine
+längere Anzahl Frames geschaut wird, wie viele Objekte in der Luft sind. Es wird der
+Durchschnitt dieser Werte gebildet und aufgerundet. Auf diesen Wert wird dann noch
+$1$ addiert, um zur tatsächlichen Anzahl zu gelangen. Dies ist der Tatsache
+geschuldet, dass beim normalen Jongliermuster zu jeder Zeit mindestens ein Objekt in der Hand ruht, es kann also davon ausgegangen werden, dass maximal $n - 1$ Objekte
 gleichzeitig in der Luft sind.
 
 Ausprobieren auf echten Daten hat ergeben, dass beim Mitteln über $15$ Frames
@@ -878,12 +890,12 @@ class BallCounter(object):
 
 \subsubsection{Würfe zählen}
 
-Eine weitere Möglichkeit ist das Zählen von aufeinander folgenden Würfen. Dies ist 
+Eine weitere Möglichkeit ist das Zählen von aufeinander folgenden Würfen. Dies ist
 bereits ein Schritt in die Richtung eines Jongliertrainers, der den Fortschritt eines
 Jongleurs über eine gewisse Zeit aufzeichnet und misst.
 
 Als Herausforderung bei der Implementierung ist zuerst die Tatsache zu nennen, dass
-es in den von uns bisher betrachteten Testdaten öfter vorkommt, dass ein Ball in 
+es in den von uns bisher betrachteten Testdaten öfter vorkommt, dass ein Ball in
 einem Frame nicht erkannt wird, da der Sensor hier keine zuverlässigen Informationen
 liefert. Im bisherigen Modell wird dadurch das Ballobjekt verworfen und erst im
 darauf folgenden Frame ein neues initialisiert. Das Zählen von Würfen stimmt
@@ -894,54 +906,54 @@ Wurfparabel zu erkennen und den Zwischenschritt zu interpolieren, um die gesamte
 Wurfbahn als einen einzelnen Wurf aufzufassen.
 
 Wird die zeitliche Verteilung der Würfe aufgezeichnet, lässt sich auch analysieren,
-wie gleichmäßig der Jonglier-Rhythmus ist. Auch dies ist ein wichtiger Faktor 
+wie gleichmäßig der Jonglier-Rhythmus ist. Auch dies ist ein wichtiger Faktor
 
 \subsubsection{Wurfhöhen messen}
 
-Ein gutes Jongliermuster zeichnet sich durch seiner Gleichmäßigkeit aus. Dies trifft 
-sowohl auf  
+Ein gutes Jongliermuster zeichnet sich durch seiner Gleichmäßigkeit aus. Dies trifft
+sowohl auf
 
 \subsection{Idee: Siteswaps erkennen}
 
 Bisher haben wir immer über die Grundmuster beim Jonglieren gesprochen, bei denen
-Bälle im gleichmäßigen Rhythmus auf gleicher Höhe immer die gleichen Wurfbahnen 
-durchlaufen. Tatsächlich existieren komplexere Jongliermuster, die gewissen Regeln 
-folgen müssen, damit in einem gleichmäßigen Rhythmus jongliert werden kann, die Bälle 
+Bälle im gleichmäßigen Rhythmus auf gleicher Höhe immer die gleichen Wurfbahnen
+durchlaufen. Tatsächlich existieren komplexere Jongliermuster, die gewissen Regeln
+folgen müssen, damit in einem gleichmäßigen Rhythmus jongliert werden kann, die Bälle
 verschieden hohe Flugbahnen verfolgen können, und dabei nie zwei Objekte zur gleichen
 Zeit in der Hand landen.
 
 Eine Notation zur Aufzeichnung solche Muster ist die \textit{Siteswap-Notation}, ein
-entsprechend jongliertes Muster wird verkürzt als \textit{Siteswap} bezeichnet. 
+entsprechend jongliertes Muster wird verkürzt als \textit{Siteswap} bezeichnet.
 Vereinfacht gesagt sind Siteswaps für das Jonglieren so etwas wie Noten für Musiker.
 Die Notation besteht hierbei grundlegend aus Zahlenreihen, wobei jede Stelle der
-Reihe einem Wurf entspricht, der Wert an der Stelle bestimmt die Höhe des Wurfes. 
+Reihe einem Wurf entspricht, der Wert an der Stelle bestimmt die Höhe des Wurfes.
 
-Der Siteswap \textit{531} etwa besteht aus drei Würfen. Die \textit{5} entspricht 
-einem Wurf der Höhe von einer regulären 5-Ball-Jonglage, die \textit{3} entsprechend 
-der Höhe einer 3-Ball-Jonglage. Da laut offizieller Regelung (FIXME source) eine 
-Jonglage erst dann als Jonglieren zählt, wenn mehr Objekte als Hände beteiligt sind, 
-haben die Werte Zwei, Eins und Null eine Sonderbedeutung. Die Null im Siteswap 
-bezeichnet eine leere Position zu diesem Takt, die Eins ist ein Übergeben des 
+Der Siteswap \textit{531} etwa besteht aus drei Würfen. Die \textit{5} entspricht
+einem Wurf der Höhe von einer regulären 5-Ball-Jonglage, die \textit{3} entsprechend
+der Höhe einer 3-Ball-Jonglage. Da laut offizieller Regelung (FIXME source) eine
+Jonglage erst dann als Jonglieren zählt, wenn mehr Objekte als Hände beteiligt sind,
+haben die Werte Zwei, Eins und Null eine Sonderbedeutung. Die Null im Siteswap
+bezeichnet eine leere Position zu diesem Takt, die Eins ist ein Übergeben des
 Objektes von einer in die andere Hand und die Zwei bedeutet ein Festhalten des Balles
 während einer Zählzeit.
 
-Die konkreten Wurfhöhen sind hierbei nicht von der Zahlenvorschrift festegelegt, sie 
-bezeichnen lediglich relative Höhenabstände zueinander. 
+Die konkreten Wurfhöhen sind hierbei nicht von der Zahlenvorschrift festegelegt, sie
+bezeichnen lediglich relative Höhenabstände zueinander.
 
-Siteswaps sind zudem periodisch zu verstehen, können also fortlaufend jongliert 
-werden. Der oben betrachtete Siteswap \textit{531} ist also gleichbedeutend mit 
+Siteswaps sind zudem periodisch zu verstehen, können also fortlaufend jongliert
+werden. Der oben betrachtete Siteswap \textit{531} ist also gleichbedeutend mit
 \textit{531531531$\dots$}.
 
-Tatsächlich tragen die Zahlen bereits viel Information, die nicht erst beim 
-Jonglieren sichtbar wird. So ist ein Siteswap immer nur mit einer bestimmten 
+Tatsächlich tragen die Zahlen bereits viel Information, die nicht erst beim
+Jonglieren sichtbar wird. So ist ein Siteswap immer nur mit einer bestimmten
 Objektanzahl möglich, die dem Durchschnitt der einzelnen Wurfwerte entspricht.
-Teilt man also die Quersumme von \textit{531} ($= 9$) durch die Anzahl der Würfe 
-($3$), sieht man, dass dies tatsächlich ein 3-Ball-Muster ist. Hierbei sind nur 
+Teilt man also die Quersumme von \textit{531} ($= 9$) durch die Anzahl der Würfe
+($3$), sieht man, dass dies tatsächlich ein 3-Ball-Muster ist. Hierbei sind nur
 ganzzahlige Ergebnisse möglich. \textit{541} etwa wäre kein valider Siteswap und ist
 nicht jonglierbar.
 
-Wie an Hand dieser kurzen Einführung bereits deutlich wird, bieten Siteswaps sich gut 
-zur automatischen Analyse an. Möglich und denkbar ist also eine Anwendung, die an 
+Wie an Hand dieser kurzen Einführung bereits deutlich wird, bieten Siteswaps sich gut
+zur automatischen Analyse an. Möglich und denkbar ist also eine Anwendung, die an
 Hand der von unserem System gelieferten Daten automatisch Siteswaps erkennt.
 
 Hierbei wären folgende grundlegenden Schritte notwendig.
@@ -953,10 +965,10 @@ Hierbei wären folgende grundlegenden Schritte notwendig.
 \item Bei möglichen Mehrdeutigkeiten das Wissen aus der Siteswap Theorie nutzen
 \end{enumerate}
 
-Mit Hilfe dieser Erkennung ist es denkbar, dem Akteur vor der Kinect Aufgaben an Hand 
+Mit Hilfe dieser Erkennung ist es denkbar, dem Akteur vor der Kinect Aufgaben an Hand
 von Jongliermustern zu geben, die erfolgreich jongliert werden müssen. Ein Muster
-kann animiert vorjongliert werden, der Akteur muss hierbei nicht einmal mit der 
-Zahlentheorie konfrontiert werden. So ist ein einfaches Level-basiertes System 
+kann animiert vorjongliert werden, der Akteur muss hierbei nicht einmal mit der
+Zahlentheorie konfrontiert werden. So ist ein einfaches Level-basiertes System
 denkbar, das einen Jonglieranfänger vom Grundmuster zu komplexeren Mustern und
 sogar mehr als drei Jonglierobjekten führt.
 
@@ -969,30 +981,30 @@ die wir gewählt haben?
 
 \section{Fazit}
 
-Im Laufe des Projektes haben wir uns intensiv mit der Echtzeitverarbeitung von 
+Im Laufe des Projektes haben wir uns intensiv mit der Echtzeitverarbeitung von
 Tiefendaten auseinander gesetzt und sind über viele nicht funktionierende
-Ansätze zu einem Ergebnis gekommen, das robust und mit flexibler Anzahl von 
-Objekten das Muster eines Jongleurs erfasst. Unsere für die erfolgreiche 
+Ansätze zu einem Ergebnis gekommen, das robust und mit flexibler Anzahl von
+Objekten das Muster eines Jongleurs erfasst. Unsere für die erfolgreiche
 Implementierung getroffenen Annahmen über den Aufbau der Kinect und die Position des
 Jongleurs im Raum sind nicht all zu einschränkend, so dass einer tatsächlichen
 Anwendung der entwickelten Software nichts im Wege steht.
 
 Die Software kann als Grundlage verwendet werden für weitere Anwendungen mit
-der Kinect und Jonglierbewegungen. Dies haben wir beispielhaft am Anwendungsfall 
-des Zählens von Jonglierbällen gezeigt und weitere mögliche Entwicklungen 
+der Kinect und Jonglierbewegungen. Dies haben wir beispielhaft am Anwendungsfall
+des Zählens von Jonglierbällen gezeigt und weitere mögliche Entwicklungen
 vorgeschlagen und die nötigen Schritt umrissen.
 
 In unserer Arbeitsweise ist uns deutlich geworden, dass die Arbeit an praktischen
 Projekten einen großen Lerneffekt hat und auch die zahlreichen Fehlversuche mit
 wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu einer
-funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen 
+funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen
 Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
-sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt 
+sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt
 besser zu verfolgen um ihn auch sicher stellen zu können. %FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?
 
-Als Endergebnis des Projektes gelangen wir erfolgreich zu einer quelloffenen und flexibel 
+Als Endergebnis des Projektes gelangen wir erfolgreich zu einer quelloffenen und flexibel
 erweiterbaren Software, die robust unsere selbst gestellte Aufgabe löst. Zudem haben
-bei der Arbeit mit den verwendeten Libraries viel gelernt und dem 
+bei der Arbeit mit den verwendeten Libraries viel gelernt und dem
 \lstinline{libfreenect} in der Open Source Community bei der Verbesserung der
 Code Basis helfen können.
 
