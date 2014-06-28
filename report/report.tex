@@ -445,7 +445,7 @@ class DummyFilter(object):
 
         # ...
 
-        return rgb, white, balls
+        return rgb, depth, balls
 \end{lstlisting}
 
 Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Umsetzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen. Die Strukturierung in vier Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
@@ -513,6 +513,7 @@ Tiefendaten führen wir eine entsprechende Transformation durch, um auf Grauwert
 zwischen 0 und 255 abzubilden.
 
 \subsubsection{Schritt 2: Regions Of Interest isolieren}
+\label{sec:roi}
 
 Um den Hintergrund zu entfernen und die Bälle freizustellen, wurden zwei Ansätze getestet:
 
@@ -767,15 +768,20 @@ Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B.
 {\color{red} kA, könnte hier noch 1-2 kleine Absätze zu unserem Vorgehen reinschreiben}
 
 \subsubsection{Local Maxima}
-{\color{red} Anfängliche Idee mit der Ballfindung über Local Maxima beschreiben, wodurch auch ein dynamischer Abstand zur Kinect möglich gewesen wäre und warum wir es doch nicht haben}
-
 Mit Local Maxima werden lokale Maxima, also positive extreme Datenpunkte in einer lokal begrenzten Umgebung, bezeichnet.\\
 Anfangs hatten wir die Idee, über lokale Maxima die Bälle im Tiefenbild zu finden. Dies würde bedeuten, dass im Tiefenbild nach allen Datenpunktanhäufungen gesucht wird, die möglichst nahe der Kamera sind, dabei aber innerhalb eines gegebenen Radius bleiben. Diese sollen zusätzlich von Datenpunkten umgeben sein, die einen deutlichen Abstand nach hinten zu diesen Datenpunktanhäufungen besitzen.\\
 Umgangssprachlich würden wir also alle Objekte bestimmter Größe suchen, die sich in einem bestimmten Abstand zu ihrem Hintergrund befinden. Damit ließe sich ein flexibler Abstand von Jongleur zu Kinect bewerkstelligen, es könnte damit sogar eine Ortsveränderung des Spielers während der Jonglage verarbeiten.
 
-FIXME Was über Local Maxima schreiben, Verfahren, was wir versucht haben, was nicht geklappt hat
+In unserem Projekt werden die Tiefendaten zumeist als Numpy-Arrays verarbeitet und von Filter zu Filter gereicht. So war hier die Idee, einen weiteren Filter zu erstellen, in dem im Numpy-Array nach lokalen Maxima bestimmter Größe gesucht wird, um eine Vorauswahl von Regions of Interest zu bekommen. In diesen sollten in weiteren Schritten False Positives ausgeschlossen werden, um am Ende nur Regionen mit Bällen zu erhalten, in denen mit z.B. der Hough-Transformation (zu diesem Zeitpunkt wollten wir diese noch nutzen) die Bälle extrahiert werden sollten.
 
-FIXME Wie wir es in das Projekt einbringen wollten, was wir stattdessen gemacht haben
+Für das Finden von Maxima im Numpy-Array werden die Python Module Numpy\cite{numpy} und Scipy\cite{scipy} genutzt, welche eine große Auswahl an wissenschaftliche Funktionen besitzen. Besonders für mehrdimensionale Matrixberechnungen und weitere Bildverarbeitungsoperationen eignen sich diese Module sehr gut, da ihre Funktionen auf diese Probleme optimiert sind und meist schneller als eine eigene Implementierung sind.
+
+Speziell mit den Funktionen {\tt scipy.ndimage.filters.maximum\_filter} und\\ {\tt scipy.ndimage.filters.minimum\_filter} wurden auf einem Tiefenbild die Maxima und Minima bis zu einem festgelegten Durchmesser gesucht. Durch Abziehen der Minima von den Maxima konnte auf dem daraus resultierenden Array mit einem Schwellwert, welcher den Abstand eines Maxima zu seiner Umgebung beschreibt, lokale Maxima bestimmter Größe gefunden werden.
+
+Dieses Verfahren, welches bei Testbildern, welche rauscharm mit einem gleichmäßigen Hintergrund sind, auf dem deutlich hellere Punkte verteilt sind, funktioniert gut. In unserem Falle aber bestand das Problem, dass bei verschiedenen Einstellungen der Parameter entweder zu viele Maxima, wie beispielsweise jede sich hervorhebende Falte in der Bekleidung des Spielers gefunden wird, oder aber zu wenige, so dass sich nicht alle Bälle immer in den Regions of Interest befinden würden.\\
+So haben wir uns entschieden, keinen flexiblen Abstand des Spielers zur Kinect zuzulassen, sondern diesen festzulegen. Anfangs als Nachteil empfunden, stellten wir aber fest, dass dies schnell akzeptiert werden konnte und den Spielspaß nicht mindert.
+
+Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \ref{sec:roi} beschrieben.
 
 \subsubsection{Temporal Filter}
 \label{sec:temporal}
@@ -1109,6 +1115,14 @@ Frequently Asked Questions - WAAS\\
 European Space Agency\\
 What is EGNOS?
 \url{http://www.esa.int/Our_Activities/Navigation/The_present_-_EGNOS/What_is_EGNOS} (accessed on 2014-06-26).
+
+\bibitem{numpy}
+Numpy\\
+\url{http://www.numpy.org/} (accessed on 2014-06-28).
+
+\bibitem{scipy}
+Scipy\\
+\url{http://www.scipy.org/} (accessed on 2014-06-28).
 
 \end{thebibliography}
 
