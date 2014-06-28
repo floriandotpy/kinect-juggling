@@ -126,7 +126,8 @@ Das Endergebnis wird dann bewertet und aus den zu Anfang genannten Zielen
 hinsichtlich des Erfolges evaluiert. % WTF schreibe ich hier?
 
 \newpage
-\section{Vorüberlegung}
+
+\subsection{Vorüberlegung}
 
 Bevor eine konkrete Zielsetzung getroffen wird, treffen wir ein paar Vorüberlegungen,
 die uns zu Projektbeginn begegneten. In der Ideenfindungsphase des Projektes kam uns
@@ -175,7 +176,7 @@ ausgehend Informationen über sich im Bild befindliche Objekte (Jonglierbälle) 
 erfassen und deren Bewegung zu erkennen. Das Ergebnis ist dann ein Fundament, auf
 dessen Grundlage konkrete Anwendungen entwickelt werden können.
 
-\section{Zielsetzung}
+\subsection{Projektziel}
 
 Am Ende dieser Arbeit soll eine Anwendung stehen, die mit Hilfe der Kinect Daten
 über die Flugbahnen dreier jonglierter Bälle liefert.
@@ -189,7 +190,9 @@ Die Anwendung soll eine Grundlage liefern, um auf Grundlage den gewonnen Informa
 heraus konkrete weitere Anwendungen zu schreiben.
 
 
-\section{Möglichkeiten der Kinect}
+\section{Projektplanung}
+
+\subsection{Möglichkeiten der Kinect}
 
 Die Kinect ist eine von Microsoft zur Spielekonsole Xbox 360 vertriebene Erweiterung,
 die den Spieler mit einem RGB- und einem Tiefensensor erfasst und diese beiden
@@ -233,7 +236,7 @@ werden. Dennoch gibt es Lichtquellen, wie das Sonnenlicht, welches genügend Lic
 Wellenlänge von 830 nm  beinhaltet, um die Kinect blenden zu können. So kann bei starkem
 Tageslicht oder im freien von Fehlverhalten bis zur Unnutzbarkeit der Kinect gerechet werden.
 
-\subsection{Beispielprojekte mit der Kinect}
+\subsubsection{Beispielprojekte mit der Kinect}
 
 Mit der Kinect lassen sich viele Ideen umsetzen. So gibt es ein Projekt, bei dem Spielzeugautos und
 -figuren vor der Kinect verschoben werden, eine Software erkennt diese und stellt diese Bewegungsabläufe
@@ -247,7 +250,11 @@ Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 
 {\color{red} FIXME: Beispielkinectprojekte Bilder}
 
-\section{Recherche: Ein jonglierender Roboter}
+\subsubsection{Stand 2014: Kinect One}
+
+{\color{red} FIXME: Rolf}
+
+\subsection{Recherche: Ein jonglierender Roboter}
 
 Im Vorfeld der ersten eigenen Implementierungsversuche sind wir bei der
 Paper-Recherche auf eine Arbeit von Jens Kober, Matthew Glisson und Michael Mistry
@@ -296,7 +303,7 @@ von den Beleuchtungsbedingungen abhängen und bei den verwischten Objekten, wie
 wir sie in den Kinect-Aufnahmen sehen, keine robuste Erkennung möglich ist.
 
 
-\section{Lösungsidee}
+\subsection{Lösungsidee}
 
 Als erste Lösungsidee haben wir in Anlehnung an die betrachtete Arbeit mit dem
 jonglierenden Roboter eine eigene Zusammenstellung von durchzuführenden Bildverarbeitungsschritten
@@ -336,102 +343,18 @@ Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der A
 auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig
 kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
 
-\section{Anfängliche Umsetzung}
+\section{Finale Umsetzung}
+\label{sec:final}
 
-Im Folgenden beschreiben wir die Arbeitsschritte, wie wir sie an Hand unserer
-Grundplanung ausgeführt haben. Wir gehen dabei auf die Schwierigkeiten ein, auf die
-wir getroffen sind, wodurch dann deutlich wird, weshalb wir zu unserer endgültigen
-Umsetzung gekommen sind. Diese finale Umsetzung beschreiben wir dann im Abschnitt \ref{sec:final}.
+Im Folgenden stellen wir die finale Lösung vor, welche wir als das Endergebnis des 
+Projektes präsentieren. Die zahlreichen Ansätze, die wir verfolgt haben, um zu
+diesem Punkt zu gelangen, stellen wir im folgenden Kapitel vor (siehe \ref{sec:ansaetze}).
 
 \subsection{Programmstruktur}
 
-Die ersten Tests, die wir mit der Kinect und bildverarbeitenden Verfahren
-ausprobiert haben, bestanden aus wenigen Schritten und wurden in einer
-simplen Schleife gelöst, die bei Druck der ESC Taste verlassen wurde. Zu Beginn
-eines Schleifendurchlaufes wird ein neuer RGB Frame und die zugehörigen
-Tiefendaten geholt. Danach folgt schrittweise Verarbeitung dieser Daten je nach
-gewünschtem Zweck.
+{\color{red}FIXME: Einleitung zu Filtern (muss mit den Ansätzen zusammenpassen)}
 
-
-\begin{lstlisting}[language=Python, caption={Jeder Schleifendurchlauf entspricht einem Frame. Mit der SPACE Taste wird der aktuelle Frame als Bild gespeichert, jede andere Taste beendet die Schleife und somit das Programm.}]
-    def loop(self):
-        """ Start the loop which is terminated by hitting a random key. """
-        while self.running:
-            if self.record:
-                self.snapshot()
-            else:
-                self._step()
-            key = cv.WaitKey(5)
-            self.running = key in (-1, 32)
-            if key == 32: # space bar
-                self.snapshot()
-
-    def _step(self):
-        """ One step of the loop, do not call on its own. Please. """
-        # Get a fresh frame
-        (rgb, depth) = self.kinect.get_frame()
-
-        # ... normalize values
-
-        # ... processing
-
-        # transform to open CV representation
-        rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
-
-        # Display image
-        cv.ShowImage('display', rgb_opencv)
-
-\end{lstlisting}
-
-
-
-Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene
-Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
-Parametrisierung finden mussten. Wir haben uns für ein Konzept von Filtern
-entschieden, wobei zu Programmstart eine Liste mit gewünschten Filtern erstellt
-wird und diese in der Hauptschleife nacheinander ausgeführt werden (die Originaldaten
-werden also in den ersten Filter gegeben, das Ergebnis dieses Filters wird als
-Eingabe für den zweiten Filter verwendet und das Ergebnis des letzten Filters
-in der Liste wird dann als Gesamtausgabe visuell dargestellt.
-
-Die RGB- und Tiefendaten werden vom freenect Modul als numpy Arrays zurückgegeben.
-Die Ausgabe erfolgt über ein von OpenCV erzeugtes Fenster, welches Daten für
-OpenCV erwartet. Die numpy Arrays müssen also an einer Stelle umgewandelt werden.
-Zusätzlich haben wir schnell festgestellt, dass einige gewünschte Operationen
-entweder nur in numpy oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches
-Umwandeln von einem Format in das jeweils andere ist aus Performanz-Gründen
-natürlich zu vermeiden. Um in der Entwicklung nicht immer darauf achten zu müssen,
-welcher Filter welche Eingabe erwartet und welche Ausgabe liefert, haben wir uns dazu
-entschieden, jeden Filter als Eingabe Daten in numpy Darstellung zu liefern und auch
-für die Ausgabe numpy zu erwarten. Dies erlaubt uns eine von außen identische
-Betrachtung der Filter, auch wenn einige Filter intern eine Umwandlung durchführen
-müssen. Bei etwaigen Problemen wollten wir die Performanz unserer Lösung getrennt
-betrachten, um zu Beginn lediglich über eine funktionierende Lösung nachdenken
-zu müssen.
-
-Waren die Filter ursprünglich als isolierte Einheiten mit simplem
-Input-Output-Verhalten von Bild- bzw. Tiefendaten gedacht, fiel uns schnell auf,
-dass einige Filter Zusatzinformationen liefern, die von anderen Filtern gebraucht
-werden. Um Filter nicht intern Unteraufrufe von anderen Filtern oder Komponenten
-ausführen zu lassen (dies wäre ebenfalls eine denkbare Lösung), entschieden wir uns
-für ein Objekt, das von der Hauptkomponente des Programms in jeden Filter
-hineingereicht wird und in dem jeder Filter Informationen ablegen und abfragen kann.
-Natürlich ist dies abhängig von der Reihenfolge der Filter und einige Filter haben
-als implizite Vorbedingung, dass andere Filter bereits ausgeführt wurden, dies haben
-wir der Einfachheit halber aber nicht expliziert formuliert, im Zweifelsfall wird
-beim ersten Ausführen einer nicht korrekten Filterkombination oder -reihenfolge ein
-Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht
-vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
-
-
-{\color{red} FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)}
-
-{\color{red} FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen}
-
-Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt
-ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im
-\lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden
-gestellt. Daher haben wir das Filterkonzept weiter angepasst. Jeder Filter verfügt
+Jeder Filter verfügt
 nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
 Parameter. Das \lstinline{argv} Dictionary wird nun lediglich für das Ablegen von
 Meta-Informationen verwendet, wie etwas Zusatzinfos zur Visualisierung.
@@ -458,6 +381,7 @@ Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die f
 {\lstinline!src.visual!} & Visualisierung und finale Ausgabe der Daten\\
 {\lstinline!src.application!} & Beispielhafte Anwendungen auf Basis unseres Projekts
 \end{tabular}
+
 
 \subsection{Programmfluss}
 
@@ -611,63 +535,118 @@ Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiell
 Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames
 hinweg eine neue Position einem bestehenden Ball zuordnen soll.
 
-Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben.
-
-Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
-Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die
-Implementierung einer Hough-Transformation, mit der wir auch begonnen haben.
-Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl der
-Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele false-positives
-erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle
-während des Fluges. Bei Betrachtung der Beispielaufnahmen (siehe oben) wird auch
-deutlich, dass eine vermutete Position teilweise deutlich von der tatsächlichen
-Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen Gewinn
-ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- und
-Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu
-stützen.
-
-Aber auch für die reine Berücksichtigung der Tiefendaten haben wir während des
-Projektablaufes mehrere Problemquellen identifizieren können, die die verschiedenen
-Ansätze unterschiedlich stark beeinflussen:
-
-\begin{itemize}
- \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten.
- \item Die Bälle fliegen sehr nahe beieinander und teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes Rechteck zu sehen ist und als eine mögliche Ballposition untersucht wird.
- \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück. (Pixelanzahl angeben?)
- \item Der Mindestabstand zur Kinect resultiert in einem kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
- \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon.
-\end{itemize}
-
-Diese Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
-uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
-in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
-festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
-
-Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
-zu jeder bereits existierenden Ballinstanz eine Position aus den erkannten Rechtecken
-auszuwählen, welche als neue Position des Balls festgelegt wird. Da im Allgemeinen nie
-zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet, wir nennen die folgenden Ansätze daher
-auch \textit{konsumierende Ansätze}. FIXME: das ist falsch, konsumierend $\neq$ feste Ballanzahl.
-
- \begin{enumerate}
- \item Die zwei sich am nächsten Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegungen und nahe aneinander passierender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt $\rightarrow$ Beachtung von ``springenden'' Bällen.
- \item Verbesserungsansatz: Die erwartete Ballposition wird mit der vorherigen Bewegung (linearer Bewegungsvektor) approximiert. Dies ist teilweise besser, aber trotzdem noch schwierig, die initiale Bewegung zu Erkennen. Hierbei verbleiben auch weiterhin Probleme mit Lücken in den Informationen.
- \item Weitere Verbesserung: Keinen linearen Bewegungsvektor nutzen, sondern die Flugbahn vorberechnen. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
- \end{enumerate}
+Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben. {\color{red} FIXME: Querverweis Ansätze}
 
 
-Im Gegensatz dazu sind die folgenden nicht konsumierende Ansätze zu sehen, bei denen
-wir auch eine variable Ballanzahl erlauben. FIXME: das ist falsch, siehe oben
 
-\begin{enumerate}
-	\item Wenn eine langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
-	\item Wie der Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames mit \lstinline{np.polyfit} berechnet.
-\end{enumerate}
 
 
 \subsubsection{Schritt 4: Bereinigte Wurfparabel}
 
 Das fehlt uns noch. Aber aus den gelieferten Daten wollen wir dann höher-levelige Informationen abstrahieren. Objektanzahl, Wurfhöhen, Würfe zählen, etc.
+
+
+
+
+\section{Ansätze im Laufe des Projektes}
+\label{sec:ansaetze}
+
+Im Folgenden beschreiben wir die Arbeitsschritte, wie wir sie an Hand unserer
+Grundplanung ausgeführt haben. Wir gehen dabei auf die Schwierigkeiten ein, auf die
+wir getroffen sind, wodurch dann deutlich wird, weshalb wir zu unserer endgültigen
+Umsetzung gekommen sind. Diese finale Umsetzung haben wir im Abschnitt \ref{sec:final} beschrieben.
+
+\subsection{Anfängliche Programmstruktur}
+
+Die ersten Tests, die wir mit der Kinect und bildverarbeitenden Verfahren
+ausprobiert haben, bestanden aus wenigen Schritten und wurden in einer
+simplen Schleife gelöst, die bei Druck der ESC Taste verlassen wurde. Zu Beginn
+eines Schleifendurchlaufes wird ein neuer RGB Frame und die zugehörigen
+Tiefendaten geholt. Danach folgt schrittweise Verarbeitung dieser Daten je nach
+gewünschtem Zweck.
+
+
+\begin{lstlisting}[language=Python, caption={Jeder Schleifendurchlauf entspricht einem Frame. Mit der SPACE Taste wird der aktuelle Frame als Bild gespeichert, jede andere Taste beendet die Schleife und somit das Programm.}]
+    def loop(self):
+        """ Start the loop which is terminated by hitting a random key. """
+        while self.running:
+            if self.record:
+                self.snapshot()
+            else:
+                self._step()
+            key = cv.WaitKey(5)
+            self.running = key in (-1, 32)
+            if key == 32: # space bar
+                self.snapshot()
+
+    def _step(self):
+        """ One step of the loop, do not call on its own. Please. """
+        # Get a fresh frame
+        (rgb, depth) = self.kinect.get_frame()
+
+        # ... normalize values
+
+        # ... processing
+
+        # transform to open CV representation
+        rgb_opencv = cv.fromarray(np.array(rgb[:,:,::-1]))
+
+        # Display image
+        cv.ShowImage('display', rgb_opencv)
+
+\end{lstlisting}
+
+
+
+Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene
+Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
+Parametrisierung finden mussten. Wir haben uns für ein Konzept von Filtern
+entschieden, wobei zu Programmstart eine Liste mit gewünschten Filtern erstellt
+wird und diese in der Hauptschleife nacheinander ausgeführt werden (die Originaldaten
+werden also in den ersten Filter gegeben, das Ergebnis dieses Filters wird als
+Eingabe für den zweiten Filter verwendet und das Ergebnis des letzten Filters
+in der Liste wird dann als Gesamtausgabe visuell dargestellt.
+
+Die RGB- und Tiefendaten werden vom freenect Modul als numpy Arrays zurückgegeben.
+Die Ausgabe erfolgt über ein von OpenCV erzeugtes Fenster, welches Daten für
+OpenCV erwartet. Die numpy Arrays müssen also an einer Stelle umgewandelt werden.
+Zusätzlich haben wir schnell festgestellt, dass einige gewünschte Operationen
+entweder nur in numpy oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches
+Umwandeln von einem Format in das jeweils andere ist aus Performanz-Gründen
+natürlich zu vermeiden. Um in der Entwicklung nicht immer darauf achten zu müssen,
+welcher Filter welche Eingabe erwartet und welche Ausgabe liefert, haben wir uns dazu
+entschieden, jeden Filter als Eingabe Daten in numpy Darstellung zu liefern und auch
+für die Ausgabe numpy zu erwarten. Dies erlaubt uns eine von außen identische
+Betrachtung der Filter, auch wenn einige Filter intern eine Umwandlung durchführen
+müssen. Bei etwaigen Problemen wollten wir die Performanz unserer Lösung getrennt
+betrachten, um zu Beginn lediglich über eine funktionierende Lösung nachdenken
+zu müssen.
+
+Waren die Filter ursprünglich als isolierte Einheiten mit simplem
+Input-Output-Verhalten von Bild- bzw. Tiefendaten gedacht, fiel uns schnell auf,
+dass einige Filter Zusatzinformationen liefern, die von anderen Filtern gebraucht
+werden. Um Filter nicht intern Unteraufrufe von anderen Filtern oder Komponenten
+ausführen zu lassen (dies wäre ebenfalls eine denkbare Lösung), entschieden wir uns
+für ein Objekt, das von der Hauptkomponente des Programms in jeden Filter
+hineingereicht wird und in dem jeder Filter Informationen ablegen und abfragen kann.
+Natürlich ist dies abhängig von der Reihenfolge der Filter und einige Filter haben
+als implizite Vorbedingung, dass andere Filter bereits ausgeführt wurden, dies haben
+wir der Einfachheit halber aber nicht expliziert formuliert, im Zweifelsfall wird
+beim ersten Ausführen einer nicht korrekten Filterkombination oder -reihenfolge ein
+Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht
+vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
+
+
+{\color{red} FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)}
+
+{\color{red} FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen}
+
+Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt
+ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im
+\lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden
+gestellt. Daher haben wir das Filterkonzept weiter angepasst. 
+
+FIXME: Pointer finale Umsetzung
 
 \subsection{Erläuterung verwendeter Bildverarbeitungsverfahren}
 
@@ -721,15 +700,6 @@ Einem {\tt update} geht immer ein {\tt predict} voran, jedoch kann ein {\tt pred
 In diesem Projekt sollte er bzw. eine Vereinfachung dessen dazu verwendet werden, durch Beobachten der einzelnen Bälle die voraussichtlichen Flugbahnen dieser zu bestimmen, um die Möglichkeit zu haben, diesen in den Ausgabestream als Lernhilfe einzuzeichnen. Aber selbst hierfür muss eine Beobachtung von einzelnen Bällen mit einer eindeutigen Zuordnung dieser von Frame zu Frame funktionieren, wofür der Algorithmus ebenfalls eingesetzt wird. Denn selbst wenn von Frame zu Frame alle Bälle erkannt werden, besteht die Hürde, einen Ball aus einem Frame eindeutig demselben Ball im nächsten Frame zuzuordnen.
 
 So ist in diesem Projekt das bewegte Objekt ein Ball und die Art der Bewegung eine Wurfparabel. Der Einfachkeit halber und da in diesen Zeiten vorkommende Abweichungen klein wären, außerdem eine Genauigkeit auf Pixelebene nicht notwendig ist, sind keine Störfaktoren einberechnet worden. Als Sensor wird die Kinect benutzt, mit der auf vorher beschriebene Weise die einzelnen Bälle gefunden werden.
-
-\subsection{Herausforderungen}
-
-{\color{red}Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über? Vielleicht nochmal die Reihenfolge sortieren.}
-
-Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
-
-Einige dieser Ansätze, die uns Schwierigkeiten bereitet haben, werden hier kurz vorgestellt, das Problem der Idee aufgezeigt, und wie wir sie letzten Endes doch implementiert haben - oder warum sie es nicht in die Software schafften.\\
-Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeit, sondern schrieben wild drauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
 
 \subsubsection{Hough-Transformation}
 Die Hough-Transform wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
@@ -788,7 +758,71 @@ Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \re
 
 {\color{red}FIXME Thiemo}
 
-\subsubsection{Technische Herausforderungen}
+\subsection{Ballerkennung}
+
+Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
+Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die
+Implementierung einer Hough-Transformation, mit der wir auch begonnen haben.
+Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl der
+Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele false-positives
+erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle
+während des Fluges. Bei Betrachtung der Beispielaufnahmen (siehe oben) wird auch
+deutlich, dass eine vermutete Position teilweise deutlich von der tatsächlichen
+Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen Gewinn
+ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- und
+Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu
+stützen.
+
+Aber auch für die reine Berücksichtigung der Tiefendaten haben wir während des
+Projektablaufes mehrere Problemquellen identifizieren können, die die verschiedenen
+Ansätze unterschiedlich stark beeinflussen:
+
+\begin{itemize}
+ \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten.
+ \item Die Bälle fliegen sehr nahe beieinander und teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes Rechteck zu sehen ist und als eine mögliche Ballposition untersucht wird.
+ \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück. (Pixelanzahl angeben?)
+ \item Der Mindestabstand zur Kinect resultiert in einem kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
+ \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon.
+\end{itemize}
+
+Diese Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
+uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
+in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
+festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
+
+Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
+zu jeder bereits existierenden Ballinstanz eine Position aus den erkannten Rechtecken
+auszuwählen, welche als neue Position des Balls festgelegt wird. Da im Allgemeinen nie
+zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet, wir nennen die folgenden Ansätze daher
+auch \textit{konsumierende Ansätze}. FIXME: das ist falsch, konsumierend $\neq$ feste Ballanzahl.
+
+ \begin{enumerate}
+ \item Die zwei sich am nächsten Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegungen und nahe aneinander passierender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt $\rightarrow$ Beachtung von ``springenden'' Bällen.
+ \item Verbesserungsansatz: Die erwartete Ballposition wird mit der vorherigen Bewegung (linearer Bewegungsvektor) approximiert. Dies ist teilweise besser, aber trotzdem noch schwierig, die initiale Bewegung zu Erkennen. Hierbei verbleiben auch weiterhin Probleme mit Lücken in den Informationen.
+ \item Weitere Verbesserung: Keinen linearen Bewegungsvektor nutzen, sondern die Flugbahn vorberechnen. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
+ \end{enumerate}
+
+
+Im Gegensatz dazu sind die folgenden nicht konsumierende Ansätze zu sehen, bei denen
+wir auch eine variable Ballanzahl erlauben. FIXME: das ist falsch, siehe oben
+
+\begin{enumerate}
+	\item Wenn eine langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
+	\item Wie der Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames mit \lstinline{np.polyfit} berechnet.
+\end{enumerate}
+
+
+\section{Herausforderungen}
+
+{\color{red}Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über? Vielleicht nochmal die Reihenfolge sortieren.}
+
+Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
+
+Einige dieser Ansätze, die uns Schwierigkeiten bereitet haben, werden hier kurz vorgestellt, das Problem der Idee aufgezeigt, und wie wir sie letzten Endes doch implementiert haben - oder warum sie es nicht in die Software schafften.\\
+Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeit, sondern schrieben wild drauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
+
+
+\subsection{Technische Herausforderungen}
 
 Im Laufe des gesamten Projektes haben wir drei Projektteilnehmer verteilt auf drei
 Betriebssystemen gearbeitet (Mac OS, Windows, Ubuntu). Da wir gerade dank
@@ -807,10 +841,23 @@ der Filter zudem nicht die gewünschten Vorteile geliefert hat, die wir uns erho
 hatten, haben wir diesen Filter nicht weiter in der Entwicklung betrachtet und so
 auch die zusätzliche Dependency eingespart.
 
-\section{Finale Umsetzung}
-\label{sec:final}
+\subsection{Selbstorganisation und Arbeitsweise}
 
-\subsection{Bewertung der Umsetzung}
+In unserer Arbeitsweise ist uns deutlich geworden, dass die Arbeit an praktischen
+Projekten einen großen Lerneffekt hat und auch die zahlreichen Fehlversuche mit
+wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu einer
+funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen
+Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
+sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt
+besser zu verfolgen um ihn auch sicher stellen zu können. %FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?
+
+
+
+
+
+\section{Bewertung des Endergebnisses}
+
+Vergleichen mit Zielsetzung
 
 Robustheit.
 
@@ -978,13 +1025,6 @@ Zahlentheorie konfrontiert werden. So ist ein einfaches Level-basiertes System
 denkbar, das einen Jonglieranfänger vom Grundmuster zu komplexeren Mustern und
 sogar mehr als drei Jonglierobjekten führt.
 
-\section{Stand der Forschung}
-
-Was Flo mit Benjamin besprochen hatte, noch ein paar aktuelle Forschungsansätzen zu Kinect u.ä. vorstellen, die mit unserem Thema zu tun haben
-
-Aber vielleicht eher direkt in den Abschnitten, wo wir über die Ansätze sprechen,
-die wir gewählt haben?
-
 \section{Fazit}
 
 Im Laufe des Projektes haben wir uns intensiv mit der Echtzeitverarbeitung von
@@ -999,14 +1039,6 @@ Die Software kann als Grundlage verwendet werden für weitere Anwendungen mit
 der Kinect und Jonglierbewegungen. Dies haben wir beispielhaft am Anwendungsfall
 des Zählens von Jonglierbällen gezeigt und weitere mögliche Entwicklungen
 vorgeschlagen und die nötigen Schritt umrissen.
-
-In unserer Arbeitsweise ist uns deutlich geworden, dass die Arbeit an praktischen
-Projekten einen großen Lerneffekt hat und auch die zahlreichen Fehlversuche mit
-wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu einer
-funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen
-Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
-sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt
-besser zu verfolgen um ihn auch sicher stellen zu können. %FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?
 
 Als Endergebnis des Projektes gelangen wir erfolgreich zu einer quelloffenen und flexibel
 erweiterbaren Software, die robust unsere selbst gestellte Aufgabe löst. Zudem haben
