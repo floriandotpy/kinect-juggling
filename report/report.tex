@@ -194,6 +194,8 @@ heraus konkrete weitere Anwendungen zu schreiben.
 
 \subsection{Möglichkeiten der Kinect}
 
+{\color{red} TODO Rolf Kapitel mit Kinect One und vielleicht etwas mehr und Bilder}
+
 Die Kinect ist eine von Microsoft zur Spielekonsole Xbox 360 vertriebene Erweiterung,
 die den Spieler mit einem RGB- und einem Tiefensensor erfasst und diese beiden
 Datenströme an die Konsole liefert. Da die Kinect über einen USB-Anschluss verfügt,
@@ -665,7 +667,7 @@ Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem 
 
 \subsubsection{Kalman Filter}
 
-{\color{red} FIXME: Schaubilder}
+{\color{red} FIXME ROLF: Schaubilder, evtl. Beispiel mit Zeichnungen oder so, Python Code Beispiel}
 
 Der Kalman Filter ist ein in 1960 von Rudolf E. Kálmán vorgestellter Algorithmus, welcher aus mehreren ungenauen Messungen versucht, die tatsächlichen Daten, die diesen Messungen zu Grunde liegen, zu estimieren.\cite{kalman} Solche Ungenauigkeiten können durch die Messsensoren entstehen, wenn diese aus verschiedenen Gründen nicht präzise genug aufnehmen können, oder auch durch ein Rauschen der Aufnahmequelle. Mit dem Kalman-Filter können so über einen bestimmten Zeitraum aufgenommene Daten mit möglichst vielem Wissen über potentielle Messabweichungen genauer bestimmt werden, als mit nur einzelnen Messungen.
 
@@ -702,6 +704,7 @@ In diesem Projekt sollte er bzw. eine Vereinfachung dessen dazu verwendet werden
 So ist in diesem Projekt das bewegte Objekt ein Ball und die Art der Bewegung eine Wurfparabel. Der Einfachkeit halber und da in diesen Zeiten vorkommende Abweichungen klein wären, außerdem eine Genauigkeit auf Pixelebene nicht notwendig ist, sind keine Störfaktoren einberechnet worden. Als Sensor wird die Kinect benutzt, mit der auf vorher beschriebene Weise die einzelnen Bälle gefunden werden.
 
 \subsubsection{Hough-Transformation}
+{\color{red} FIXME ROLF Python Code-Beispiel}
 Die Hough-Transform wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
 Ursprünglich wurde das Verfahren zum Finden von geraden Linien von Hough patentiert, jedoch dann von Duda und Hart verbessert und auch das Finden von Kreisen bzw. Kurven ermöglicht.
 
@@ -734,9 +737,6 @@ Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beanspruch
 
 Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B. mit Cython, dieser Leistungsverlust ausgeglichen werden könnte. Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, wurde dagegen entschieden. Durch geschicktes filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
 
-\subsubsection{Kalman-Filter}
-{\color{red} kA, könnte hier noch 1-2 kleine Absätze zu unserem Vorgehen reinschreiben}
-
 \subsubsection{Local Maxima}
 Mit Local Maxima werden lokale Maxima, also positive extreme Datenpunkte in einer lokal begrenzten Umgebung, bezeichnet.\\
 Anfangs hatten wir die Idee, über lokale Maxima die Bälle im Tiefenbild zu finden. Dies würde bedeuten, dass im Tiefenbild nach allen Datenpunktanhäufungen gesucht wird, die möglichst nahe der Kamera sind, dabei aber innerhalb eines gegebenen Radius bleiben. Diese sollen zusätzlich von Datenpunkten umgeben sein, die einen deutlichen Abstand nach hinten zu diesen Datenpunktanhäufungen besitzen.\\
@@ -759,6 +759,7 @@ Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \re
 {\color{red}FIXME Thiemo}
 
 \subsection{Ballerkennung}
+{\color{red} FIXME ROLF Python Code mit Wurfparabel und Erklären usw}
 
 Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
 Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die
@@ -830,7 +831,7 @@ unseres flexiblen Filterkonzeptes gut arbeitsteilig arbeiten konnten, haben wir
 nicht von Anfang an auf die Integrierbarkeit unserer Komponenten geachtet.
 
 Der funktionierende Temporalfilter (siehe \ref{sec:temporal}) etwa wurde mit Hilfe
-der Bildverarbeitungsbibliothek VIGRA (FIXME source) implementiert. Die
+der Bildverarbeitungsbibliothek VIGRA\cite{vigra} implementiert. Die
 Python-Bindings hierfür liegen nicht auf allen Systemen in gleich guter Verfügbarkeit
 vor (zumindest war es uns auf Mac OS nicht möglich, diese ohne Mac Ports zum Laufen
 zu bekommen, da die per \lstinline{pip install} verfügbare Version veraltet ist und
@@ -856,6 +857,8 @@ besser zu verfolgen um ihn auch sicher stellen zu können. %FIXME: das klingt et
 
 
 \section{Bewertung des Endergebnisses}
+
+{\color{red} FIXME ROLF ausformulieren und mit Kinect austesten!}
 
 Vergleichen mit Zielsetzung
 
