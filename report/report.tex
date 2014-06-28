@@ -350,7 +350,7 @@ kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
 
 Im Folgenden stellen wir die finale Lösung vor, welche wir als das Endergebnis des
 Projektes präsentieren. Die zahlreichen Ansätze, die wir verfolgt haben, um zu
-diesem Punkt zu gelangen, stellen wir im folgenden Kapitel vor (siehe \ref{sec:ansaetze}).
+diesem Punkt zu gelangen, stellen wir im anschließenden Kapitel vor (siehe \ref{sec:ansaetze}).
 
 \subsection{Programmstruktur}
 
@@ -650,9 +650,10 @@ gestellt. Daher haben wir das Filterkonzept weiter angepasst.
 
 FIXME: Pointer finale Umsetzung
 
-\subsection{Erläuterung verwendeter Bildverarbeitungsverfahren}
+\subsection{Weitere Ansätze und Bildverarbeitungsverfahren}
 
 \subsubsection{Temporale Ballerkennung}
+\label{sec:temporal}
 
 Ein alternativer Ansatz beruht auf der Idee, sämtliche sich nicht bewegende Teile im Tiefenbild herauszufiltern. Motiviert ist dies, um Teile der Vorerarbeitung des Tiefenbildes und der Ballerkennung flexibler zu gestalten. Bei der Vorverarbeitung wird, wie in \ref{sec:preprocess} beschrieben, davon ausgegangen, dass sich der Jongleur in einem bestimmten Abstand zum Kinect-Sensor befindet und seine Hände  die Bälle in einer bestimmte Distanz zu seinem Körper jonglieren. Zudem dürfen keine anderen Objekte,
 beispielsweise Stühle, in der gleichen Ebene stehen und von der Kinect erfasst werden.
@@ -785,11 +786,6 @@ Dieses Verfahren, welches bei Testbildern, welche rauscharm mit einem gleichmä�
 So haben wir uns entschieden, keinen flexiblen Abstand des Spielers zur Kinect zuzulassen, sondern diesen festzulegen. Anfangs als Nachteil empfunden, stellten wir aber fest, dass dies schnell akzeptiert werden konnte und den Spielspaß nicht mindert.
 
 Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \ref{sec:roi} beschrieben.
-
-\subsubsection{Temporal Filter}
-\label{sec:temporal}
-
-{\color{red}FIXME Thiemo}
 
 \subsection{Ballerkennung}
 {\color{red} FIXME ROLF Python Code mit Wurfparabel und Erklären usw}
