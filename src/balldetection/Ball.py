@@ -9,13 +9,11 @@ class Ball(object):
         self.meta = meta
         self.positions = [] # collect older positions
         self.max_history = max_history
-        self.updatedAlready = False
 
     def updatePosition(self, position):
         self.positions = self.positions[:self.max_history] # keep positions list short
         self.positions.append(self.position)
         self.position = position
-        self.updatedAlready = True
 
     def futurePosition(self, trajectory=False):
         # this one doesnt to future predction, return current position instead
