@@ -252,9 +252,18 @@ Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 
 {\color{red} FIXME: Beispielkinectprojekte Bilder}
 
-\subsubsection{Stand 2014: Kinect One}
+\subsubsection{Stand 2014: Kinect for Xbox One}
+{\color{red} FIXME: Rolf, Bild/Spec-Grafik der Kinect 2\\}
+Am 22. November 2013 ist in den USA und Europa die Xbox One und damit auch die Kinect for Xbox One, oder auch Kinect 2.0, erschienen.\cite{kinect2:wiki} Die neue Kinect bringt viel neue Hardware mit, die sie deutlich von der ersten Kinect hervorhebt. Auch softwaretechnisch wurden viele Features implementiert, wie beispielsweise eine große Anzahl Möglichkeiten an Gesten- und Sprachsteuerung der Konsole.\cite{kinect2:gesturevoice} In einer Reihe von Online-Technology-Magazinen hat die neue Kinect viele Bewertungen von 7 bis 9 von 10 Punkten bekommen.\cite{kinect2:wikikinect}
 
-{\color{red} FIXME: Rolf}
+Die Hardware wird in einem Teardown-Article inklusive Video auf \url{www.ifixit.com} ausführlich gezeigt.\cite{kinect2:teardown} Diese beinhaltet under anderem:
+\begin{itemize}
+\item Eine 1080p HD Weitwinkelkamera.\cite{kinect2:teardown}
+\item Drei Infrarot-Strahler.\cite{kinect2:infrared}
+\item Ein Multi-Mikrofon Array mit Rauschentfernung und Sprachsteuerung.\cite{kinect2:teardown}
+\end{itemize}
+
+Mit noch verbauten 1 GB RAM kann die Kinect 2.0 bis zu 2 Gigabit an Informationen pro Sekunde verarbeiten. 
 
 \subsection{Recherche: Ein jonglierender Roboter}
 
@@ -500,6 +509,7 @@ einen flexiblen Abstand des Spielers zur Kinect. Nach einer Implementierung wurd
 Wir stellten fest, dass Ansatz A völlig ausreichend für unsere Zwecke ist. Die Einschränkung der Spielerposition ist ebenfalls nicht störend, da dies sogar interaktiv durchgeführt werden kann (so lange nach vorne gehen, bis das System vernünftige Werte liefert - kein aufwändiges Abmessen nötig). Weiterhin redgt dies sogar den Spieler an, seine Ballwürfe kontrolliert durchzuführen, ohne dass diese ihn zu Positionsveränderungen zwingen.
 
 \subsubsection{Schritt 3: Bälle in Frame-Folgen einander zuordnen}
+\label{sec:ballzuordnung}
 
 Bevor potentielle Ballpositionen konkreten Ball-Instanzen zugeordnet werden, findet eine kurze Vorverarbeitung statt, bei der Regionen im binarisierten Ergebnis des vorherigen Schrittes als Rechtecke umzeichnet werden, wofür einfach die OpenCV-Funktion \lstinline{cv.BoundingRect} verwendet wird, die genau diese Aufgabe erfüllt.
 Kleine Rechtecke und solche, die den Bildrahmen berühren, werden hierbei bereits herausgefiltert.
@@ -1090,16 +1100,13 @@ class TrajectoryBall(object):
 \end{lstlisting}
 Dieser Ansatz brachte leichte Verbesserungen ein, jedoch wurden viele der Wurfbahnen trotzdem noch in unseren Augen willkürlich eingezeichnet, so dass Würfe, die in eine Richtung gehen, gerne mal spiegelverkehrt oder gänzlich aus dem Bild fliegend eingezeichnet wurden.
 
-{\color{red}FIXME Warum dies nicht klappt, die nächsten Ansätze und wie es gelöst wurde}
+Wie sich später herausstellte, waren die Handpositionen, die fälschlicherweise immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Wurden die Hände erst einmal seperat erkannt und aus den potentiellen Ballpositionen entfernt, funktionierte das Approximieren des Ballwurfs sehr viel besser. Der ganze Vorgang wurde aber nochmals vereinfacht und läuft nun sehr gut, wie in Abschnitt \ref{sec:ballzuordnung} nachzulesen ist.
 
 \section{Herausforderungen}
-
-{\color{red}Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über? Vielleicht nochmal die Reihenfolge sortieren.}
-
 Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
 
 Einige dieser Ansätze, die uns Schwierigkeiten bereitet haben, werden hier kurz vorgestellt, das Problem der Idee aufgezeigt, und wie wir sie letzten Endes doch implementiert haben - oder warum sie es nicht in die Software schafften.\\
-Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeit, sondern schrieben wild drauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
+Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeitsschritte, sondern programmierten wild darauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder, vor allem an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
 
 
 \subsection{Technische Herausforderungen}
@@ -1129,11 +1136,8 @@ wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu eine
 funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen
 Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
 sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt
-besser zu verfolgen um ihn auch sicher stellen zu können. %FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?
-
-
-
-
+besser zu verfolgen um ihn auch sicher stellen zu können.
+{\color{red}FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?}
 
 \section{Bewertung des Endergebnisses}
 
@@ -1390,6 +1394,11 @@ Yan Cui$^{1}$, Will Chang, Tobias Nöll$^{1}$, Didier Stricker$^{1}$\\
 $^{1}$ Augmented Vision, DFKI,\\
 German Research Center for Artificial Intelligence.
 
+\bibitem{motiondeblurring}
+Hyeoungho Bae, Charless C. Fowlkes, Pai H. Chou\\
+{\em Accurate Motion Deblurring using Camera Motion Tracking and Scene Depth}\\
+University of California, Irvine.
+
 \bibitem{rgbzvideos}
 Christian Richardt$^{1,2}$, Carsten Stoll$^{1}$, Neil A. Dodgson$^{2}$, Hans-Peter Seidel$^{1}$, Christian Theobalt$^{1}$\\
 {\em Coherent Spatiotemporal Filtering, Upsampling and Rendering of RGBZ Videos}\\
@@ -1437,6 +1446,29 @@ Numpy\\
 \bibitem{scipy}
 Scipy\\
 \url{http://www.scipy.org/} (accessed on 2014-06-28).
+
+\bibitem{kinect2:gesturevoice}
+The Complete List of Kinect Gesture and Voice Commands For Your Referencing Pleasure\\
+news.xbox.com\\
+\url{http://news.xbox.com/2013/11/xbox-one-kinect-gesture-and-voice-guide} (accessed on 2014-06-29).
+
+\bibitem{kinect2:wikikinect}
+Wikipedia: Kinect for Xbox One\\
+\url{http://en.wikipedia.org/wiki/Kinect_for_Xbox_One} (accessed on 2014-06-29).
+
+\bibitem{kinect2:wikixbox}
+Wikipedia: Xbox One, Kinect\\
+\url{http://en.wikipedia.org/wiki/Xbox_One#Kinect} (accessed on 2014-06-29).
+
+\bibitem{kinect2:teardown}
+Xbox One Kinect Teardown\\
+www.ifixit.com\\
+\url{https://www.ifixit.com/Teardown/Xbox+One+Kinect+Teardown/19725} (accessed on 2014-06-29).
+
+\bibitem{kinect2:infrared}
+Our First Look at the Xbox One Kinect IR Field\\
+www.ifixit.org\\
+\url{http://ifixit.org/blog/5684/our-first-look-at-the-xbox-one-kinect-ir-field/} (accessed on 2014-06-29).
 
 \end{thebibliography}
 
