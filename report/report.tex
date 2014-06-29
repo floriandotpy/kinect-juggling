@@ -252,9 +252,18 @@ Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 
 {\color{red} FIXME: Beispielkinectprojekte Bilder}
 
-\subsubsection{Stand 2014: Kinect One}
+\subsubsection{Stand 2014: Kinect for Xbox One}
+{\color{red} FIXME: Rolf, Bild/Spec-Grafik der Kinect 2\\}
+Am 22. November 2013 ist in den USA und Europa die Xbox One und damit auch die Kinect for Xbox One, oder auch Kinect 2.0, erschienen.\cite{kinect2:wiki} Die neue Kinect bringt viel neue Hardware mit, die sie deutlich von der ersten Kinect hervorhebt. Auch softwaretechnisch wurden viele Features implementiert, wie beispielsweise eine große Anzahl Möglichkeiten an Gesten- und Sprachsteuerung der Konsole.\cite{kinect2:gesturevoice} In einer Reihe von Online-Technology-Magazinen hat die neue Kinect viele Bewertungen von 7 bis 9 von 10 Punkten bekommen.\cite{kinect2:wikikinect}
 
-{\color{red} FIXME: Rolf}
+Die Hardware wird in einem Teardown-Article inklusive Video auf \url{www.ifixit.com} ausführlich gezeigt.\cite{kinect2:teardown} Diese beinhaltet under anderem:
+\begin{itemize}
+\item Eine 1080p HD Weitwinkelkamera.\cite{kinect2:teardown}
+\item Drei Infrarot-Strahler.\cite{kinect2:infrared}
+\item Ein Multi-Mikrofon Array mit Rauschentfernung und Sprachsteuerung.\cite{kinect2:teardown}
+\end{itemize}
+
+Mit noch verbauten 1 GB RAM kann die Kinect 2.0 bis zu 2 Gigabit an Informationen pro Sekunde verarbeiten. 
 
 \subsection{Recherche: Ein jonglierender Roboter}
 
@@ -500,6 +509,7 @@ einen flexiblen Abstand des Spielers zur Kinect. Nach einer Implementierung wurd
 Wir stellten fest, dass Ansatz A völlig ausreichend für unsere Zwecke ist. Die Einschränkung der Spielerposition ist ebenfalls nicht störend, da dies sogar interaktiv durchgeführt werden kann (so lange nach vorne gehen, bis das System vernünftige Werte liefert - kein aufwändiges Abmessen nötig). Weiterhin redgt dies sogar den Spieler an, seine Ballwürfe kontrolliert durchzuführen, ohne dass diese ihn zu Positionsveränderungen zwingen.
 
 \subsubsection{Schritt 3: Bälle in Frame-Folgen einander zuordnen}
+\label{sec:ballzuordnung}
 
 Bevor potentielle Ballpositionen konkreten Ball-Instanzen zugeordnet werden, findet eine kurze Vorverarbeitung statt, bei der Regionen im binarisierten Ergebnis des vorherigen Schrittes als Rechtecke umzeichnet werden, wofür einfach die OpenCV-Funktion \lstinline{cv.BoundingRect} verwendet wird, die genau diese Aufgabe erfüllt.
 Kleine Rechtecke und solche, die den Bildrahmen berühren, werden hierbei bereits herausgefiltert.
@@ -970,9 +980,12 @@ So haben wir uns entschieden, keinen flexiblen Abstand des Spielers zur Kinect z
 Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \ref{sec:roi} beschrieben.
 
 \subsection{Ballerkennung}
+<<<<<<< HEAD
 
 \subsubsection{Fehlerquellen}
 
+=======
+>>>>>>> ad3505d562def489a2ae4f4535c725f89c368aac
 Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
 Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die
 Implementierung einer Hough-Transformation (siehe Abschnitt \ref{sec:hough}), mit der wir auch begonnen haben.
@@ -1017,30 +1030,26 @@ festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dyna
 Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
 zu jeder bereits existierenden Ballinstanz eine Position aus den erkannten Rechtecken
 auszuwählen, welche als neue Position des Balls festgelegt wird. Da im Allgemeinen nie
-zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet, wir nennen die folgenden Ansätze daher
-auch \textit{konsumierende Ansätze}. FIXME: das ist falsch, konsumierend $\neq$ feste Ballanzahl.
+zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet.
 
  \begin{enumerate}
  \item Die zwei sich am nächsten Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegungen und nahe aneinander passierender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt $\rightarrow$ Beachtung von ``springenden'' Bällen.
  \item Verbesserungsansatz: Die erwartete Ballposition wird mit der vorherigen Bewegung (linearer Bewegungsvektor) approximiert. Dies ist teilweise besser, aber trotzdem noch schwierig, die initiale Bewegung zu Erkennen. Hierbei verbleiben auch weiterhin Probleme mit Lücken in den Informationen.
- \item Weitere Verbesserung: Keinen linearen Bewegungsvektor nutzen, sondern die Flugbahn vorberechnen. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. (Verbesserung nochmal gut angucken, aber gefühlt hat das erstaunlich wenig unterschied gebracht)
+ \item Weitere Verbesserung: Keinen linearen Bewegungsvektor nutzen, sondern die Flugbahn vorberechnen. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. In unseren Tests hat dies aber auch nur zu einer geringfügigen Verbesserung beigetragen.
  \end{enumerate}
 
-
-Im Gegensatz dazu sind die folgenden nicht konsumierende Ansätze zu sehen, bei denen
-wir auch eine variable Ballanzahl erlauben. FIXME: das ist falsch, siehe oben
+Im Gegensatz dazu sind die folgenden Ansätze zu sehen, bei denen wir auch eine variable Ballanzahl erlauben. Hierbei werden nicht wie im vorigen Ansatz mögliche Ballpositionen nach einer Zuweisung entfernt.
 
 \begin{enumerate}
 	\item Wenn eine langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
 	\item Wie der Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames mit \lstinline{np.polyfit} berechnet.
 \end{enumerate}
 
-{\color{red} FIXME} Hier nochmal Codebeispiel zu den Ansätzen, die Wurfparabel zu berechnen.
-
-In den ersten Versuchen, den Wurf zu modellieren, wurde die Idee von Kalman aufgegriffen und auf sehr einfache Weise versucht, diese umzusetzen. Dazu wurde erst einmal die Bewegung des Balls als eine Wurfparabel bestimmt, dessen mathematische Formel wie folgend ist:
+Für diese Ballzuweisung wird es notwendig, mindestens den nächsten Abschnitt der Flugbahn eines Balles, optimalerweise aber auch die gesamte Flugbahn eines Balles zu approximieren.\\
+In den ersten Versuchen, den Wurf zu modellieren, wurde die Idee von Kalman aufgegriffen und auf sehr einfache Weise versucht, diese umzusetzen. Dazu wurde erst einmal die Bewegung des Balls als eine Wurfparabel festgelegt, dessen mathematische Formel wie folgend ist:
 \begin{align}
-x& = v_{x}t \\
-y& = v_{0_{y}t} - \frac{g}{2}t^{2}
+x& = v_{x}t \label{eq:wurf1}\\
+y& = v_{0_{y}t} - \frac{g}{2}t^{2} \label{eq:wurf2}
 \end{align}
 Die Bewegung in der x-Achse, also der Horizontalen, ist eine Bewegung mit konstanter Geschwindigkeit $v$ über die Zeit $t$. In der Vertikalen y-Achse wirkt die Schwerkraft mit konstanter Geschwindigkeit $g=9,81 \frac{m}{s^{2}}$ nach unten auf den Ball ein. Hiermit lässt sich eine Position des Balls bei Zeitpunkt $t$ bestimmen, wenn Anfangsposition und Geschwindigkeiten in beide Richtungen bekannt sind. In unserem Fall kann eine Anfangsposition bestimmt werden, jedoch ist aus einem Frame allein die Geschwindigkeit nicht zu bestimmen. Werden mindestens zwei Frames genutzt, und in diesen Bälle gefunden, die einander zugeordnet werden, kann hieraus eine Anfangsposition und zusätzlich eine Richtung sowie Geschwindigkeit gewonnen werden. Da nun anstatt der Geschwindigkeit in horizontaler und vertikaler Richtung nur eine allgemeine Geschwindigkeit des Balles, aber zusätzlich eine Richtung extrahiert werden konnte, werden folgende Formeln für den Ballwurf genutzt:
 \begin{align}
@@ -1074,18 +1083,48 @@ class SimpleKalmanFilter(object):
 \end{lstlisting}
 Hierbei wird durch Aufruf von {\tt SimpleKalmanFilter.filter} für zwei aufeinanderfolgenden Ballpositionen in einer Schleife für 10 Zeiteinheiten eine voraussichtliche Wurfbahn berechnet und zurückgegeben.
 
-Leider schlug dieser Ansatz fehl, 
+In der Theorie sollte dieser Ansatz funktionieren, aber in für uns unerklärbarer Weise wurden im Praxisversuch die Wurfbahnen teils wie erwartet, teils aber ganz anders eingezeichnet. So haben wir in weiteren Versuchen die Berechnung vereinfacht, und uns an Formeln \ref{eq:wurf1} und \ref{eq:wurf2} gehalten:
 
-{\color{red}FIXME Warum dies nicht klappt, die nächsten Ansätze und wie es gelöst wurde}
+\begin{lstlisting}[language=Python]
+class TrajectoryBall(object):
+    def __init__(self, lowerPoint, upperPoint, meta=None):
+        [...]
+        # gravity, positive because y is upside-down
+        self.gravity = 9.81 * 0.5
+        self._initTrajectory(lowerPoint, upperPoint)
+
+    def _initTrajectory(self, lowerPoint, upperPoint):
+        (x1, y1), (x2, y2) = lowerPoint, upperPoint
+
+        # speed in x and y direction
+        self.v_x = x2 - x1
+        self.v_y = y2 - y1
+
+        # speed correction based on tests
+        self.v_y *= 0.8
+
+        # start trajectory in center of the two points we are based on
+        self.xOffset = x1
+        self.yOffset = y1
+
+    def _trajectory(self, t=1):
+        """Calculate the throw trajectory based on 2 points to return any future or past point on that trajectory"""
+
+        # distance in x and y direction
+        x   = self.v_x * t + self.xOffset
+        y   = self.v_y * t + self.gravity/2 * t**2 + self.yOffset
+
+        return int(x), int(y)
+\end{lstlisting}
+Dieser Ansatz brachte leichte Verbesserungen ein, jedoch wurden viele der Wurfbahnen trotzdem noch in unseren Augen willkürlich eingezeichnet, so dass Würfe, die in eine Richtung gehen, gerne mal spiegelverkehrt oder gänzlich aus dem Bild fliegend eingezeichnet wurden.
+
+Wie sich später herausstellte, waren die Handpositionen, die fälschlicherweise immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Wurden die Hände erst einmal seperat erkannt und aus den potentiellen Ballpositionen entfernt, funktionierte das Approximieren des Ballwurfs sehr viel besser. Der ganze Vorgang wurde aber nochmals vereinfacht und läuft nun sehr gut, wie in Abschnitt \ref{sec:ballzuordnung} nachzulesen ist.
 
 \section{Herausforderungen}
-
-{\color{red}Probleme aus den Ansätzen noch mal aufgreifen. Noch irgendwas abstrakteres dazu schreiben? Vielleicht dass wir uns nicht doll genug getracked haben dier Projektzeit über? Vielleicht nochmal die Reihenfolge sortieren.}
-
 Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
 
 Einige dieser Ansätze, die uns Schwierigkeiten bereitet haben, werden hier kurz vorgestellt, das Problem der Idee aufgezeigt, und wie wir sie letzten Endes doch implementiert haben - oder warum sie es nicht in die Software schafften.\\
-Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeit, sondern schrieben wild drauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
+Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeitsschritte, sondern programmierten wild darauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder, vor allem an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
 
 
 \subsection{Technische Herausforderungen}
@@ -1115,11 +1154,8 @@ wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu eine
 funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen
 Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
 sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt
-besser zu verfolgen um ihn auch sicher stellen zu können. %FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?
-
-
-
-
+besser zu verfolgen um ihn auch sicher stellen zu können.
+{\color{red}FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?}
 
 \section{Bewertung des Endergebnisses}
 
@@ -1376,6 +1412,11 @@ Yan Cui$^{1}$, Will Chang, Tobias Nöll$^{1}$, Didier Stricker$^{1}$\\
 $^{1}$ Augmented Vision, DFKI,\\
 German Research Center for Artificial Intelligence.
 
+\bibitem{motiondeblurring}
+Hyeoungho Bae, Charless C. Fowlkes, Pai H. Chou\\
+{\em Accurate Motion Deblurring using Camera Motion Tracking and Scene Depth}\\
+University of California, Irvine.
+
 \bibitem{rgbzvideos}
 Christian Richardt$^{1,2}$, Carsten Stoll$^{1}$, Neil A. Dodgson$^{2}$, Hans-Peter Seidel$^{1}$, Christian Theobalt$^{1}$\\
 {\em Coherent Spatiotemporal Filtering, Upsampling and Rendering of RGBZ Videos}\\
@@ -1423,6 +1464,29 @@ Numpy\\
 \bibitem{scipy}
 Scipy\\
 \url{http://www.scipy.org/} (accessed on 2014-06-28).
+
+\bibitem{kinect2:gesturevoice}
+The Complete List of Kinect Gesture and Voice Commands For Your Referencing Pleasure\\
+news.xbox.com\\
+\url{http://news.xbox.com/2013/11/xbox-one-kinect-gesture-and-voice-guide} (accessed on 2014-06-29).
+
+\bibitem{kinect2:wikikinect}
+Wikipedia: Kinect for Xbox One\\
+\url{http://en.wikipedia.org/wiki/Kinect_for_Xbox_One} (accessed on 2014-06-29).
+
+\bibitem{kinect2:wikixbox}
+Wikipedia: Xbox One, Kinect\\
+\url{http://en.wikipedia.org/wiki/Xbox_One#Kinect} (accessed on 2014-06-29).
+
+\bibitem{kinect2:teardown}
+Xbox One Kinect Teardown\\
+www.ifixit.com\\
+\url{https://www.ifixit.com/Teardown/Xbox+One+Kinect+Teardown/19725} (accessed on 2014-06-29).
+
+\bibitem{kinect2:infrared}
+Our First Look at the Xbox One Kinect IR Field\\
+www.ifixit.org\\
+\url{http://ifixit.org/blog/5684/our-first-look-at-the-xbox-one-kinect-ir-field/} (accessed on 2014-06-29).
 
 \end{thebibliography}
 
