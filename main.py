@@ -22,7 +22,7 @@ from src.preprocessing.TemporalFilter import TemporalFilter
 # ball detection, hand tracking
 from src.balldetection.SimpleBall import SimpleBallFilter
 from src.balldetection.SimpleHandBall import SimpleHandBallFilter
-from src.balldetection.TrajectoryBall import TrajectoryBallCollection
+from src.balldetection.TrajectoryBall import TrajectoryBallFilter
 from src.balldetection.PreciseTrajectoryBall import PreciseTrajectoryBallCollection
 from src.balldetection.MinimalBall import MinimalBallFilter
 from src.balldetection.HandTracking import HandTrackingFilter
@@ -70,6 +70,8 @@ class Kinector(object):
             self.filters.append(MinimalBallFilter())
         elif 'simplehand' in args:
             self.filters.append(SimpleHandBallFilter())
+        elif 'trajectory' in args:
+            self.filters.append(TrajectoryBallFilter())
         else:
             self.filters.append(SimpleBallFilter())
 

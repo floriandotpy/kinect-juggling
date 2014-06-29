@@ -1,4 +1,55 @@
+import math
 from src.Util import getcolour
+
+
+class TrajectoryBallFilter(object):
+    def __init__(self):
+        self.balls = []
+        self.previousFrame = []
+
+    def filter(self, rgb, depth, ball_positions, args={}):
+
+        # forget positions that are known to be hands (if detected before)
+        if 'only_balls' in args:
+            ball_positions = args['only_balls']
+
+        # only run filter if we know previous frame's positions
+        if len(self.previousFrame) == 0:
+            self.previousFrame = ball_positions
+            rgb, depth, ball_positions
+
+        # launch new balls
+        for oldPos in self.previousFrame:
+            for newPos in ball_positions:
+                oldX, oldY = oldPos['position']
+                newX, newY = newPos['position']
+
+                isAbove = newY < oldY
+                isNotTooHigh = abs(newY - oldY) < 60
+                isCloseX = abs(newX - oldX) < 30
+
+                if isAbove and isCloseX and isNotTooHigh:
+                    # upwards movement!
+                    self.launchTrajectory(oldPos['position'], newPos['position'], meta={'old': oldPos, 'new': newPos})
+
+        # move balls
+        self.step()
+
+        # remember positions for next frame
+        self.previousFrame = ball_positions
+
+        return rgb, depth, list(self.balls)
+
+    def launchTrajectory(self, lowerPoint, upperPoint, meta=None):
+        ball = TrajectoryBall(lowerPoint, upperPoint, meta=meta)
+        self.balls.append(ball)
+
+    def step(self):
+        for ball in self.balls:
+            ball.step()
+            if ball.t > 15:
+                self.balls.remove(ball)
+
 
 class TrajectoryBall(object):
     def __init__(self, lowerPoint, upperPoint, meta=None):
@@ -30,19 +81,12 @@ class TrajectoryBall(object):
         self.v_x = x2 - x1
         self.v_y = y2 - y1
 
-        # why is the calculated speed too fast? need to correct it here
-        # self.v_x *= 0.5
-        self.v_y *= 0.8
-
-        # start trajectory in center of the two points we are based on
-        self.xOffset = (x2 + x1) / 2
-        self.yOffset = (y2 + y1) / 2
+        # start trajectory at first point we're based on
         self.xOffset = x1
         self.yOffset = y1
 
         # progress of the trajectory
         self.t = 0
-
 
     def futurePosition(self):
         return self._trajectory(self.t+1)
@@ -72,7 +116,6 @@ class TrajectoryBall(object):
 
         return distance < 20
 
-
     def step(self):
         if self.position:
             self.positions.append(self.position)
@@ -80,59 +123,3 @@ class TrajectoryBall(object):
         self.t += 1
 
 
-class TrajectoryBallCollection(object):
-    def __init__(self):
-        self.positions = []
-        self.balls = []
-        self.lastFrame = []
-
-    def addPositions(self, positions=[], args={}):
-
-        # forget positions that are known to be hands
-        positions = args['only_balls']
-
-        self.lastFrame = positions
-
-        # remember last frame before using current frame
-        if len(self.lastFrame) == 0:
-            return
-
-        # update existing balls if possible
-        # for ball in self.balls:
-        #     for pos in positions:
-        #         if ball.matches(pos):
-        #             print "match!"
-        #             positions.remove(pos)
-        #             ball.update(pos)
-
-        # launch new balls
-        for oldPos in self.lastFrame:
-            for newPos in positions:
-                oldX, oldY = oldPos['position']
-                newX, newY = newPos['position']
-
-                isAbove = newY < oldY
-                # isAbove = True
-                isNotTooHigh = abs(newY - oldY) < 60
-                isCloseX = abs(newX - oldX) < 30
-                midX = args['centerX'] # FIXME: dynamic calculation (mid point between outermost rects)
-                isInward = (oldX < newX and oldX < midX) or (oldX > newX and oldX > midX)
-
-                if isAbove and isCloseX and isNotTooHigh:
-                # upwards movement!
-                    self.launchTrajectory(oldPos['position'], newPos['position'], meta={'old': oldPos, 'new': newPos})
-
-        # move balls
-        self.step()
-
-    def launchTrajectory(self, lowerPoint, upperPoint, meta=None):
-        ball = TrajectoryBall(lowerPoint, upperPoint, meta=meta)
-        self.balls.append(ball)
-
-    def step(self):
-        for ball in self.balls:
-            ball.step()
-            if ball.t > 25:
-                self.balls.remove(ball)
-            # if ball.position[1] > 380 or not -200 < ball.position[0] < 840:
-            #     self.balls.remove(ball)

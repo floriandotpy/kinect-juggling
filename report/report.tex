@@ -961,6 +961,7 @@ In diesem Projekt sollte er bzw. eine Vereinfachung dessen dazu verwendet werden
 So ist in diesem Projekt das bewegte Objekt ein Ball und die Art der Bewegung eine Wurfparabel. Der Einfachkeit halber und da in diesen Zeiten vorkommende Abweichungen klein wären, außerdem eine Genauigkeit auf Pixelebene nicht notwendig ist, sind keine Störfaktoren einberechnet worden. Als Sensor wird die Kinect benutzt, mit der auf vorher beschriebene Weise die einzelnen Bälle gefunden werden.
 
 \subsubsection{Hough-Transformation}
+\label{sec:hough}
 {\color{red} FIXME ROLF Python Code-Beispiel}
 Die Hough-Transform wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
 Ursprünglich wurde das Verfahren zum Finden von geraden Linien von Hough patentiert, jedoch dann von Duda und Hart verbessert und auch das Finden von Kreisen bzw. Kurven ermöglicht.
@@ -1011,9 +1012,13 @@ So haben wir uns entschieden, keinen flexiblen Abstand des Spielers zur Kinect z
 Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \ref{sec:roi} beschrieben.
 
 \subsection{Ballerkennung}
+
+\subsubsection{Fehlerquellen}
+
 Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
 Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die
-Implementierung einer Hough-Transformation, mit der wir auch begonnen haben.
+Implementierung einer Hough-Transformation (siehe Abschnitt \ref{sec:hough}), mit der wir auch begonnen haben.
+
 Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl der
 Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele false-positives
 erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle
@@ -1023,6 +1028,14 @@ Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen G
 ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- und
 Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu
 stützen.
+
+
+\begin{figure}[H]
+  \centering
+      \includegraphics[scale=0.8]{img/rgb-blur.png}
+  \caption{Verdeutlichung der abweichenden Bewegungsunschärfe in den RGB-Daten. Die Positionen der Bälle sind hier mit roten Markierungen hervorgehoben (nachträglich per Hand eingefügt)}
+\end{figure}
+
 
 Aber auch für die reine Berücksichtigung der Tiefendaten haben wir während des
 Projektablaufes mehrere Problemquellen identifizieren können, die die verschiedenen
@@ -1036,7 +1049,9 @@ Ansätze unterschiedlich stark beeinflussen:
  \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon.
 \end{itemize}
 
-Diese Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
+\subsubsection{Ansätze}
+
+Die genannten Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
 uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
 in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
 festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
@@ -1065,7 +1080,7 @@ In den ersten Versuchen, den Wurf zu modellieren, wurde die Idee von Kalman aufg
 x& = v_{x}t \label{eq:wurf1}\\
 y& = v_{0_{y}t} - \frac{g}{2}t^{2} \label{eq:wurf2}
 \end{align}
-Die Bewegung in der x-Achse, also der Horizontalen, ist eine Bewegung mit konstanter Geschwindigkeit $v$ über die Zeit $t$. In der Vertikalen y-Achse wirkt die Schwerkraft mit konstanter Geschwindigkeit $g=9,81 \frac{m}{s^{2}}$ nach unten auf den Ball ein. Hiermit lässt sich eine Position des Balls bei Zeitpunkt $t$ bestimmen, wenn Anfangsposition und Geschwindigkeiten in beide Richtungen bekannt sind. In unserem Fall kann eine Anfangsposition bestimmt werden, jedoch ist aus einem Frame allein die Geschwindigkeit nicht zu bestimmen. Werden mindestens zwei Frames genutzt, und in diesen Bälle gefunden, die einander zugeordnet werden, kann hieraus eine Anfangsposition und zusätzlich eine Richtung sowie Geschwindigkeit gewonnen werden. Da nun anstatt der Geschwindigkeit in horizontaler und vertikaler Richtung nur eine allgemeine Geschwindigkeit des Balles, aber zusätzlich eine Richtung extrahiert werden konnte, werden folgende Formeln für den Ballwurf genutzt:
+Die Bewegung in der x-Achse, also der Horizontalen, ist eine Bewegung mit konstanter Geschwindigkeit $v$ über die Zeit $t$. In der Vertikalen y-Achse wirkt die Schwerkraft mit konstanter Beschleunigung $g=9,81 \frac{m}{s^{2}}$ nach unten auf den Ball ein. Hiermit lässt sich eine Position des Balls bei Zeitpunkt $t$ bestimmen, wenn Anfangsposition und Geschwindigkeiten in beide Richtungen bekannt sind. In unserem Fall kann eine Anfangsposition bestimmt werden, jedoch ist aus einem Frame allein die Geschwindigkeit nicht zu bestimmen. Werden mindestens zwei Frames genutzt, und in diesen Bälle gefunden, die einander zugeordnet werden, kann hieraus eine Anfangsposition und zusätzlich eine Richtung sowie Geschwindigkeit gewonnen werden. Da nun anstatt der Geschwindigkeit in horizontaler und vertikaler Richtung nur eine allgemeine Geschwindigkeit des Balles, aber zusätzlich eine Richtung extrahiert werden konnte, werden folgende Formeln für den Ballwurf genutzt:
 \begin{align}
 x(t)& = v_{0}t\cos\beta \\
 y(t)& = v_{0}t\sin\beta - \frac{g}{2}t^{2}
@@ -1246,7 +1261,7 @@ class BallCounter(object):
     \centering
     \includegraphics[scale=0.5]{img/ballcount-1.png}
     \vspace{-0.5cm}
-    \caption{FIXME}
+    \caption{Bestimmen der tatsächlich vorhanden Ballanzahl im Jongliermuster. Momentaufnahme bei zwei fliegenden Objekten. Die erkannte Ballanzahl (drei) wird oben links angezeigt.}
     \label{ballcount-1}
 \end{figure}
 
@@ -1254,7 +1269,7 @@ class BallCounter(object):
     \centering
     \includegraphics[scale=0.5]{img/ballcount-2.png}
     \vspace{-0.5cm}
-    \caption{FIXME}
+    \caption{Bestimmen der tatsächlich vorhanden Ballanzahl im Jongliermuster. Momentaufnahme bei einem fliegenden Objekt. Die erkannte Ballanzahl (drei) wird oben links angezeigt.}
     \label{ballcount-2}
 \end{figure}
 
