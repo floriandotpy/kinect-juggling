@@ -7,31 +7,27 @@ class SimpleHandBallFilter(object):
     def __init__(self):
         self.balls = []
 
-    def filter(self, rgb, depth, ball_list, args={}):
+    def filter(self, rgb, depth, ball_positions, args={}):
 
-        # filtered ball positions (no hands), use copy
-        ball_list = list(ball_list)
-
-        # try to update balls, remove non-updated balls
+        # try to update balls from last frame, remove non-updated balls
         for ball in self.balls:
 
-            # TODO: do not store this at the ball object.
-            # use dict instead: updated[ball_instance] = False
-            ball.updatedAlready = False
+            # remember which balls have been updated in this frame
+            updated = dict(zip(self.balls, [False for _ in self.balls]))
 
-            for new_ball in ball_list:
+            # find match from ball <-> position
+            for new_ball in ball_positions:
                 if ball.isClose(new_ball, future=False):
                     ball.updatePosition(new_ball['position'])
-                    ball.updatedAlready = True
-                    ball_list.remove(new_ball)
+                    updated[ball] = True
+                    ball_positions.remove(new_ball)
 
-            if not ball.updatedAlready:
+            # get rid of balls where we couldn't find a matching position
+            if not updated[ball]:
                 self.balls.remove(ball)
 
         # create new balls at unused positions
-        for ball in ball_list:
+        for ball in ball_positions:
             self.balls.append(SimpleBall(ball['position'], radius=ball['radius']))
 
-
         return rgb, depth, list(self.balls)
-
