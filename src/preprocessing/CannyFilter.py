@@ -7,7 +7,7 @@ except Exception, e:
 
 class CannyFilter(object):
 
-    # def filter(self, rgb, depth, argv = {}):
+    # def filter(self, rgb, depth, args = {}):
 
     #     img = cv.fromarray(depth, cv.CV_8UC1)
     #     mat1 = cv.CreateMat(img.rows, img.cols, cv.CV_8UC1)
@@ -17,7 +17,7 @@ class CannyFilter(object):
 
     #     return rgb, np.asarray(mat2)
 
-    def filter(self, rgb, depth, balls, argv = {}):
+    def filter(self, rgb, depth, balls, args = {}):
 
 		img = np.asarray(depth)
 		# img = cv.fromarray(depth, cv.CV_8UC1)

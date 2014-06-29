@@ -34,6 +34,7 @@ from src.visual.RgbDepthFilter import RgbDepthFilter
 
 # application
 from src.application.KalmanFilter import KalmanFilter
+from src.application.BallCounterFilter import BallCounterFilter
 
 
 class Kinector(object):
@@ -50,6 +51,7 @@ class Kinector(object):
         # init filters
         self.filters = []
 
+        # preprocessing
         if 'withholes' not in args:
             self.filters.append(DepthHolesFilter())
         if 'swapbackground' in args:
@@ -61,9 +63,9 @@ class Kinector(object):
         if 'detectball' in args:
             self.filters.append(RectsFilter())
 
+        # ball detection
         if 'handtracking' in args:
             self.filters.append(HandTrackingFilter())
-
         if 'minimal' in args:
             self.filters.append(MinimalBallFilter())
         elif 'simplehand' in args:
@@ -71,6 +73,12 @@ class Kinector(object):
         else:
             self.filters.append(SimpleBallFilter())
 
+
+        # application
+        if 'countballs' in args:
+            self.filters.append(BallCounterFilter())
+
+        # visualization
         if 'detectball' in args:
             self.filters.append(DrawBallsFilter())
         if 'overlay' in args:
@@ -168,7 +176,6 @@ if __name__ == '__main__':
         except ImportError:
             from src.kinect.KinectDummy import KinectDummy
             kinect = KinectDummy()
-            dummymode = True;
 
     Kinector(kinect=kinect, args=args).loop()
 

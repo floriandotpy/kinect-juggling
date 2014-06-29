@@ -354,12 +354,12 @@ diesem Punkt zu gelangen, stellen wir im hieran anschießenden Kapitel vor (sieh
 
 \subsection{Programmstruktur}
 
-Das Programm besteht im Kern aus einer Schleife, in der die folgenden vier Schritte endlos wiederholt werden:
+Das Programm besteht im Kern aus einer Schleife, in der die folgenden vier Schritte  wiederholt werden:
 \begin{enumerate}
   \item Benutzereingabe verarbeiten
-  \item Aktuelle Bilddaten abfragen
+  \item Aktuelle Bilddaten abfragen (Von einer angeschlossenen Kinect oder aufgezeichneten Demodaten)
   \item Bilddaten verarbeiten
-  \item Bilddaten anzeigen
+  \item Verarbeitete Bilddaten anzeigen
 \end{enumerate}
 
 Beim Starten des Programms über die Konsole wird zunächst die Kinect initialisiert.
@@ -368,9 +368,22 @@ Im Anschluss daran werden sämtliche Filter initialisiert, die in der Verarbeitu
 
 Welche Filter aktiviert und ob eine reale Kinect verwendet oder stattdessen simuliert werden soll, kann beim Programmaufruf über die Konsole festgelegt werden. Dazu wird eine beliebige Anzahl an Parametern an das Programm übergeben. So gehört zu jedem Filter ein entsprechender Kommandozeilen-Parameter, durch den der Filter aktiviert werden kann. {\color{red}FIXME: Auflistung / Referenz der Parameter?} Dies ermöglicht es, verschiedene Filter je nach Bedarf miteinander zu kombinieren. Gleichzeitig können leicht auch nachträglich noch neue Filter hinzugefügt werden. Zudem gibt es Parameter um die Kinect zu simulieren oder Daten von einer echten Kinect aufzunehmen um diese zu einem späteren Zeitpunkt von der simulierten Kinect wiedegeben lassen zu können. Die Reihenfolge der Parameter hat hierbei keine Bedeutung und wirkt sich nicht auf die Ausführungsreihenfolge der Filter aus.
 
+Der Aufruf für die optimale Filterkombination unseres Endergebnisses erfolgt durch \lstinline{python main.py --detectball --cutoff  --dummymode --handtracking --simplehand}
+
+\begin{tabular}{llp{8cm}}
+Parameter & Aktivierter Filter & Erklärung \\ \hline
+{\lstinline!--dummymode!} & - & Verwendung von Testdaten statt einer angeschlossenen Kinect \\
+{\lstinline!--cutoff!} & {\lstinline!CutOffFilter!} & Tiefenbild an Hand eines festen Schwellwertes binarisieren \\
+{\lstinline!--detectball!} & {\lstinline!RectsFilter!} & Vorverarbeitung für die Ballerkennung: Regionen im Tiefenbild segmentieren \\
+{\lstinline!--handtracking!} & {\lstinline!HandTrackingFilter!} & Erkennen der Hände vor der Ballerkennung \\
+{\lstinline!--simplehand!} & {\lstinline!SimpleHandBallFilter!} & Ballerkennung mit simpler Zuordnung von Bällen zu Ballpositionen
+\end{tabular}
+
+{\color{red}FIXME: Verweis auf Erklärung aller möglichen Parameter}
+
 Nach der Initialisierungsphase beginnt die oben angesprochene Programmschleife.
 In jedem Schleifendurchlauf wird zunächst auf Benutzereingaben reagiert.
-Ein Minimum an Kontrollstrukturen ermöglicht es dem Benutzer einen Screenshot des momentanen RGB- und Tiefenbild zu erzeugen (Leertaste) oder das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
+Ein simples Abfragen aktueller Tasteneingebaben ermöglicht es dem Benutzer einen Screenshot des momentanen RGB- und Tiefenbild zu erzeugen (Leertaste) oder das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
 
 Im nächsten Schritt wird nun entweder von einer realen oder simulierten Kinect ein RGB- und ein Tiefenbild abgefragt. Zudem wird eine leere Liste erzeugt, in der später die Ballpositionen gespeichert werden.
 
@@ -378,7 +391,7 @@ Das Herz und gleichzeitig komplexeste Teil der Anwendung ist die Verarbeitung de
 Hierzu werden der Reihe nach sämtliche aktiven Filter auf das RGB- und Tiefenbild sowie die Ballpositionen angewandt.
 
 Dazu verfügt jeder Filter nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
-Parameter. Der optionale Parameter \lstinline{argv} ist ein Dictionary und wird lediglich für das Ablegen von
+Parameter. Der optionale Parameter \lstinline{args} ist ein Dictionary und wird lediglich für das Ablegen von
 Meta-Informationen verwendet, wie etwa Zusatzinfos zur Visualisierung.
 
 Als Ergebnis von jedem Filter wird analog zum Filteraufruf ein Drei-Tupel zurückgegeben, bestehend aus RGB- und Tiefenbild sowie der Liste von Ballpositionen. Die so erhaltenen Daten dienen wiederum dem nächsten Filter als Eingabe-Parameter. Somit können die Filter nach und nach die Rohdaten manipulieren und verarbeiten.
@@ -388,7 +401,7 @@ Ein minimaler Filter ohne Funktionalität sieht demnach wie folgt aus.
 \begin{lstlisting}[language=Python,caption={Grundstruktur eines Filters. In diesem Beispiel werden die Eingabedaten unverändert zurückgegeben.}]
 class DummyFilter(object):
 
-    def filter(self, rgb, depth, balls, argv = {}):
+    def filter(self, rgb, depth, balls, args = {}):
 
         # ...
 
@@ -568,9 +581,146 @@ Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiell
 Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames
 hinweg eine neue Position einem bestehenden Ball zuordnen soll.
 
-Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben. {\color{red} FIXME: Querverweis Ansätze}
+Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben. Mehr dazu im später folgenden Abschnitt zu den von uns ausprobierten Ansätzen \ref{sec:ansaetze}.
+
+Unsere endgültige Version der Ballerkennung ist in \lstinline{SimpleHandBallFilter} 
+implementiert. Robust funktioniert dieser Filter nur, wenn vorher der Filter 
+\lstinline{HandTrackingFilter} angewandt wurde. \lstinline{HandTrackingFilter}  betrachtet die gefundenen potentiellen Ballpositionen und identifiziert die beiden Hände des Jongleurs. Die als Hände identifizierten Positionen werden aus der Liste entfernt, so dass \lstinline{SimpleHandBallFilter} im Folgenden auf den übrig gebliebenen Positionen arbeitet. Hierzu kann sehr viel zuverlässiger bestimmt werden, welche Position tatsächlich ein fliegender Ball ist. Bälle, die sich momentan in der Hand des Jongleur befinden, werden hierbei ignoriert bzw. nicht als Bälle erkannt. 
+
+Wir wollen diese beiden Filter im Folgenden im Detail betrachten.
+
+\lstinline{HandTrackingFilter}
+
+Bei Initialisierung des Filters werden zwei \lstinline{Hand} Instanzen an beliebiger Initialposition erstellt.
+
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
+self.left = Hand((100, 100))
+self.right = Hand((200, 200))
+\end{lstlisting}
+
+In einem Filteraufruf wird das übergebene \lstinline{args} Dictionary dann 
+verwendet, um zu markieren, dass der Filter die Handobjekte zugeordnet hat. Es 
+werden außerdem Referenzen zu den Instanzen für beide gesetzt. Diese Information ist 
+vor allem für die spätere Visualisierung (optionales Einzeichnen der Handpositionen)
+nötig, kann aber auch für andere Weiterverarbeitung verwendet werden.
+
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
+args['hands'] = True
+args['hand_left'] = self.left
+args['hand_right'] = self.right
+\end{lstlisting}
+
+Um die Hände in der Eingabeliste \lstinline{positions} von potentiellen Ball-
+Positionen zu identifizieren, wird
+die Mitte des Jongliermusters bestimmt. Dies ist der Mittelwert aller x-Koordinaten
+der in der Liste befindlichen Positionen. 
+
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
+# determine center of juggling pattern
+if len(positions) > 0:
+    centerX = sum([b['position'][0] for b in positions]) / len(positions)
+else:
+    centerX = 320
+args['centerX'] = centerX
+\end{lstlisting}
+
+Anhand dieses Mittelwertes werden die Positionen aufgeteilt in alle Positionen 
+rechts und alle Positionen links von diesem Wert. In jedem der beiden resultierenden
+Liste wird dann die jeweils unterste Position als Hand identifiziert.
+
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
+# two properties for match each hand (left & right)
+handProps = [(self.left, lambda p: p['position'][0] <= centerX),
+    (self.right, lambda p: p['position'][0] > centerX)]
+
+for hand, filterKey in handProps:
+    # filter in right and left positions
+    filtered = filter(filterKey, positions)
+    if len(filtered) > 0:
+        lowest = sorted(filtered, key=lambda p: -1*p['position'][1])[0]
+        lowestPosition = lowest['position']
+
+        hand.update(lowestPosition)
+        positions.remove(lowest)
+\end{lstlisting}
+
+Entscheidend ist das das abschließende Entfernen der identifizierten Hand aus der 
+Liste \lstinline{positions}. Diese Liste vom Filter zurück gegeben und im 
+nachfolgenden Filter \lstinline{SimpleHandBallFilter} verwendet. Für diesen Filter
+ist es dann entscheidend, dass sich in der Liste nur noch Positionen von fliegenden
+Bällen befinden.
 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/handtracking-1.png}
+    \vspace{-0.5cm}
+    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+    \label{rects-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/handtracking-2.png}
+    \vspace{-0.5cm}
+    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+    \label{rects-1}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/handtracking-3.png}
+    \vspace{-0.5cm}
+    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+    \label{rects-1}
+\end{figure}
+
+
+
+\lstinline{SimpleHandBallFilter}
+
+Sind die Hände erkannt und aus der Positionsliste entfernt, ist dann also die 
+Aufgabe des folgenden Filters, bereits existierende Bälle aus dem vorherigen Frame in ihrer Position zu aktualisieren, sowie Bälle am Ende ihrer Flugbahn aus der Liste der existierenden Bälle zu entfernen, und außerdem neue noch nicht verfolgte Bälle auf ihrer Flugbahn zu initialisieren.
+
+Wird \lstinline{SimpleHandBallFilter} zu Programmstart initialisiert, wird zuerst eine leere Liste von Bällen angelegt, da ja noch nichts erkannt wurde.
+
+\begin{lstlisting}
+ self.balls = []
+\end{lstlisting}
+
+In jedem Filteraufruf werden die bereits erkannten Bällen aus dem vorherigen Frame iteriert und versucht, sie den potentiellen Ballpositionen aus dem aktuellen Frame zuzuordnen. 
+Bälle aus dem vergangenen Frame, für die keine passende Folgeposition gefunden wurde, aus der Liste der aktuell vorhandenen Bälle entfernt.
+Entsprechend wird an einer Position ein 
+neuer Ball initialisiert, falls die Position keinem bereits erkannten Ball zugeordnet werden konnte.
+
+\begin{lstlisting}[language=Python,caption={\lstinline{SimpleHandBall.py}, Ausschnitt}]
+def filter(self, rgb, depth, ball_positions, args={}):
+
+    # try to update balls from last frame, remove non-updated balls
+    for ball in self.balls:
+
+        # remember which balls have been updated in this frame
+        updated = dict(zip(self.balls, [False for _ in self.balls]))
+
+        # find match from ball <-> position
+        for new_ball in ball_positions:
+            if ball.isClose(new_ball, future=False):
+                ball.updatePosition(new_ball['position'])
+                updated[ball] = True
+                ball_positions.remove(new_ball)
+
+        # get rid of balls where we couldn't find a matching position
+        if not updated[ball]:
+            self.balls.remove(ball)
+
+    # create new balls at unused positions
+    for ball in ball_positions:
+        self.balls.append(SimpleBall(ball['position'], radius=ball['radius']))
+
+    return rgb, depth, list(self.balls)
+\end{lstlisting}
+        
 
 
 
@@ -892,7 +1042,7 @@ class SimpleKalmanFilter(object):
         y = v * t * np.degrees(np.sin(b) - (9.81/2) * t**2)
         return (y,x)
 
-    def filter(self, rgb, depth, balls, argv = {}):
+    def filter(self, rgb, depth, balls, args = {}):
         p1 = (480, 0)
         p2 = (470, 10)
         points = []

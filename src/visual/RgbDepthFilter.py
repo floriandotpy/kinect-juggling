@@ -1,12 +1,9 @@
 import numpy as np
 
-
-
-
 class RgbDepthFilter(object):
     """Returns the depth as the rgb value so that depth can be visualised."""
 
-    def filter(self, rgb, depth, balls, argv = {}):
+    def filter(self, rgb, depth, balls, args = {}):
         depth = depth/32
         rgb[:,:,0] = depth
         rgb[:,:,1] = depth
