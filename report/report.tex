@@ -593,7 +593,7 @@ Wir wollen diese beiden Filter im Folgenden im Detail betrachten.
 
 Bei Initialisierung des Filters werden zwei \lstinline{Hand} Instanzen an beliebiger Initialposition erstellt.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
 self.left = Hand((100, 100))
 self.right = Hand((200, 200))
 \end{lstlisting}
@@ -604,7 +604,7 @@ werden außerdem Referenzen zu den Instanzen für beide gesetzt. Diese Informati
 vor allem für die spätere Visualisierung (optionales Einzeichnen der Handpositionen)
 nötig, kann aber auch für andere Weiterverarbeitung verwendet werden.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
 args['hands'] = True
 args['hand_left'] = self.left
 args['hand_right'] = self.right
@@ -615,7 +615,7 @@ Positionen zu identifizieren, wird
 die Mitte des Jongliermusters bestimmt. Dies ist der Mittelwert aller x-Koordinaten
 der in der Liste befindlichen Positionen. 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
 # determine center of juggling pattern
 if len(positions) > 0:
     centerX = sum([b['position'][0] for b in positions]) / len(positions)
@@ -628,7 +628,7 @@ Anhand dieses Mittelwertes werden die Positionen aufgeteilt in alle Positionen
 rechts und alle Positionen links von diesem Wert. In jedem der beiden resultierenden
 Liste wird dann die jeweils unterste Position als Hand identifiziert.
 
-\begin{lstlisting}
+\begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
 # two properties for match each hand (left & right)
 handProps = [(self.left, lambda p: p['position'][0] <= centerX),
     (self.right, lambda p: p['position'][0] > centerX)]
@@ -651,18 +651,76 @@ ist es dann entscheidend, dass sich in der Liste nur noch Positionen von fliegen
 Bällen befinden.
 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/handtracking-1.png}
+    \vspace{-0.5cm}
+    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+    \label{rects-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/handtracking-2.png}
+    \vspace{-0.5cm}
+    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+    \label{rects-1}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/handtracking-3.png}
+    \vspace{-0.5cm}
+    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+    \label{rects-1}
+\end{figure}
+
+
+
 \lstinline{SimpleHandBallFilter}
 
 Sind die Hände erkannt und aus der Positionsliste entfernt, ist dann also die 
-Aufgabe des folgenden Filters, die potentiellen Ballpositionen durchzugehen und zu
-versuchen, sie bereits erkannten Bällen aus dem vorherigen Frame zuzuordnen. Wird
-kein passender bereits erkannter Ball erkannt, so wird an dieser Position ein 
-neuer Ball initialisiert. Entsprechend werden Bälle aus dem vergangenen Frame, für
-die keine passende Folgeposition gefunden wurde, aus der Liste der aktuell 
-vorhandenen Bälle entfernt.
+Aufgabe des folgenden Filters, bereits existierende Bälle aus dem vorherigen Frame in ihrer Position zu aktualisieren, sowie Bälle am Ende ihrer Flugbahn aus der Liste der existierenden Bälle zu entfernen, und außerdem neue noch nicht verfolgte Bälle auf ihrer Flugbahn zu initialisieren.
 
-{\color{red} FIXME Flo: Filter erklären}
+Wird \lstinline{SimpleHandBallFilter} zu Programmstart initialisiert, wird zuerst eine leere Liste von Bällen angelegt, da ja noch nichts erkannt wurde.
 
+\begin{lstlisting}
+ self.balls = []
+\end{lstlisting}
+
+In jedem Filteraufruf werden die bereits erkannten Bällen aus dem vorherigen Frame iteriert und versucht, sie den potentiellen Ballpositionen aus dem aktuellen Frame zuzuordnen. 
+Bälle aus dem vergangenen Frame, für die keine passende Folgeposition gefunden wurde, aus der Liste der aktuell vorhandenen Bälle entfernt.
+Entsprechend wird an einer Position ein 
+neuer Ball initialisiert, falls die Position keinem bereits erkannten Ball zugeordnet werden konnte.
+
+\begin{lstlisting}[language=Python,caption={\lstinline{SimpleHandBall.py}, Ausschnitt}]
+def filter(self, rgb, depth, ball_positions, args={}):
+
+    # try to update balls from last frame, remove non-updated balls
+    for ball in self.balls:
+
+        # remember which balls have been updated in this frame
+        updated = dict(zip(self.balls, [False for _ in self.balls]))
+
+        # find match from ball <-> position
+        for new_ball in ball_positions:
+            if ball.isClose(new_ball, future=False):
+                ball.updatePosition(new_ball['position'])
+                updated[ball] = True
+                ball_positions.remove(new_ball)
+
+        # get rid of balls where we couldn't find a matching position
+        if not updated[ball]:
+            self.balls.remove(ball)
+
+    # create new balls at unused positions
+    for ball in ball_positions:
+        self.balls.append(SimpleBall(ball['position'], radius=ball['radius']))
+
+    return rgb, depth, list(self.balls)
+\end{lstlisting}
+        
 
 
 
