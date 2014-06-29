@@ -981,6 +981,25 @@ Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \re
 
 \subsection{Ballerkennung}
 
+Bevor wir die einzelnen ausprobierten Ansätze zur Ballerkennung erläutern, ist kurz
+der Weg zu beschreiben, auf dem wir zum Endergebnis gekommen sind. Das Endergebnis
+ist dabei tatsächlich simpel, relativ robust und in
+wenig Codezeilen implementiert.
+
+Den entscheidenden Fortschritt haben wir erzielt, als wir endlich bemerkt haben, 
+dass das simple Erkennen der Hände und das Entfernen der Handpositionen aus der
+Liste der zu analysierenden potentiellen Ballpositionen die Aufgabe sehr 
+vereinfacht.
+
+Bis wir diesen Schritt aber gegangen sind, haben wir etliche immer komplexere
+Ansätze über die Vorhersage möglicher Ballpositionen durch Simulation des
+physikalischen Verhaltens eines Jonglierballs während des Wurfes verfolgt.
+
+Bevor wir also die Handerkennung als Teil der Ballerkennung betrachtet haben, 
+haben wir etliche Fehlerquellen mehr gehabt, die die Aufgabe der Ballerkennung 
+frustrierend schwer gemacht haben. Die folgenden Seiten berichten von unseren
+Ansätzen und unbefriedigenden Ansätzen in dieser Projektphase.
+
 \subsubsection{Fehlerquellen}
 
 Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
@@ -1010,11 +1029,12 @@ Projektablaufes mehrere Problemquellen identifizieren können, die die verschied
 Ansätze unterschiedlich stark beeinflussen:
 
 \begin{itemize}
- \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten.
+ \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten. Dass dies die entscheidende Fehlerquelle ist, die wir mit einem simplem Verfahren ausschließen können (siehe FIXME), ist uns wie oben beschrieben erst spät aufgefallen.
  \item Die Bälle fliegen sehr nahe beieinander und teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes Rechteck zu sehen ist und als eine mögliche Ballposition untersucht wird.
- \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück. (Pixelanzahl angeben?)
+ \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück. 
  \item Der Mindestabstand zur Kinect resultiert in einem kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
- \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon.
+ \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon. Diese "Lücken" in der Flugbahn haben bei unseren ersten Ansätze große Probleme bereitet, da plötzlich nicht mehr genug potentielle Ballpositionen für unsere bereits instantiierten Ballobjekte zur Verfügung stehen. Im finalen Ansatz haben wir solche Ballobjekte dann verworfen und
+ bei Bedarf dynamisch neue Bälle erzeugt.
 \end{itemize}
 
 \subsubsection{Ansätze}
@@ -1023,6 +1043,12 @@ Die genannten Problemquellen wirken sich unterschiedlich stark auf die Eignung d
 uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
 in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
 festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
+
+Ursprünglich sind wir davon ausgegangen, dass die Grundannahme, dass genau drei 
+Bälle in der Jonglage vorhanden sind, uns bei der Analyse hilft, da wir besser 
+ausschließen können, welche Position kein Ball sein kann. Dies stellte sich als
+Fehlannahme heraus und ist in der finalen Version so auch nicht mehr in der 
+Ballerkennung implementiert.
 
 Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
 zu jeder bereits existierenden Ballinstanz eine Position aus den erkannten Rechtecken
@@ -1097,12 +1123,12 @@ class TrajectoryBall(object):
         self.v_x = x2 - x1
         self.v_y = y2 - y1
 
-        # speed correction based on tests
-        self.v_y *= 0.8
-
-        # start trajectory in center of the two points we are based on
+        # start trajectory at first point we're based on
         self.xOffset = x1
         self.yOffset = y1
+
+        # progress of the trajectory
+        self.t = 0
 
     def _trajectory(self, t=1):
         """Calculate the throw trajectory based on 2 points to return any future or past point on that trajectory"""
@@ -1115,7 +1141,68 @@ class TrajectoryBall(object):
 \end{lstlisting}
 Dieser Ansatz brachte leichte Verbesserungen ein, jedoch wurden viele der Wurfbahnen trotzdem noch in unseren Augen willkürlich eingezeichnet, so dass Würfe, die in eine Richtung gehen, gerne mal spiegelverkehrt oder gänzlich aus dem Bild fliegend eingezeichnet wurden.
 
-Wie sich später herausstellte, waren die Handpositionen, die fälschlicherweise immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Wurden die Hände erst einmal seperat erkannt und aus den potentiellen Ballpositionen entfernt, funktionierte das Approximieren des Ballwurfs sehr viel besser. Der ganze Vorgang wurde aber nochmals vereinfacht und läuft nun sehr gut, wie in Abschnitt \ref{sec:ballzuordnung} nachzulesen ist.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/trajectory-1.png}
+    \vspace{-0.5cm}
+    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition.}
+    \label{ballcount-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/trajectory-2.png}
+    \vspace{-0.5cm}
+    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition.}
+    \label{ballcount-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/trajectory-3.png}
+    \vspace{-0.5cm}
+    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition.}
+    \label{ballcount-1}
+\end{figure}
+
+
+
+\begin{tabular}{*{2}{m{0.7\textwidth}}}
+Gut: Genaue Approximation tatsächlicher Ballpositionen auf vielen der simulierten Flugbahnen. & \includegraphics[scale=1]{img/trajectory-good.png} \\
+Schlecht: Viele simulierte Positionen mit Teils großen Abweichungen. Automatisiert ist es schwer, nur die guten Positionen zu erkennen und zur tatsächlichen Ballerkennung zu nutzen. & \includegraphics[scale=1]{img/trajectory-bad.png}
+\end{tabular}
+
+
+Wie sich herausstellte, waren die Handpositionen, die immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Wurden die Hände erst einmal separat erkannt und aus den potentiellen Ballpositionen entfernt, fallen bereits viele der fälschlich simulierten Flugbahnen heraus. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/trajectory-hand-1.png}
+    \vspace{-0.5cm}
+    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition, Positionen der Hände wurden herausgerechnet und nicht als fälschliche Grundlage für Flugbahnen verwendet.}
+    \label{ballcount-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/trajectory-hand-2.png}
+    \vspace{-0.5cm}
+    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition, Positionen der Hände wurden herausgerechnet und nicht als fälschliche Grundlage für Flugbahnen verwendet.}
+    \label{ballcount-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/trajectory-hand-3.png}
+    \vspace{-0.5cm}
+    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition, Positionen der Hände wurden herausgerechnet und nicht als fälschliche Grundlage für Flugbahnen verwendet.}
+    \label{ballcount-1}
+\end{figure}
+
+Sobald wir aber die Hände mit in die Betrachtung eingezogen haben, war das Simulieren der Flugbahnen gar nicht mehr nötig. Der ganze Vorgang der Zuordnung von bereits initiierten Ballobjekten zu potentiellen Positionen konnte nochmals vereinfacht werden und und läuft im finalen Ergebnis sehr gut, wie in Abschnitt \ref{sec:ballzuordnung} beschrieben.
+
+
+
 
 \section{Herausforderungen}
 Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
