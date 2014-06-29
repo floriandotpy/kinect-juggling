@@ -32,7 +32,7 @@ class HoughFilter(object):
 
         return circles
 
-    def filter(self, rgb, depth, balls, argv = {}):
+    def filter(self, rgb, depth, balls, args = {}):
         # circles = self.findHoughCircles(depth)
         circles = self.findHoughCirclesfromRGB(rgb)
 

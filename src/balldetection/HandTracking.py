@@ -24,9 +24,7 @@ class HandTrackingFilter(object):
         self.left = Hand((100, 100))
         self.right = Hand((200, 200))
 
-    def filter(self, rgb, depth, ball_positions, args):
-        # use a copy
-        positions = list(ball_positions)
+    def filter(self, rgb, depth, positions, args):
         args['hands'] = True
         args['hand_left'] = self.left
         args['hand_right'] = self.right
@@ -38,7 +36,7 @@ class HandTrackingFilter(object):
             centerX = 320
         args['centerX'] = centerX
 
-        # two properties fo match each hand (left & right)
+        # two properties for match each hand (left & right)
         handProps = [(self.left, lambda p: p['position'][0] <= centerX),
             (self.right, lambda p: p['position'][0] > centerX)]
 

@@ -20,7 +20,7 @@ class KalmanFilter(object):
 		y = v * t * np.degrees(np.sin(b) - (9.81/2) * t**2)
 		return (y,x)
 
-	def filter(self, rgb, depth, balls, argv = {}):
+	def filter(self, rgb, depth, balls, args = {}):
 		p1 = (480, 0)
 		p2 = (470, 10)
 		points = []
