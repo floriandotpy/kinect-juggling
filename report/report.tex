@@ -391,7 +391,7 @@ Das Herz und gleichzeitig komplexeste Teil der Anwendung ist die Verarbeitung de
 Hierzu werden der Reihe nach sämtliche aktiven Filter auf das RGB- und Tiefenbild sowie die Ballpositionen angewandt.
 
 Dazu verfügt jeder Filter nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
-Parameter. Der optionale Parameter \lstinline{argv} ist ein Dictionary und wird lediglich für das Ablegen von
+Parameter. Der optionale Parameter \lstinline{args} ist ein Dictionary und wird lediglich für das Ablegen von
 Meta-Informationen verwendet, wie etwa Zusatzinfos zur Visualisierung.
 
 Als Ergebnis von jedem Filter wird analog zum Filteraufruf ein Drei-Tupel zurückgegeben, bestehend aus RGB- und Tiefenbild sowie der Liste von Ballpositionen. Die so erhaltenen Daten dienen wiederum dem nächsten Filter als Eingabe-Parameter. Somit können die Filter nach und nach die Rohdaten manipulieren und verarbeiten.
@@ -401,7 +401,7 @@ Ein minimaler Filter ohne Funktionalität sieht demnach wie folgt aus.
 \begin{lstlisting}[language=Python,caption={Grundstruktur eines Filters. In diesem Beispiel werden die Eingabedaten unverändert zurückgegeben.}]
 class DummyFilter(object):
 
-    def filter(self, rgb, depth, balls, argv = {}):
+    def filter(self, rgb, depth, balls, args = {}):
 
         # ...
 
@@ -990,7 +990,7 @@ class SimpleKalmanFilter(object):
         y = v * t * np.degrees(np.sin(b) - (9.81/2) * t**2)
         return (y,x)
 
-    def filter(self, rgb, depth, balls, argv = {}):
+    def filter(self, rgb, depth, balls, args = {}):
         p1 = (480, 0)
         p2 = (470, 10)
         points = []
