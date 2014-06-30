@@ -1236,17 +1236,17 @@ Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implemen
 
 \subsection{Technische Herausforderungen}
 
-Im Laufe des gesamten Projektes haben wir drei Projektteilnehmer verteilt auf drei
+Im Laufe des gesamten Projektes haben wir zu dritt verteilt auf drei
 Betriebssystemen gearbeitet (Mac OS, Windows, Ubuntu). Da wir gerade dank
 unseres flexiblen Filterkonzeptes gut arbeitsteilig arbeiten konnten, haben wir
-nicht von Anfang an auf die Integrierbarkeit unserer Komponenten geachtet.
+nicht von Anfang an auf die Integrierbarkeit unserer Komponenten auf den unterschiedlichen Plattformen geachtet.
 
-Der funktionierende Temporalfilter (siehe \ref{sec:temporal}) etwa wurde mit Hilfe
+Der Temporalfilter (siehe \ref{sec:temporal}) etwa wurde mit Hilfe
 der Bildverarbeitungsbibliothek VIGRA\cite{vigra} implementiert. Die
 Python-Bindings hierfür liegen nicht auf allen Systemen in gleich guter Verfügbarkeit
 vor (zumindest war es uns auf Mac OS nicht möglich, diese ohne Mac Ports zum Laufen
 zu bekommen, da die per \lstinline{pip install} verfügbare Version veraltet ist und
-scheinbar nicht mehr gepflegt wird. (FIXME source)
+scheinbar nicht mehr gepflegt wird).
 
 Da der Temporalfilter zum einen der einzige Filter mit VIGRA Abhängigkeit war, und
 der Filter zudem nicht die gewünschten Vorteile geliefert hat, die wir uns erhofft
@@ -1260,27 +1260,25 @@ Projekten einen großen Lerneffekt hat und auch die zahlreichen Fehlversuche mit
 wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu einer
 funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen
 Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
-sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt
-besser zu verfolgen um ihn auch sicher stellen zu können.
-{\color{red}FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?}
+sein, dass wir uns von Anfang an selbst klarere Ziele vorgeben und den Fortschritt
+besser verfolgen.
 
 \section{Bewertung des Endergebnisses}
 
-In der am Anfang gesetzten Zielsetzung waren folgende Ziele aufgeführt:
+In der am Anfang gesetzten Zielsetzung führten wir folgende Ziele auf:
 
 \begin{itemize}
 \item Daten über die Flugbahnen von (drei) jonglierten Bällen gewinnen, wobei der Spieler in einem wohl definierten Abstand zur Kinect steht.
-\item Es ist ausreichend, wenn Bälle verfolgt werden können, die von der Infrarot-Technologie erfasst werden können.
 \item Die Daten sollen ausreichend sein, um auf Grundlage dessen weitere Anwendungen schreiben zu können.
 \end{itemize}
 
-Diese drei wichtigsten Ziele sind erfüllt worden. Der Spieler muss in einem bestimmten Abstand zur Kinect stehen und aus dieser Position heraus können bei einem Jongliermuster mit mindestens drei Bällen diese Bälle erkannt und zumeist gut verfolgt werden. Bälle, die zu stark reflektieren, können von der Infrarot-Technologie nicht erfasst werden. Da wir aber gerade mit den Tiefendaten, gewonnen aus der Infrarot-Strahlung, arbeiten, haben wir als Voraussetzung gegeben, dass Bälle genutzt werden sollen, die von der Kinect erfasst werden können. Die Daten, die nun intern zur Verfügung stehen, beinhalten Informationen zur Anzahl der gerade jonglierten Bälle und ihrer Wurfbahn. Zusätzlich haben wir Informationen zu den Positionen der Hände. Diese Daten sollten genügend, um auf Grundlage dessen weitere Anwendungen, die Jongliermuster analysieren oder spielerisch darstellen, schreiben zu können.
+Diese Ziele sind erfüllt worden. Der Spieler muss in einem bestimmten Abstand zur Kinect stehen und aus dieser Position heraus können bei einem beidhändigen Jongliermuster Bälle erkannt und zumeist gut verfolgt werden. Da die Bälle mit dem Infrarot-Sensor verfolgt werden, wird vorausgesetzt, dass nur vom Infrarot-Sensor erkennbare Bälle genutzt werden. Die Daten, die nun intern zur Verfügung stehen, beinhalten Informationen zur Anzahl der gerade jonglierten Bälle und ihrer Wurfbahn. Zusätzlich haben wir Informationen zu den Positionen der Hände. Diese Daten sollten genügend, um auf Grundlage dessen weitere Anwendungen schreiben zu können, die Jongliermuster analysieren oder spielerisch darstellen.
 
-Diese Software ist dennoch noch nicht perfektioniert, und es sind Einschränkungen, sei es durch die Hardware, oder auch unsere Software, gegeben, aber auch Features, auf deren Implementation wir stolz sind. Nachfolgend werden verschiedene Aspekte aufgeführt und zum Teil bewertet:
+Nachfolgend werden verschiedene Aspekte aufgeführt und bewertet:
 
 \begin{itemize}
 \item {\em Position des Spielers:}\\
-Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit entfernt, wird er gar nicht erfasst, steht er zu nah dran, wird zu viel erfasst. Jedoch kann er auf dieser Linie mittig im Bild sein, oder auch am Rand des Bildausschnitts stehen, ohne dass eine erkennbare Beeinflussung der Ballerkennung entsteht.
+Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit entfernt, wird er gar nicht erfasst, steht er zu nah dran, wird zu viel erfasst. Jedoch kann er sich mittig im Bild befinden, oder auch am Rand des Bildausschnitts stehen, ohne dass eine erkennbare Beeinflussung der Ballerkennung entsteht.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_nahe.jpg}
@@ -1291,15 +1289,8 @@ Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit
     \includegraphics[scale=0.5]{img/bewertung_rand.jpg}
     \caption{Funktionierende Ballerkennung mit dem Spieler an verschiedenen Positionen im Bildausschnitt.}
 \end{figure}
-\item {\em Jongliermuster}\\
-In den Testversuchen haben wir immer ein Grundmuster jongliert, die Innenkaskade. So testeten wir am Ende einige andere Muster und stellten fest, dass solange die Bälle und Hände sichtbar sind und mehr als zwei Bälle verwendet werden, diese ebenfalls verfolgt werden können.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{img/bewertung_muster.jpg}
-    \caption{Links: Die Außenkaskade mit drei Bällen (zwei Bälle werden hier gerade gehalten). Rechts: Drei Bälle und ein Wurf unter dem Bein durch.}
-\end{figure}
 \item {\em Objekte im Bild (unbewegte und bewegte)}\\
-Befinden sich Objekte im Bild, die in der Tiefenebene zwischen Spieler und Kinect stehen, so kann die Robustheit unter Umständen leiden. So entstehen teilweise Schwierigkeiten, wenn Objekte vor dem Spieler stehen, wie im linken Bild von Abbildung \ref{objects} zu sehen ist. Im rechten Bild wurde ein Arm vor dem Spieler hin- und hergeschwenkt. Hierbei hat die Balldetektion erstaunlich gut geklappt und die Bälle wurden immer gefunden, sobald sie sichtbar wurden.
+Befinden sich Objekte im Bild, die in der Tiefenebene zwischen Spieler und Kinect stehen, so kann die Robustheit unter Umständen leiden. So entstehen teilweise Schwierigkeiten, wenn Objekte vor dem Spieler stehen, wie im linken Bild von Abbildung \ref{objects} zu sehen ist. Im rechten Bild wurde ein Arm vor dem Spieler hin- und hergeschwenkt. Hierbei hat die Balldetektion gut geklappt und die Bälle wurden gefunden, solange sie sichtbar waren.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_objekt.jpg}
@@ -1323,6 +1314,13 @@ In Tests funktionierte die Ballerkennung mit drei, vier und fünf Bällen. Bei d
     \includegraphics[scale=0.5]{img/bewertung_zwei.jpg}
     \caption{Jonglage mit zwei Bällen in einer Hand. Die Software muss zwei Hände zuweisen, da sich aber die linke Hand des Spielers hinter dem zu erkennenden Tiefenbereich befindet, wird fälschlicherweise einer der beiden jonglierten Bälle als Hand behandelt.}
     \label{twohands}
+\end{figure}
+\item {\em Jongliermuster}\\
+In den Testversuchen haben wir immer ein Grundmuster jongliert, die Innenkaskade. Tests ergaben, dass solange die Bälle und Hände sichtbar sind, verschiedene zweihändige Jongliermuster verfolgt werden können.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_muster.jpg}
+    \caption{Links: Die Außenkaskade mit drei Bällen (zwei Bälle werden hier gerade gehalten). Rechts: Drei Bälle und ein Wurf unter dem Bein durch.}
 \end{figure}
 \item {\em Handerkennung}\\
 Wie auch in Abbildung \ref{twohands} zu sehen ist, werden in bestimmten Situationen die Hände nicht, bzw. an falscher Stelle erkannt. Dies kann passieren, wenn sich nicht beide Hände in dem erwarteten Bereich befinden, oder wenn andere Objekte unterhalb der Hände auf der selben Tiefe, oder näher an der Kinect, vorhanden sind. Auch während der Jonglage werden, auch unter Beachten und Vermeidung der eben genannten Faktoren, in einzelnen Frames die Hände mal auf eine Falte in der Hose o.ä. gemappt.
