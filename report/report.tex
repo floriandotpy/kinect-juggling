@@ -100,10 +100,10 @@
 
 \section{Einleitung}
 
-Mit Markteinführung der Microsoft Kinect im November 2010\cite{kinect:wiki} steht in vielen
+Seit Markteinführung der Microsoft Kinect im November 2010\cite{kinect:wiki} steht in vielen
 Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der
-Verfügbarkeit des eigentlichen Unterhaltungsgerätes steht auch für an
-wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zu Verfügung,
+Verfügbarkeit des Unterhaltungsgerätes steht auch für an
+wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zur Verfügung,
 das für vielfältige Aufgaben im Bereich der Bildverarbeitung verwendet werden kann.
 
 Mit den technischen Möglichkeiten dieses Tiefen- und Bilddaten liefernden Systems
@@ -199,7 +199,7 @@ Die Kinect ist eine von Microsoft zur Spielekonsole Xbox 360 vertriebene Erweite
 die den Spieler mit einem RGB- und einem Tiefensensor erfasst und diese beiden
 Datenströme an die Konsole liefert. Da die Kinect über einen USB-Anschluss verfügt,
 kann sie an konventionellen Rechnern angeschlossen und betrieben werden. Eine
-quelloffene Implementierung zur Unterstützung der Kinect ist das freenect Projekt,
+quelloffene Implementierung zur Unterstützung der Kinect ist das Open Kinect Projekt,
 das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbeit
 als Bibliothek für Python verwendet wurde.\cite{openkinect}\cite{libfreenect}
 
@@ -223,7 +223,7 @@ im Tageslicht) nur beschränkt einsatzfähig ist.\cite{hacking}
 
 Um das Tiefenbild zu erhalten, besitzt die Kinect zwei Hardware-Komponenten, einen
 Infrarot-Laser und eine Infrarot-Kamera. Der IR-Laser strahlt Licht mit einer Wellenlänge
-von 830 nm, welches ein bekanntes Rausch-Muster erzeugt. Dieses Rausch-Muster enthält
+von 830 nm aus, welches ein der Kinect bekanntes Rausch-Muster erzeugt. Dieses Rausch-Muster enthält
 mitunter neun hellere Punkte, die über das Muster verteilt sind.\\
 Die Kinect nutzt die Streifenprojektion (auch Streifenlichttopometrie genannt), um ein
 räumliches Bild zu erfassen. So wird das vom Laser erzeugte bekannte Rauschmuster mit der
@@ -242,7 +242,7 @@ Mögliche Störungen entstehen durch die Stärke der Laserdiode und der Wellenl�
 Die IR-Kamera der Kinect hat einen Infrarot-Pass-Filter, der nur Licht im Bereich von 830 nm
 hindurch lässt, um nicht durch anderes Licht (wie beispielsweise Fernbedienungen) geblendet zu
 werden. Dennoch gibt es Lichtquellen, wie das Sonnenlicht, welches genügend Licht mit einer
-Wellenlänge von 830 nm  beinhaltet, um die Kinect blenden zu können. So kann bei starkem
+Wellenlänge von 830 nm  beinhaltet, um die Kinect überblenden zu können. So kann bei starkem
 Tageslicht oder im freien von Fehlverhalten bis zur Unnutzbarkeit der Kinect gerechet werden.
 
 \subsubsection{Beispielprojekte mit der Kinect}
@@ -250,7 +250,7 @@ Tageslicht oder im freien von Fehlverhalten bis zur Unnutzbarkeit der Kinect ger
 Mit der Kinect lassen sich viele Ideen umsetzen. So gibt es ein Projekt, bei dem Spielzeugautos und
 -figuren vor der Kinect verschoben werden, eine Software erkennt diese und stellt diese Bewegungsabläufe
 in einer virtuellen Welt als Animation dar.\cite{3dpuppetry} Weitere Projekte beschäftigten sich
-damit, ein 3D-Modell eines Menschen mit nur einer Kinect aufzunehmen,\cite{kinectavatar} oder eine an eine Kamera
+damit, ein 3D-Modell eines Menschen mit nur einer Kinect aufzunehmen,\cite{kinectavatar} oder eine an einer Kamera
 befestigte Kinect mit zusätzlichem Bewegungssensor misst die Bewegungen beim Fotografieren, um die
 entstehende Bewegungsschärfe aus dem Foto hinauszurechnen.\cite{motiondeblurring} Eine Forschungsgruppe
 hat einem humanoiden Roboter mit der Kinect die Fähigkeit verliehen, ihm zugeworfene Bälle zu fangen.\cite{kober}
@@ -288,6 +288,7 @@ Die Hardware wird in einem Teardown-Article inklusive Video auf \url{www.ifixit.
 
 Mit noch verbauten 1 GB RAM kann die Kinect 2.0 bis zu 2 Gigabit an Informationen pro Sekunde verarbeiten. Laut Microsoft soll die neue Kinect sehr feiner aufnehmen, und kann sehr feine Gesten erkennen.\\
 Zusätzlich bietet Microsoft ein Projekt, Kinect for Windows, an, bei dem sich eine begrenzte Anzahl Entwickler anmelden und mit einem von Microsoft bereit gestellten SDK in 2014 an der Kinect entwickeln können.\cite{kinect2:forwindows}
+% FIXME: "in" 2014?
 
 Eine spannende Änderung zur ersten Kinect ist die Einsetzung der Infrarot-Technologie. Wie in Abschnitt \ref{sec:kinect} zu lesen, strahlt die erste Kinect ein feines bekanntes Punktemuster aus, und durch das Erkennen von Veränderungen dieses Musters kann ein Räumliches Bild berechnet werden. Die neue Kinect strahlt aber mit seinen drei Strahlern ein großflächiges Infrarot-Lichtfeld aus. In einem Artikel wird mit Hilfe des Patents der Kinect for Xbox One vermutet, dass dieses Lichtfeld sehr schnell pulsiert, und dass die Kinect mit dem Infrarot-Sensor das reflektierte Licht in ein dreidimensionales Bild umrechnen kann.\cite{kinect2:infrared}
 
@@ -330,8 +331,8 @@ gezeigt haben.
 
 Hierbei ist zuerst zu nennen, dass die betrachteten Bälle bei uns sehr viel kleiner
 waren, da wir einen tatsächlich jonglierenden Menschen betrachtet haben. In der
-Arbeit mit dem Roboter wurden größere Bälle verwendet, und zu einer Zeit befindet
-sich größtenteils immer nur ein Ball in der Luft.
+Arbeit mit dem Roboter wurden deutlich größere Bälle verwendet, was deren Erkennung
+entsprechend vereinfacht.
 
 Da in diesem Projekt die Bälle von einer Person dem Roboter zugeworfen werden,
 ergeben sich auch längere Wurfbahnen und eine längere Flugzeit pro Ball. Wie
@@ -384,7 +385,8 @@ einzelnen Bilder werden dann kombiniert.
 
 Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der Arbeit
 auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig
-kompliziert. Hierauf werden wir im finalen Schritt der Umsetzung eingehen.
+kompliziert. Bevor wir aber in späteren Abschnitten auf diese nicht funktionierenden
+Ansätze eingehen, wollen wir zuerst unsere finale Umsetzung vorstellen.
 
 \section{Finale Umsetzung}
 \label{sec:final}
