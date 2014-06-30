@@ -100,7 +100,7 @@
 
 \section{Einleitung}
 
-Mit Markteinführung der Microsoft Kinect im November 2010 (FIXME?) steht in vielen
+Mit Markteinführung der Microsoft Kinect im November 2010\cite{kinect:wiki} steht in vielen
 Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der
 Verfügbarkeit des eigentlichen Unterhaltungsgerätes steht auch für an
 wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zu Verfügung,
@@ -1275,23 +1275,72 @@ besser zu verfolgen um ihn auch sicher stellen zu können.
 
 \section{Bewertung des Endergebnisses}
 
-{\color{red} FIXME ROLF ausformulieren und mit Kinect austesten!}
+In der am Anfang gesetzten Zielsetzung waren folgende Ziele aufgeführt:
 
-Vergleichen mit Zielsetzung
+\begin{itemize}
+\item Daten über die Flugbahnen von (drei) jonglierten Bällen gewinnen, wobei der Spieler in einem wohl definierten Abstand zur Kinect steht.
+\item Es ist ausreichend, wenn Bälle verfolgt werden können, die von der Infrarot-Technologie erfasst werden können.
+\item Die Daten sollen ausreichend sein, um auf Grundlage dessen weitere Anwendungen schreiben zu können.
+\end{itemize}
 
-Robustheit.
+Diese drei wichtigsten Ziele sind erfüllt worden. Der Spieler muss in einem bestimmten Abstand zur Kinect stehen und aus dieser Position heraus können bei einem Jongliermuster mit mindestens drei Bällen diese Bälle erkannt und zumeist gut verfolgt werden. Bälle, die zu stark reflektieren, können von der Infrarot-Technologie nicht erfasst werden. Da wir aber gerade mit den Tiefendaten, gewonnen aus der Infrarot-Strahlung, arbeiten, haben wir als Voraussetzung gegeben, dass Bälle genutzt werden sollen, die von der Kinect erfasst werden können. Die Daten, die nun intern zur Verfügung stehen, beinhalten Informationen zur Anzahl der gerade jonglierten Bälle und ihrer Wurfbahn. Zusätzlich haben wir Informationen zu den Positionen der Hände. Diese Daten sollten genügend, um auf Grundlage dessen weitere Anwendungen, die Jongliermuster analysieren oder spielerisch darstellen, schreiben zu können.
 
-  - Position des Jongleurs (Bildzentrum VS Bildrand. Abstand zur Kinect)
+Diese Software ist dennoch noch nicht perfektioniert, und es sind Einschränkungen, sei es durch die Hardware, oder auch unsere Software, gegeben, aber auch Features, auf deren Implementation wir stolz sind. Nachfolgend werden verschiedene Aspekte aufgeführt und zum Teil bewertet:
 
-  - Objekte am Bildrand (bewegte vs nicht bewegte)
+\begin{itemize}
+\item {\em Position des Spielers:}\\
+Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit entfernt, wird er gar nicht erfasst, steht er zu nah dran, wird zu viel erfasst. Jedoch kann er auf dieser Linie mittig im Bild sein, oder auch am Rand des Bildausschnitts stehen, ohne dass eine erkennbare Beeinflussung der Ballerkennung entsteht.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_nahe.jpg}
+    \caption{\color{red}FIXME}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_rand.jpg}
+    \caption{\color{red}FIXME}
+\end{figure}
+\item {\em Jongliermuster}\\
+In den Testversuchen haben wir immer ein Grundmuster jongliert, die Innenkaskade. So testeten wir am Ende einige andere Muster und stellten fest, dass solange die Bälle und Hände sichtbar sind und mehr als zwei Bälle verwendet werden, diese ebenfalls verfolgt werden können.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_muster.jpg}
+    \caption{\color{red}FIXME}
+\end{figure}
+\item {\em Objekte im Bild (bewegt/unbewegt)}\\
+{\color{red}FIXME}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_objekt.jpg}
+    \caption{\color{red}FIXME}
+\end{figure}
+\item {\em zwei Bälle vs vier/fünf Bälle}\\
+{\color{red}FIXME}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_vier.jpg}
+    \caption{\color{red}FIXME}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_zwei.jpg}
+    \caption{\color{red}FIXME}
+\end{figure}
+\item {\em Hände nicht immer korrekt}\\
+siehe oben
+{\color{red}FIXME}
+\item {\em unsichtbare Bälle}\\
+{\color{red}FIXME}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_unsichtbar.jpg}
+    \caption{\color{red}FIXME}
+\end{figure}
+\end{itemize}
 
-  - Ungleichmäßiges Jongliermuster
+{\color{red}FIXME Effizienz. Speedup-Möglichkeiten?}
 
-  - Variation der Bälleanzahl
-
-Effizienz. Speedup-Möglichkeiten?
-
-Anwendungsrelevanz.
+{\color{red}FIXME Anwendungsrelevanz.}
 
 \section{Anwendungsmöglichkeiten}
 
@@ -1607,6 +1656,10 @@ www.ifixit.org\\
 \bibitem{kinect2:forwindows}
 Kinect for Windows v2 Developer Preview Program\\
 \url{http://www.microsoft.com/en-us/kinectforwindowsdev/newdevkit.aspx} (accessed on 2014-06-29).
+
+\bibitem{kinect:wiki}
+Wikipedia: Kinect\\
+\url{http://en.wikipedia.org/wiki/Kinect} (accessed on 2014-06-29).
 
 \end{thebibliography}
 
