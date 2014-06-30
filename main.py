@@ -55,7 +55,7 @@ class Kinector(object):
         if 'withholes' not in args:
             self.filters.append(DepthHolesFilter())
         if 'swapbackground' in args:
-            self.filters.append(BackgroundFilter('bg.jpg'))
+            self.filters.append(BackgroundFilter('bg.png'))
         if 'canny' in args:
             self.filters.append(CannyFilter())
         if 'cutoff' in args:
@@ -157,7 +157,7 @@ class Kinector(object):
             self.snapshot(rgb)
 
         # Display image
-        cv.ShowImage('display', img)
+        cv.ShowImage('Kinect Juggling', img)
 
 if __name__ == '__main__':
     import sys
@@ -166,6 +166,9 @@ if __name__ == '__main__':
     for argv in sys.argv:
         if argv.startswith('--'):
             args.append(argv[2:])
+
+    if len(args) == 0 or len(args) ==1 and args[0] == "dummymode":
+        args += ["cutoff", "detectball", "handtracking", "simplehand"]
 
     dummymode = "--dummymode" in sys.argv or "-d" in sys.argv
     if dummymode:
