@@ -129,10 +129,7 @@ hinsichtlich des Erfolges evaluiert. % WTF schreibe ich hier?
 
 \subsection{Vorüberlegung}
 
-Bevor eine konkrete Zielsetzung getroffen wird, treffen wir ein paar Vorüberlegungen,
-die uns zu Projektbeginn begegneten. In der Ideenfindungsphase des Projektes kam uns
-sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu
-verbinden.
+In der Ideenfindungsphase des Projektes kam uns sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu verbinden.
 
 Dieses \textit{``irgendwie''} war schwer zu greifen und zu definieren, da keiner von
 uns Erfahrung im Bereich der Tiefendatenverarbeitung hatte und mögliche
@@ -140,7 +137,7 @@ Schwierigkeiten schwer vorauszusehen und abzuschätzen waren.
 
 Die Idee zu einer interaktiven Anwendung zum Trainieren des Jonglierens kam uns
 relativ schnell, doch sobald wir anfingen, eine tatsächliche Anwendung konkret zu
-umreißen, wurde uns die Komplexität eines solchen Unterfangens bewusst. Um aber
+planen, wurde uns die Komplexität eines solchen Unterfangens bewusst. Um aber
 an der uns zusagenden Grundidee weiter zu arbeiten, wollten wir uns im Rahmen des
 Projektes mit den bildverarbeitenden Grundkomponenten beschäftigen, die aus
 den Bild- und Tiefendaten der Kinect heraus die Jonglierbälle erkennt und verfolgt,
@@ -152,8 +149,7 @@ der Kaskade\cite{libraryjuggling} auseinander. Diese entspricht anschaulich eine
 haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Durch diese
 Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
 erhofft. Im Laufe der Arbeit hat sich dann herausgestellt, dass diese starre Annahme
-uns zu einer nur wenig robusten Lösung führte. In der am Ende des Projektes
-stehenden Lösung ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
+uns zu einer nur wenig robusten Lösung führte. In der finalen Software ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
 und das System bestimmt an Hand der berechneten Daten sogar die Gesamtzahl der
 im Jongliermuster befindlichen Objekte.
 
@@ -918,7 +914,7 @@ Dennoch machen sich die zusätzlichen Berechnungen in der Framerate bemerkbar un
 bedingt durch die Selbst-Überdeckung der Bälle in den langsameren Teilen der Wurfbewegung, wurde dieser Ansatz letztendlich für die endgültige Lösung verworfen und dementsprechend auch nicht weiter ausgearbeitet.
 
 \subsubsection{Kalman Filter}
-
+\label{kalman}
 Der Kalman Filter ist ein in 1960 von Rudolf E. Kálmán vorgestellter Algorithmus, welcher aus mehreren ungenauen Messungen versucht, die tatsächlichen Daten, die diesen Messungen zu Grunde liegen, zu schätzen.\cite{kalman} Ungenauigkeiten können durch die Messsensoren entstehen, wenn diese aus verschiedenen Gründen nicht präzise genug aufnehmen können, oder auch durch ein Rauschen der Aufnahmequelle. Mit dem Kalman-Filter können so über einen bestimmten Zeitraum aufgenommene Daten mit möglichst vielem Wissen über potentielle Messabweichungen genauer bestimmt werden, als mit nur einzelnen Messungen.
 
 Dieser Algorithmus wird heutzutage in vielen Bereichen eingesetzt, sehr oft zum Beispiel in der Navigationstechnologie von Fahrzeugen aller Art. Die Position eines Fahrzeuges wird beispielsweise über GPS empfangen. Diese Technologie kann die Position nur auf ca. 5-20m genau bestimmen. Selbst mit einer zusätzlichen Korrektur (WAAS/EGNOS-Korrektursignale mit Hilfe von Bodenstationen\cite{waas}\cite{egnos}) erreicht die Genauigkeit nur etwa 1-3m. Unter umständen wird eine exaktere Positionsbestimmung nötig, zum Beispiel bei Fortbewegungsmittel, die ein automatisches Fahrsystem verbaut haben.
@@ -952,11 +948,10 @@ Ursprünglich sollte der Kalman-Filter bzw. eine Vereinfachung dessen in diesem 
 
 So ist in diesem Projekt das bewegte Objekt ein Ball und die Art der Bewegung eine Wurfparabel. Der Einfachkeit halber und da in diesen Zeiten vorkommende Abweichungen klein wären, außerdem eine Genauigkeit auf Pixelebene nicht notwendig ist, sind keine Störfaktoren einberechnet worden.
 
-In den ersten Implementationen dieses Ansatzes hatten wir einen Bug verbaut, welcher erst sehr viel später bemerkt wurde. Durch diesen funktionierte die Schätzung der Ballposition in nachfolgenden Frames nicht, da die zwei Startpositionen eines Balles, mit dem der weitere Wurf geschätzt wurde, aus demselben Frame genommen wurden. Auf der Suche nach dem Fehler schrieben wir die Handerkennung, um die Handpositionen aus den möglichen Ballpositionen herauszunehmen. Im Zuge dessen wurde der Bug unbemerkt korrigiert, wodurch der darauf folgende Erfolg dem Entfernen der Handpositionen und einer einfacheren Schätzung zugeschrieben wurde, in der Ballpositionen in aufeinander folgenden Frames durch eine möglichst kurze Entfernung zugeordnet werden. Da dieser vereinfachte Ansatz 
+In den ersten Implementationen dieses Ansatzes wurde ein Bug verbaut, welcher erst sehr viel später bemerkt wurde. Durch diesen funktionierte die Schätzung der Ballposition in nachfolgenden Frames nicht, da die zwei Startpositionen eines Balles, mit dem der weitere Wurf geschätzt wurde, aus demselben Frame genommen wurden. Auf der Suche nach dem Fehler schrieben wir die Handerkennung, um die Handpositionen aus den möglichen Ballpositionen herauszunehmen. Im Zuge dessen wurde der Bug unbemerkt korrigiert, wodurch der darauf folgende Erfolg dem Entfernen der Handpositionen und einer einfacheren Schätzung zugeschrieben wurde, in der Ballpositionen in aufeinander folgenden Frames durch eine möglichst kurze Entfernung zugeordnet werden. Da dieser vereinfachte Ansatz schon gut funktionierte, wurde er übernommen. Theoretisch lässt sich der Kalman-Filter wieder einbringen, womit die Zuordnung der Bälle noch zuverlässiger funktionieren sollte.
 
 \subsubsection{Hough-Transformation}
 \label{sec:hough}
-{\color{red} FIXME ROLF Python Code-Beispiel}
 Die Hough-Transformtion wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
 Ursprünglich wurde das Verfahren zum Finden von geraden Linien von Hough patentiert, jedoch dann von Duda und Hart verbessert und auch das Finden von Kreisen bzw. Kurven ermöglicht.
 
@@ -1131,7 +1126,7 @@ class SimpleKalmanFilter(object):
 \end{lstlisting}
 Hierbei wird durch Aufruf von {\tt SimpleKalmanFilter.filter} für zwei aufeinanderfolgenden Ballpositionen in einer Schleife für 10 Zeiteinheiten eine voraussichtliche Wurfbahn berechnet und zurückgegeben.
 
-In der Theorie sollte dieser Ansatz funktionieren, aber in für uns unerklärbarer Weise wurden im Praxisversuch die Wurfbahnen teils wie erwartet, teils aber ganz anders eingezeichnet. So haben wir in weiteren Versuchen die Berechnung vereinfacht, und uns an Formeln \ref{eq:wurf1} und \ref{eq:wurf2} gehalten:
+In der Theorie sollte dieser Ansatz funktionieren, aber wie am Ende von Abschnitt \ref{kalman} beschrieben, funktionierte dieses durch einen unbemerkten Bug nicht. In weiteren Versuchen wurde die Berechnung vereinfacht, in der die Formeln \ref{eq:wurf1} und \ref{eq:wurf2} verwendet wurden:
 
 \begin{lstlisting}[language=Python]
 class TrajectoryBall(object):
@@ -1164,7 +1159,7 @@ class TrajectoryBall(object):
 
         return int(x), int(y)
 \end{lstlisting}
-Dieser Ansatz brachte leichte Verbesserungen ein, jedoch wurden viele der Wurfbahnen trotzdem noch in unseren Augen willkürlich eingezeichnet, so dass Würfe, die in eine Richtung gehen, gerne mal spiegelverkehrt oder gänzlich aus dem Bild fliegend eingezeichnet wurden.
+Da der Bug hierdurch nicht korrigiert wurde, war keine Verbesserung der Schätzung in der Ausgabe festzustellen. In der Theorie sollten jedoch beide Ansätze funktionieren, und würde jetzt auf sie zurückgegriffen werden, erwarten wir eine Verbesserung in der Zuordnung der Bälle von Frame zu Frame.
 
 \begin{comment}
 \begin{figure}[H]
