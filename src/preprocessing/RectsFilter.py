@@ -39,7 +39,7 @@ class RectsFilter(object):
                 y -= 5
                 w += 10
                 h += 10
-                x, y = self._nullify(x), self._nullify(y) # why is this necessary now?
+                x, y = self._nullify(x), self._nullify(y) # make sure nothing is smaller than 0
 
                 ball_center = (x+w/2, y+h/2)
                 ball_radius = min(w/2, h/2)
@@ -48,10 +48,6 @@ class RectsFilter(object):
                 # Draw rectancle with info
                 cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
                 cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
-
-        # update hands, remember the unused positions
-        # args['only_balls'] = args['hands'].addPositions(ball_list, args)
-        # args['balls'].addPositions(ball_list, args)
 
         # and back to numpy with this...
         rgb = np.copy(rgb_cv)[:,:,::-1]

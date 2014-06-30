@@ -7,7 +7,7 @@ class CutOffFilter(object):
         white.fill(0)
         subset_objects = (depth < 2100) # chosen by experiment for example frames
         subset_holes = (depth == 0)
-        white[subset_objects] = 2047
+        white[subset_objects] = 4095
         white[subset_holes] = 0
 
         return rgb, white, balls
