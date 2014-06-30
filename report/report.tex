@@ -74,8 +74,8 @@
 
 \begin{flushright}
 \scshape{\LARGE\bfseries Rolf Boomgaarden\\}
-\scshape{\LARGE\bfseries Florian Letsch\\}
 \scshape{\LARGE\bfseries Thiemo Gries\\}
+\scshape{\LARGE\bfseries Florian Letsch\\}
 \end{flushright}
 
 \vspace{2 cm}
@@ -100,7 +100,7 @@
 
 \section{Einleitung}
 
-Seit Markteinführung der Microsoft Kinect im November 2010\cite{kinect:wiki} steht in vielen
+Seit Markteinführung der Microsoft Kinect steht in vielen
 Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der
 Verfügbarkeit des Unterhaltungsgerätes steht auch für an
 wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zur Verfügung,
@@ -136,22 +136,22 @@ verbinden.
 
 Dieses \textit{``irgendwie''} war schwer zu greifen und zu definieren, da keiner von
 uns Erfahrung im Bereich der Tiefendatenverarbeitung hatte und mögliche
-Schwierigkeiten schwer abzuschätzen waren.
+Schwierigkeiten schwer vorauszusehen und abzuschätzen waren.
 
 Die Idee zu einer interaktiven Anwendung zum Trainieren des Jonglierens kam uns
 relativ schnell, doch sobald wir anfingen, eine tatsächliche Anwendung konkret zu
 umreißen, wurde uns die Komplexität eines solchen Unterfangens bewusst. Um aber
 an der uns zusagenden Grundidee weiter zu arbeiten, wollten wir uns im Rahmen des
 Projektes mit den bildverarbeitenden Grundkomponenten beschäftigen, die aus
-den Bild- und Tiefendaten der Kinect heraus die Jonglierbälle erkennt, verfolgt,
-und in irgendeiner Form sinnvolle Informationen über die bewegten Objekte aus diesen
-Daten generiert.
+den Bild- und Tiefendaten der Kinect heraus die Jonglierbälle erkennt und verfolgt,
+um dann in irgendeiner Form sinnvolle Informationen über die bewegten Objekte aus diesen
+Daten zu generieren.
 
 Der Einfachheit halber setzen wir uns zu Beginn mit dem Grundmuster des Jonglierens,
 der Kaskade\cite{libraryjuggling} auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch
-haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Aus dieser
+haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Durch diese
 Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
-erhofft. Im Laufe der Arbeit hat sich dann heraus gestellt, dass diese starre Annahme
+erhofft. Im Laufe der Arbeit hat sich dann herausgestellt, dass diese starre Annahme
 uns zu einer nur wenig robusten Lösung führte. In der am Ende des Projektes
 stehenden Lösung ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
 und das System bestimmt an Hand der berechneten Daten sogar die Gesamtzahl der
@@ -160,31 +160,29 @@ im Jongliermuster befindlichen Objekte.
 Zunächt aber betrachten wir unser ursprüngliches Modell. In der ersten
 Grundüberlegung wird deutlich, dass ein Jongleur Jonglierbälle
 in einem Muster wirft, das möglichst gleichmäßig ist.
-So ist der Höhepunkt der Flugbahn idealerweise konstant auf der gleichen Höhe.
-Zum Analysieren des Jongliermusters wäre dies also bereits ein erstes Kriterium,
+So ist der Höhepunkt der Flugbahn idealerweise konstant auf einer Höhe.
+Bei einer Analyse des Jongliermusters wäre dies also bereits ein erstes Kriterium,
 die \textit{Güte eines Jongliermusters} automatisiert zu bewerten.
 
 % FIXME: Das klingt ja schon so nach Jongliertrainer. Das ist ja hier Quatsch
 Denkbar sind auch weitere Anwendungen, wie etwa das automatische Zählen von
-erfolgreich gefangenen Würfen. Eine computergesteuerte Erfassung der insgesamten
-Wurfzahl ist ein einfaches Kriterium für eine \textit{Leistungsbewertung des
-jonglierenden Benutzers}.
+erfolgreich gefangenen Würfen. Ein einfaches Kriterium für eine \textit{Leistungsbewertung des
+jonglierenden Benutzers} ist eine computergesteuerte Erfassung der Wurfanzahl insgesamt.
 
-Die genaue Anwendung ist jedoch nicht Ziel dieser Arbeit. Stattdessen verfahren wir
-in einem bottom-up Herangehen, um von den rohen Bild- und Tiefendaten der Kinect
-ausgehend Informationen über sich im Bild befindliche Objekte (Jonglierbälle) zu
-erfassen und deren Bewegung zu erkennen. Das Ergebnis ist dann ein Fundament, auf
-dessen Grundlage konkrete Anwendungen entwickelt werden können.
+Die spätere Analyse und Bewertung des Jongleurs ist jedoch nicht Ziel dieser Arbeit. Stattdessen verfahren wir
+in einem bottom-up Herangehen, um ausgehend von den rohen Bild- und Tiefendaten der Kinect Informationen über sich im Bild befindliche Objekte (Jonglierbälle) zu erfassen und deren Bewegung zu erkennen und in eine mathematische Beschreibung zu überführen.
+Das Ergebnis ist dann ein Fundament, auf dessen Grundlage konkrete Anwendungen entwickelt werden können.
+
+\newpage
 
 \subsection{Projektziel}
 
 Am Ende dieser Arbeit soll eine Anwendung stehen, die mit Hilfe der Kinect Daten
-über die Flugbahnen dreier jonglierter Bälle liefert.
+über die Flugbahnen mehrerer jonglierter Bälle liefert.
 
 Ein Akteur befindet sich hierbei im Bildzentrum in einem wohl definierten Abstand
-zur Kinect. Es werden drei matte Bälle beliebiger Farbe jongliert. Um das Ergebnis
-unabhängig von der Szenenbeleuchtung zu halten, sollen die Tiefendaten ausreichend
-Information für das eindeutige Identifizieren der Bälle liefern.
+zur Kinect. Um das Ergebnis unabhängig von der Szenenbeleuchtung zu halten, sollen die Tiefendaten ausreichend
+Information für das eindeutige Identifizieren der Bälle liefern. Da reflektierende Bälle vom Tiefensensor der Kinect nur schwer erfasst werden können, werden drei matte Bälle beliebiger Farbe jongliert.
 
 Die Anwendung soll eine Grundlage liefern, um auf Grundlage den gewonnen Information
 heraus konkrete weitere Anwendungen zu schreiben.
@@ -195,13 +193,13 @@ heraus konkrete weitere Anwendungen zu schreiben.
 \subsection{Möglichkeiten der Kinect}
 \label{sec:kinect}
 
-Die Kinect ist eine von Microsoft zur Spielekonsole Xbox 360 vertriebene Erweiterung,
+Die Kinect ist eine von Microsoft\cite{microsoft} zur Spielekonsole Xbox 360 vertriebene Erweiterung,
 die den Spieler mit einem RGB- und einem Tiefensensor erfasst und diese beiden
 Datenströme an die Konsole liefert. Da die Kinect über einen USB-Anschluss verfügt,
 kann sie an konventionellen Rechnern angeschlossen und betrieben werden. Eine
 quelloffene Implementierung zur Unterstützung der Kinect ist das Open Kinect Projekt,
 das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbeit
-als Bibliothek für Python verwendet wurde.\cite{openkinect}\cite{libfreenect}
+als Bibliothek für Python verwendet wird.\cite{openkinect}\cite{libfreenect}
 
 Die Videoquelle der Kinect liefert standardmäßig 30 Bilder pro Sekunde mit einer
 Auflösung von 640x480 und 8 bit Farbtiefe. Tatsächlich kann sie mit
@@ -211,7 +209,7 @@ ausgegeben wird. Die Tiefendaten stammen von einer
 Infrarot-Kamera und liefern bei gleicher Bildfrequenz 2048 verschiedene
 Tiefenwerte (11bit). Das Tiefenbild deckt einen Bereich von 0,8 m bis 3,5 m von der
 Kinect aus ab, bei der in 2m Entfernung eine Auflösung von 3 mm in der Bildebene und
-1 cm in der Tiefenebene erreicht wird. Aus der Funktionsweise der Infrarotkamera
+1 cm in der Tiefenebene erreicht wird. Bedingt durch die Funktionsweise der Infrarotkamera
 ergibt sich, dass die Kinect in Umgebungen starker Infrarotstrahlung (beispielsweise
 im Tageslicht) nur beschränkt einsatzfähig ist.\cite{hacking}
 
@@ -221,16 +219,15 @@ im Tageslicht) nur beschränkt einsatzfähig ist.\cite{hacking}
     \caption{Aufbau der Kinect 1.0. ({\em Bildquelle: Hacking the Kinect\cite{hacking}})}
 \end{figure}
 
-Um das Tiefenbild zu erhalten, besitzt die Kinect zwei Hardware-Komponenten, einen
+Um ein Tiefenbild zu erhalten, besitzt die Kinect zwei Hardware-Komponenten, einen
 Infrarot-Laser und eine Infrarot-Kamera. Der IR-Laser strahlt Licht mit einer Wellenlänge
 von 830 nm aus, welches ein der Kinect bekanntes Rausch-Muster erzeugt. Dieses Rausch-Muster enthält
 mitunter neun hellere Punkte, die über das Muster verteilt sind.\\
 Die Kinect nutzt die Streifenprojektion (auch Streifenlichttopometrie genannt), um ein
-räumliches Bild zu erfassen. So wird das vom Laser erzeugte bekannte Rauschmuster mit der
-in einem festen Abstand zum Laser befestigten IR-Kamera erfasst. Weicht das aufgenommene
-Bild von dem bekannten Rausch-Muster ab, kann davon ausgegangen werden, dass dies durch
-Objekte im Raum, die das Muster stören, verursacht wird. Mit Hilfe der helleren Punkten werden
-alle Punkte zugeordnet und es kann ein räumliches Bild errechnet werden.
+räumliches Bild zu erfassen. So wird das vom Laser erzeugte bekannte Rauschmuster mit der IR-Kamera erfasst, die in einem festen Abstand zum Laser befestigt ist. Weicht das aufgenommene
+Bild von dem bekannten Rausch-Muster ab, wird davon ausgegangen, dass dies durch
+Objekte im Raum verursacht wird, die das Muster stören. Mit Hilfe der neun helleren Punkten werden
+auch alle anderen Punkte zugeordnet und es kann ein räumliches Bild errechnet werden.
 
 \begin{figure}[H]
     \centering
@@ -238,23 +235,23 @@ alle Punkte zugeordnet und es kann ein räumliches Bild errechnet werden.
     \caption{Infrarot-Punktmuster der Kinect 1.0. ({\em Bildquelle: Our First Look at the Xbox One Kinect IR Field\cite{kinect2:infrared}})}
 \end{figure}
 
-Mögliche Störungen entstehen durch die Stärke der Laserdiode und der Wellenlänge des Lichts.
+Mögliche Störungen entstehen durch Varianz in der Stärke der Laserdiode und der Wellenlänge des Lichts.
 Die IR-Kamera der Kinect hat einen Infrarot-Pass-Filter, der nur Licht im Bereich von 830 nm
 hindurch lässt, um nicht durch anderes Licht (wie beispielsweise Fernbedienungen) geblendet zu
 werden. Dennoch gibt es Lichtquellen, wie das Sonnenlicht, welches genügend Licht mit einer
 Wellenlänge von 830 nm  beinhaltet, um die Kinect überblenden zu können. So kann bei starkem
-Tageslicht oder im freien von Fehlverhalten bis zur Unnutzbarkeit der Kinect gerechet werden.
+Tageslicht oder im Freien mit Fehlverhalten bis hin zur Unnutzbarkeit der Kinect gerechnet werden.
 
 \subsubsection{Beispielprojekte mit der Kinect}
 
 Mit der Kinect lassen sich viele Ideen umsetzen. So gibt es ein Projekt, bei dem Spielzeugautos und
 -figuren vor der Kinect verschoben werden, eine Software erkennt diese und stellt diese Bewegungsabläufe
-in einer virtuellen Welt als Animation dar.\cite{3dpuppetry} Weitere Projekte beschäftigten sich
-damit, ein 3D-Modell eines Menschen mit nur einer Kinect aufzunehmen,\cite{kinectavatar} oder eine an einer Kamera
-befestigte Kinect mit zusätzlichem Bewegungssensor misst die Bewegungen beim Fotografieren, um die
+in einer virtuellen Welt als Animation dar.\cite{3dpuppetry} Ein weiteres Projekt beschäftigt sich
+damit, ein 3D-Modell eines Menschen mit nur einer Kinect aufzunehmen.\cite{kinectavatar} Ein anderes Projekt hat eine an einer Kamera
+befestigten Kinect mit zusätzlichem Bewegungssensor, welche die Bewegungen beim Fotografieren messen, um die
 entstehende Bewegungsschärfe aus dem Foto hinauszurechnen.\cite{motiondeblurring} Eine Forschungsgruppe
 hat einem humanoiden Roboter mit der Kinect die Fähigkeit verliehen, ihm zugeworfene Bälle zu fangen.\cite{kober}
-In der Videographie nimmt ein Projekt mit der Kinect RGBZ-Videos auf, in der nachträglich beispielsweise die
+Ein weiteres Projekt in der Videographie nimmt mit der Kinect RGBZ-Videos auf, in der nachträglich beispielsweise die
 Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 
 \begin{figure}[H]
@@ -264,20 +261,19 @@ Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 \end{figure}
 
 \subsubsection{Stand 2014: Kinect for Xbox One}
-Am 22. November 2013 ist in den USA und Europa die Xbox One und damit auch die Kinect for Xbox One, oder auch Kinect 2.0, erschienen.\cite{kinect2:wikikinect} Die neue Kinect bringt viel neue Hardware mit, die sie deutlich von der ersten Kinect hervorhebt. Auch softwaretechnisch wurden viele Features implementiert, wie beispielsweise eine große Anzahl Möglichkeiten an Gesten- und Sprachsteuerung der Konsole.\cite{kinect2:gesturevoice} In einer Reihe von Online-Technology-Magazinen hat die neue Kinect viele Bewertungen von 7 bis 9 von 10 Punkten bekommen.\cite{kinect2:wikikinect}
+Während der Projektzeit, im November 2013, ist die Xbox One und damit auch die Kinect for Xbox One, oder auch Kinect 2.0, erschienen.\cite{kinect2:verge} Die neue Kinect beinhaltet bessere Hardware und auch softwaretechnisch wurden viele Features implementiert, wie beispielsweise eine große Anzahl Möglichkeiten an Gesten- und Sprachsteuerung der Konsole.\cite{kinect2:gesturevoice} Wir haben sie aus verschiedenen Gründen nicht genutzt, stellen sie aber kurz vor.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=1]{img/kinect2.jpg}
-    \caption{Die Kinect for Xbox One. Ohne weiteres ist von außen nur die RGB-Kamera zu erkennen. ({\em Bildquelle: Wikipedia: Kinect for Xbox One\cite{kinect2:wikikinect}})}
+    \caption{Die Kinect for Xbox One. Äußerlich ist nur die RGB-Kamera zu erkennen. ({\em Bildquelle: Ifixit.com Xbox One Kinect Teardown\cite{kinect2:teardown})}}
 \end{figure}
 
-Die Hardware wird in einem Teardown-Article inklusive Video auf \url{www.ifixit.com} ausführlich gezeigt.\cite{kinect2:teardown} Diese beinhaltet under anderem:
+Die Hardware beinhaltet under anderem:
 \begin{itemize}
 \item Eine 1080p HD Weitwinkelkamera.\cite{kinect2:teardown}
 \item Drei Infrarot-Strahler.\cite{kinect2:infrared}
 \item Eine Infrarot-Kamera.\cite{kinect2:teardown}
-\item Ein Multi-Mikrofon Array mit Rauschentfernung und Sprachsteuerung.\cite{kinect2:teardown}
 \end{itemize}
 
 \begin{figure}[H]
@@ -285,10 +281,6 @@ Die Hardware wird in einem Teardown-Article inklusive Video auf \url{www.ifixit.
     \includegraphics[scale=0.7]{img/kinect2_components.jpg}
     \caption{Unter der Haube der Kinect 2.0. Hier wird sichtbar, dass hinter der Verkleidung mittig die drei Infrarot-Strahler sitzen und daneben die Infrarot-Kamera. ({\em Bildquelle: Xbox One Kinect Teardown\cite{kinect2:teardown}})}
 \end{figure}
-
-Mit noch verbauten 1 GB RAM kann die Kinect 2.0 bis zu 2 Gigabit an Informationen pro Sekunde verarbeiten. Laut Microsoft soll die neue Kinect sehr feiner aufnehmen, und kann sehr feine Gesten erkennen.\\
-Zusätzlich bietet Microsoft ein Projekt, Kinect for Windows, an, bei dem sich eine begrenzte Anzahl Entwickler anmelden und mit einem von Microsoft bereit gestellten SDK in 2014 an der Kinect entwickeln können.\cite{kinect2:forwindows}
-% FIXME: "in" 2014?
 
 Eine spannende Änderung zur ersten Kinect ist die Einsetzung der Infrarot-Technologie. Wie in Abschnitt \ref{sec:kinect} zu lesen, strahlt die erste Kinect ein feines bekanntes Punktemuster aus, und durch das Erkennen von Veränderungen dieses Musters kann ein Räumliches Bild berechnet werden. Die neue Kinect strahlt aber mit seinen drei Strahlern ein großflächiges Infrarot-Lichtfeld aus. In einem Artikel wird mit Hilfe des Patents der Kinect for Xbox One vermutet, dass dieses Lichtfeld sehr schnell pulsiert, und dass die Kinect mit dem Infrarot-Sensor das reflektierte Licht in ein dreidimensionales Bild umrechnen kann.\cite{kinect2:infrared}
 
@@ -301,33 +293,32 @@ Eine spannende Änderung zur ersten Kinect ist die Einsetzung der Infrarot-Techn
 \subsection{Recherche: Ein jonglierender Roboter}
 
 Im Vorfeld der ersten eigenen Implementierungsversuche sind wir bei der
-Paper-Recherche auf eine Arbeit von Jens Kober, Matthew Glisson und Michael Mistry
+Recherche auf eine Arbeit von Jens Kober, Matthew Glisson und Michael Mistry
 gestoßen, die zumindest in Teilen eine ähnliche Aufgabenstellung verfolgte.
 Unter dem Titel {\em Playing Catch and Juggling with a Humanoid Robot}\cite{kober}
-untersuchte die Gruppe des Disney Research Center\cite{disneyresearch} einen
-humanoiden Roboter, der auf ihn zugeworfene Bälle fangen und zurückwerfen soll.
-In der Entwicklung dieses Systems war ein Teil der Gesamtaufgabe ein
+erstellte die Gruppe des Disney Research Center\cite{disneyresearch} einen
+humanoiden Roboter, der auf ihn zugeworfene Bälle fängt und zurückwirft.
+Teil der Gesamtaufgabe in der Entwicklung dieses Systems war ein
 bild- und tiefendatenverarbeitendes System, das mit einer der Kinect sehr ähnlichen
 Kamera arbeitete.
 
-Kernidee dieses Systems war eine \textit{Image Processing Pipeline}, also eine
+Kernidee dieses Systems ist eine \textit{Image Processing Pipeline}, also eine
 Kette von Verarbeitungsschritten, die als Eingabe eine Folge von RGB- und Tiefendaten
-nahm und als Ausgabe die aktuelle Position und zukünftige berechnete Flugbahn
-liefern.
+nimmt und als Ausgabe die aktuelle Position und die berechnete Flugbahn für die Zukunft liefert.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.31]{img/koberpipeline.jpg}
-    \caption{Bildverarbeitungs-Pipeline im Paper. ({\em Bildquelle: Playing Catch and Juggling with a Humanoid Robot\cite{kober}})}
+    \caption{Bildverarbeitungs-Pipeline von Kober, Glisson und Mistry. ({\em Bildquelle: Playing Catch and Juggling with a Humanoid Robot\cite{kober}})}
     \label{koberpipeline}
 \end{figure}
 
-Die gelöste Aufgabe in dieser Arbeit ist also von der Grundidee her also eine ganz
+Die Aufgabe, die in dieser Arbeit gelöst wurde, ist also von der Grundidee her eine
 ähnliche, weshalb wir den Grundaufbau der Verarbeitungsschritte auch in unserem
 Vorgehen übernehmen wollten. Wie wir im Laufe der Programmierung aber feststellten,
 hatte die Arbeit einige Rahmenbedingungen anders gesetzt, so dass wir auf Probleme
 stießen, die sich in der Arbeit mit dem Roboter offensichtlich nicht so deutlich
-gezeigt haben.
+zeigten.
 
 Hierbei ist zuerst zu nennen, dass die betrachteten Bälle bei uns sehr viel kleiner
 waren, da wir einen tatsächlich jonglierenden Menschen betrachtet haben. In der
@@ -350,8 +341,8 @@ wir sie in den Kinect-Aufnahmen sehen, keine robuste Erkennung möglich ist.
 \subsection{Lösungsidee}
 
 Als erste Lösungsidee haben wir in Anlehnung an die betrachtete Arbeit mit dem
-jonglierenden Roboter eine eigene Zusammenstellung von durchzuführenden Bildverarbeitungsschritten
-erarbeitet wie in Abbildung \ref{ourpipeline} zu sehen.
+jonglierenden Roboter selbst eine Reihe von durchzuführenden Bildverarbeitungsschritten
+zusammengesetzt und erarbeitet, wie in Abbildung \ref{ourpipeline} zu sehen ist.
 
 Die Verarbeitung wird auf den Einzelbildern durchgeführt, die Ergebnisse der
 einzelnen Bilder werden dann kombiniert.
@@ -360,9 +351,9 @@ einzelnen Bilder werden dann kombiniert.
 \item Auf den Tiefendaten werden ab einem bestimmten Tiefenwert (\textit{threshold})
 	alle Tiefeninformationen abgeschnitten. Jongleur und fliegende Jonglierbälle sind
 	somit freigestellt.
-\item Auf den reduzierten Tiefendaten werden nun lokale Maxima bestimmt, welche die
-	Jonglierbälle sein müssen, da sie sich näher an der Kinect befinden als der
-	Jongleur. Hier sind auch die Hände enthalten.
+\item Auf den reduzierten Tiefendaten werden nun lokale Maxima bestimmt, in welchen die
+	Jonglierbälle, aber auch die Hände enthalten sind, da sie sich näher an der Kinect befinden als der
+	Jongleur.
 \item Die gefundenen Maxima sind mögliche Kandidaten für tatsächlich erkannte
 	Jonglierbälle.
 \item Die entsprechenden Regionen werden als Maske für die RGB Daten verwendet.
@@ -383,8 +374,7 @@ einzelnen Bilder werden dann kombiniert.
     \label{ourpipeline}
 \end{figure}
 
-Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der Arbeit
-auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig
+Wie sich im Laufe des Projektes heraus gestellt hat, ist dieses Konzept in einigen Schritten zu idealisiert und in anderen unnötig
 kompliziert. Bevor wir aber in späteren Abschnitten auf diese nicht funktionierenden
 Ansätze eingehen, wollen wir zuerst unsere finale Umsetzung vorstellen.
 
@@ -957,8 +947,7 @@ bedingt durch die Selbst-Überdeckung der Bälle in den langsameren Teilen der W
 
 Der Kalman Filter ist ein in 1960 von Rudolf E. Kálmán vorgestellter Algorithmus, welcher aus mehreren ungenauen Messungen versucht, die tatsächlichen Daten, die diesen Messungen zu Grunde liegen, zu estimieren.\cite{kalman} Solche Ungenauigkeiten können durch die Messsensoren entstehen, wenn diese aus verschiedenen Gründen nicht präzise genug aufnehmen können, oder auch durch ein Rauschen der Aufnahmequelle. Mit dem Kalman-Filter können so über einen bestimmten Zeitraum aufgenommene Daten mit möglichst vielem Wissen über potentielle Messabweichungen genauer bestimmt werden, als mit nur einzelnen Messungen.
 
-Dieser Algorithmus wird heutzutage in vielen Bereichen eingesetzt, sehr oft aber in der Navigationstechnologie von Fahrzeugen aller Art. Die Position eines Fahrzeuges wird beispielsweise über GPS empfangen. Diese Technologie kann selbst mit einer zusätzlichen Korrektur (WAAS/EGNOS-Korrektursignale mit Hilfe von Bodenstationen\cite{waas}\cite{egnos}) die Position auf ca. 5-20m bei reinem GPS und etwa 1-3m genau mit Korrektur bestimmen. 1-3m Genauigkeit kann bei privaten Fahrzeugen mit Navigationsgerät reichen, dennoch sähe es merkwürdig aus, würde die eigene Position selbst bei Stillstand hin und her springen. Bei der Navigation in einer Großstadt kann bei 3m Ungenauigkeit die kleine Gasse verfehlt werden, und auf der falschen Straßenseite fahren täte man laut Gerät auch andauernd.\\
-Weiterhin gibt es Fortbewegungsmittel, die vielleicht sogar ein automatisches Fahrsystem verbaut haben, bei dem eine exakte Positionsbestimmung notwendig wird.
+Dieser Algorithmus wird heutzutage in vielen Bereichen eingesetzt, sehr oft aber in der Navigationstechnologie von Fahrzeugen aller Art. Die Position eines Fahrzeuges wird beispielsweise über GPS empfangen. Diese Technologie kann die Position nur auf ca. 5-20m genau bestimmen. Selbst mit einer zusätzlichen Korrektur (WAAS/EGNOS-Korrektursignale mit Hilfe von Bodenstationen\cite{waas}\cite{egnos}) erreicht die Genauigkeit nur etwa 1-3m. Unter umständen wird eine exaktere Positionsbestimmung nötig, zum Beispiel bei Fortbewegungsmittel, die ein automatisches Fahrsystem verbaut haben.
 
 So können weitere Sensoren verbaut werden, die zusammen mit dem GPS eine genauere Positions- und Bewegungsbestimmung ermöglichen, aber selbst bei diesen können erneut Messungenauigkeiten auftreten. Mit dem Kalman Filter können so alle aufgenommene Daten mit dem Wissen über die Art der Bewegung und Annahmen zu Messfehlern verfeinert werden. Zusätzlich kann der Algorithmus mit den bisher gesammelten Daten eine Schätzung über die Position in der Zukunft machen. Wie erwähnt nutzt dieser Algorithmus alle bisher aufgenommenen Daten, jedoch werden diese als Markow-Kette modeliert, so dass eine interne Formel immer mit den neusten Daten angepasst wird und keine Iteration über alle vergangenen Daten notwendig ist. Dadurch können diese Berechnungen in Echtzeit erfolgen, was sie für die Navigationstechnologie so wertvoll macht.
 
@@ -1770,13 +1759,9 @@ The Complete List of Kinect Gesture and Voice Commands For Your Referencing Plea
 news.xbox.com\\
 \url{http://news.xbox.com/2013/11/xbox-one-kinect-gesture-and-voice-guide} (Stand 29.06.2014).
 
-\bibitem{kinect2:wikikinect}
-Wikipedia: Kinect for Xbox One\\
-\url{http://en.wikipedia.org/wiki/Kinect_for_Xbox_One} (Stand 29.06.2014).
-
-\bibitem{kinect2:wikixbox}
-Wikipedia: Xbox One, Kinect\\
-\url{http://en.wikipedia.org/wiki/Xbox_One#Kinect} (Stand 29.06.2014).
+\bibitem{kinect2:verge}
+The Verge: XBox One Release\\
+\url{http://www.theverge.com/2013/6/10/4415186/xbox-one-pricing-release-date} (Stand 30.06.2014).
 
 \bibitem{kinect2:teardown}
 Xbox One Kinect Teardown\\
@@ -1787,14 +1772,6 @@ www.ifixit.com\\
 Our First Look at the Xbox One Kinect IR Field\\
 www.ifixit.org\\
 \url{http://ifixit.org/blog/5684/our-first-look-at-the-xbox-one-kinect-ir-field/} (Stand 29.06.2014).
-
-\bibitem{kinect2:forwindows}
-Kinect for Windows v2 Developer Preview Program\\
-\url{http://www.microsoft.com/en-us/kinectforwindowsdev/newdevkit.aspx} (Stand 29.06.2014).
-
-\bibitem{kinect:wiki}
-Wikipedia: Kinect\\
-\url{http://en.wikipedia.org/wiki/Kinect} (Stand 29.06.2014).
 
 \bibitem{vigra}
 The VIGRA Computer Vision Library\\
@@ -1812,10 +1789,14 @@ CFFI for Python\\
 Library of Juggling: Cascade\\
 \url{http://www.libraryofjuggling.com/Tricks/3balltricks/Cascade.html} (Stand 30.06.2014).
 
+\bibitem{microsoft}
+Microsoft\\
+\url{http://www.microsoft.com} (Stand 30.06.2014).
+
 \bibitem{mit-license}
-Open Source Initiative Open Source Initiative,
-\emph{The MIT License (MIT)}.
-\url{http://opensource.org/licenses/MIT}
+Open Source Initiative Open Source Initiative,\\
+\emph{The MIT License (MIT)}.\\
+\url{http://opensource.org/licenses/MIT} (Stand 30.06.2014).
 \end{thebibliography}
 
 \end{document}
