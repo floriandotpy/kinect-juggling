@@ -816,24 +816,24 @@ gewünschtem Zweck.
 
 
 Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene
-Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
+Verarbeitungsstufen ausführen oder ausklammern, so dass wir eine Möglichkeit der
 Parametrisierung finden mussten. Wir haben uns für ein Konzept von Filtern
 entschieden, wobei zu Programmstart eine Liste mit gewünschten Filtern erstellt
-wird und diese in der Hauptschleife nacheinander ausgeführt werden (die Originaldaten
+wird und diese in einer Hauptschleife nacheinander ausgeführt werden. Die Originaldaten
 werden also in den ersten Filter gegeben, das Ergebnis dieses Filters wird als
 Eingabe für den zweiten Filter verwendet und das Ergebnis des letzten Filters
 in der Liste wird dann als Gesamtausgabe visuell dargestellt.
 
-Die RGB- und Tiefendaten werden vom freenect Modul als numpy Arrays zurückgegeben.
+Die RGB- und Tiefendaten werden vom \lstinline{freenect} Modul als \lstinline{numpy} Arrays zurückgegeben.
 Die Ausgabe erfolgt über ein von OpenCV erzeugtes Fenster, welches Daten für
-OpenCV erwartet. Die numpy Arrays müssen also an einer Stelle umgewandelt werden.
+OpenCV erwartet. Die \lstinline{numpy} Arrays müssen also an einer Stelle umgewandelt werden.
 Zusätzlich haben wir schnell festgestellt, dass einige gewünschte Operationen
-entweder nur in numpy oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches
+entweder nur in \lstinline{numpy} oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches
 Umwandeln von einem Format in das jeweils andere ist aus Performanz-Gründen
 natürlich zu vermeiden. Um in der Entwicklung nicht immer darauf achten zu müssen,
 welcher Filter welche Eingabe erwartet und welche Ausgabe liefert, haben wir uns dazu
-entschieden, jeden Filter als Eingabe Daten in numpy Darstellung zu liefern und auch
-für die Ausgabe numpy zu erwarten. Dies erlaubt uns eine von außen identische
+entschieden, jeden Filter als Eingabe Daten in \lstinline{numpy} Darstellung zu liefern und auch
+für die Ausgabe \lstinline{numpy} zu erwarten. Dies erlaubt uns eine von außen identische
 Betrachtung der Filter, auch wenn einige Filter intern eine Umwandlung durchführen
 müssen. Bei etwaigen Problemen wollten wir die Performanz unserer Lösung getrennt
 betrachten, um zu Beginn lediglich über eine funktionierende Lösung nachdenken
@@ -851,19 +851,22 @@ als implizite Vorbedingung, dass andere Filter bereits ausgeführt wurden, dies 
 wir der Einfachheit halber aber nicht expliziert formuliert, im Zweifelsfall wird
 beim ersten Ausführen einer nicht korrekten Filterkombination oder -reihenfolge ein
 Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht
-vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
+vorhanden sind. Dieses Objekt ist ein schlichtes Python Dictionary.
+
+
+\begin{lstlisting}[language=Python,caption={Grundstruktur eines Filters zur Verdeutlichung der Schnittstelle.}]
+class DummyFilter(object):
+
+    def filter(self, rgb, depth, balls, args = {}):
+
+        # this filter does nothing
+
+        return rgb, depth, balls
+\end{lstlisting}
 
 
 {\color{red} FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)}
 
-{\color{red} FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen}
-
-Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt
-ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im
-\lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden
-gestellt. Daher haben wir das Filterkonzept weiter angepasst.
-
-FIXME: Pointer finale Umsetzung
 
 \subsection{Weitere Ansätze und Bildverarbeitungsverfahren}
 
@@ -879,14 +882,14 @@ Nur dort, wo sich Objekte in dem Zeitfenster zwischen den Aufnahmezeitpunkten de
 unterscheiden sich die Tiefendaten. Betrachtet man nur die Unterschiede, werden ausschließlich bewegte Objekte gefunden und sämtliche starre Objekte werden automatisch nicht mehr erfasst.
 Zudem geschieht dies unabhängig von der Entfernung der Objekte zum Sensor.
 
-Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem verrauschten Differenz-Bild führt. Zudem bewegt sich auch der Körper des Jongleurs leicht beim jonglieren. Das Verfahren hierbei muss also geeignete Maßnahmen implementieren, die diese Störeinflüsse kompensieren.
+Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem verrauschten Differenz-Bild führt. Zudem bewegt sich auch der Körper des Jongleurs leicht beim Jonglieren. Das Verfahren hierbei muss also geeignete Maßnahmen implementieren, die diese Störeinflüsse kompensieren.
 
 Da dieser Ansatz verschiedene Tiefenbilder miteinander vergleicht, muss dem Filter Zugriff auf Daten aus der Vergangenheit ermöglicht werden.
 Zu diesem Zweck sammelt der Filter die Tiefenbilder intern in einem Buffer.
-Nachdem zum ersten mal ein Bild im Buffer gespeichert wurde, kann im nächsten Filterdurchgang das momentane Tiefenbild mit dem vorherigen verglichen werden.
+Nachdem zum ersten Mal ein Bild im Buffer gespeichert wurde, kann im nächsten Filterdurchgang das momentane Tiefenbild mit dem vorherigen verglichen werden.
 Bei der Implementation des Filters wird hierbei ein Differenzbild in Form eines Binärbildes erzeugt.
-Für jeden Pixel wird überprüft, ob der Tiefenwert im alten Tiefenbild größer ist, als der entsprechende Pixel im aktuellen Tiefenbild.
-Jenachdem wird entweder eine 1 oder eine 0 im Binärbild gespeichert.
+Für jeden Pixel wird überprüft, ob der Tiefenwert im alten Tiefenbild größer ist als der entsprechende Pixel im aktuellen Tiefenbild.
+Je nachdem wird entweder eine 1 oder eine 0 im Binärbild gespeichert.
 Da bei dieser Betrachtung jeder Pixel unabhängig von den Werten in seiner unmittelbaren Umgebung verarbeitet wird, macht sich hierbei etwaiges Rauschen in den Tiefendaten besonders bemerkbar.
 
 \begin{figure}[H]
@@ -896,21 +899,21 @@ Da bei dieser Betrachtung jeder Pixel unabhängig von den Werten in seiner unmit
     \label{temporal_rauschen}
 \end{figure}
 
-Um diese Fehlerhaften Pixel zu entfernen und falsch positive Ballpositionen zu verhindern, wird das Binärbild zunächst durch Erosion und anschließende Dilatation geglättet.
+Um diese fehlerhaften Pixel zu entfernen und falsch positive Ballpositionen zu verhindern, wird das Binärbild zunächst durch Erosion und anschließende Dilatation geglättet.
 Die Bälle im Tiefenbild sind großflächig genug, so dass sie von diesem Vorgang nur bedingt beeinflusst werden.
-Die Chance, durch die Erosion einen Ball komplett zu löschen ist daher nur sehr gering.
+Die Chance, durch die Erosion einen Ball komplett zu löschen, ist daher nur sehr gering.
 Im Gegensatz dazu verschwindet ein Großteil der verrauschten Pixel.
 Diese bilden selten zusammenhängende Flächen und wenn, dann sind diese nur wenige Pixel groß.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.7]{img/rauschfrei.png}
-    \caption{Die Erosion und Dilatation het ein Großteil des Rauschens unterdrückt. Die Hand- und Ballbewegungen sind deutlich erkennbar.}
+    \caption{Die Erosion und Dilatation hat einen Großteil des Rauschens unterdrückt. Die Hand- und Ballbewegungen sind deutlich erkennbar.}
     \label{temporal_rauschfrei}
 \end{figure}
 
 Als Nebeneffekt werden hierbei auch einige Bereiche geglättet, in denen Körperbewegungen zu einer temporalen Veränderung im Tiefenbild geführt haben. Da sich der Körper im Vergleich zu den fliegenden Bällen nur mit einer sehr geringen Geschwindigkeit bewegt, entstehen hier auch nur schmalere Bewegungsschatten im Binärbild.
-Nach dieser ersten Glättung des Differenzbildes, werden zusammenhängende Bereiche extrahiert.
+Nach dieser ersten Glättung des Differenzbildes werden zusammenhängende Bereiche extrahiert.
 Unter der Annahme, dass die Bälle im Binärbild eine Fläche bilden, die eine Mindestanzahl an Pixeln nicht unterschreitet, findet anschließend eine erneute Überprüfung statt. Alle zusammenhängende Bereiche, die in der Summe zu wenig Pixel haben, werden ignoriert.
 Nur die Bereiche, die groß genug sind, werden gesammelt und als potientelle Bälle in einer Liste gespeichert.
 Diese Liste wird anschließend in der Filterkette weitergerreicht und bildet somit das Ergebnis des temporalen Ballerkennnugsfilters.
@@ -923,9 +926,8 @@ Diese Liste wird anschließend in der Filterkette weitergerreicht und bildet som
 \end{figure}
 
 Große Auswirkung auf die Güte der Ballpositionen hat hierbei der zeitliche Abstand der beiden Tiefenbilder, die zu Beginn verglichen werden. Wenn die Bilder zeitlich so nah beieinander liegen, dass sich die Ballflächen in den beiden Frames teilweise überschneiden, entstehen halbmondförmige Flächen im Binärbild.
-Diese werden dann aber unter Umständen von dem Erosions-Prozess vernichtet.
-Oder aber in der Pixelsumme so stark reduziert, dass sie in der anschließenden Überprüfung aussortiert werden.
-Gleiches kann auch im Scheitepunkt der Wurfparabel auftreten. Auch bei größeren zeitlichen Abständen besitzen die Bälle an dieser Stelle eine zu geringe vertikale Geschwindigkeit um sich in aufeinander folgenden Bildern nicht zu überschneiden.
+Diese werden dann aber unter Umständen von dem Erosions-Prozess vernichtet, oder aber in der Pixelsumme so stark reduziert, dass sie in der anschließenden Überprüfung aussortiert werden.
+Gleiches kann auch im Scheitelpunkt der Wurfparabel auftreten. Auch bei größeren zeitlichen Abständen haben die Bälle an dieser Stelle eine zu geringe vertikale Geschwindigkeit und überschneiden sich daher in aufeinander folgenden Bildern.
 
 \begin{figure}[H]
     \centering
