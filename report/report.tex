@@ -1474,27 +1474,37 @@ Zahlentheorie konfrontiert werden. So ist ein einfaches Level-basiertes System
 denkbar, das einen Jonglieranfänger vom Grundmuster zu komplexeren Mustern und
 sogar mehr als drei Jonglierobjekten führt.
 
+\newpage
 \section{Fazit}
 
-Im Laufe des Projektes haben wir uns intensiv mit der Echtzeitverarbeitung von
-Tiefendaten auseinander gesetzt und sind über viele nicht funktionierende
-Ansätze zu einem Ergebnis gekommen, das robust und mit flexibler Anzahl von
-Objekten das Muster eines Jongleurs erfasst. Unsere für die erfolgreiche
-Implementierung getroffenen Annahmen über den Aufbau der Kinect und die Position des
-Jongleurs im Raum sind nicht all zu einschränkend, so dass einer tatsächlichen
-Anwendung der entwickelten Software nichts im Wege steht.
+Zusammenfassend werfen wir einen Blick auf das gesamte Projekt. Wir haben uns 
+intensiv mit den Möglichkeiten der Kinect, aber auch der Programmiersprache 
+Python auseinander gesetzt und die Möglichkeiten der Bibliotheken NumPy und OpenCV
+kennen gelernt. Alleine durch diese Beschäftigung haben wir viel auf der technischen
+Ebene gelernt. Mit einem Bug-Report\cite{github-bugreport} beim OpenKinect Projekt 
+haben wir dem Open Source Projekt sogar bei der Verbesserung der Code Basis helfen 
+können.
 
-Die Software kann als Grundlage verwendet werden für weitere Anwendungen mit
-der Kinect und Jonglierbewegungen. Dies haben wir beispielhaft am Anwendungsfall
-des Zählens von Jonglierbällen gezeigt und weitere mögliche Entwicklungen
-vorgeschlagen und die nötigen Schritt umrissen.
+Über die ausgiebige Auseinandersetzung mit Echtzeitverarbeitung von Tiefendaten h
+aben wir auch über die Konzepte und Zusammenhänge der Bildverarbeitung große 
+Lerneffekte erzielt. Das aktive Programmieren und Ausprobieren an eigenen Daten
+hat hierbei auch viel Spaß bereitet.
 
-Als Endergebnis des Projektes gelangen wir erfolgreich zu einer quelloffenen und flexibel
-erweiterbaren Software, die robust unsere selbst gestellte Aufgabe löst. Zudem haben
-bei der Arbeit mit den verwendeten Libraries viel gelernt und dem
-\lstinline{libfreenect} in der Open Source Community bei der Verbesserung der
-Code Basis helfen können.
+Während der Projektzeit sind wir über eine Vielzahl von Ansätze zu einem Ergebnis 
+gelangt, das robust und mit einer flexiblen Anzahl von Objekten das Muster eines 
+Jongleurs erfasst. Die
+Annahmen, die wir für die erfolgreiche Implementierung getroffenen haben, beziehen 
+sich auf den Aufbau der Kinect und die Position des Jongleurs im Raum, sind dabei
+aber nicht all zu einschränkend, so dass die Software tatsächlich gut benutzbar ist.
 
+
+Die entwickelte Software kann als Grundlage für weitere 
+Anwendungen mit der Kinect und Jonglierbewegungen verwendet werden. Dies haben wir beispielhaft 
+am Anwendungsfall des Zählens von Jonglierbällen gezeigt und weitere mögliche 
+Entwicklungen vorgeschlagen sowie die nötigen Schritt beschrieben.
+
+Als Endergebnis des Projektes gelangen wir erfolgreich zu einer quelloffenen und 
+flexibel erweiterbaren Software, die robust unsere selbst gestellte Aufgabe löst. 
 
 
 
@@ -1507,7 +1517,8 @@ Code Basis helfen können.
 Der im Rahmen des Projekts entwickelte Quellcode ist online verfügbar unter
 \url{https://github.com/florianletsch/kinect-juggling}. Zusätzlich enthält
 das Repository auch die Präsentationsmaterialien der Zwischenstandspräsentationen
-sowie die LaTeX-Quellen dieses Projektberichtes.
+sowie die LaTeX-Quellen dieses Projektberichtes. Der Endstand des Projektes ist als
+Release \lstinline{0.1.0} getagged.
 
 Der Python-Quellcode sowie die begleitende Dokumentation ist unter einer Open Source License,
 der MIT License \cite{mit-license}, veröffentlicht.
@@ -1516,7 +1527,7 @@ der MIT License \cite{mit-license}, veröffentlicht.
 
 Die entwickelte Anwendung ist in Python geschrieben, in der Entwicklung haben wir Python 2.7.6 verwendet.
 
-Es muss die Bibliothek \textit{libfreenect} des OpenKinect Projekts \cite{openkinect} inklusive der Python Bindings eingerichtet sein. Insgesamt müssen folgende Python module verfügbar und vom installierten
+Es muss die Bibliothek \textit{libfreenect} des OpenKinect Projekts \cite{openkinect} inklusive der Python Bindings eingerichtet sein. Insgesamt müssen folgende Python mMdule verfügbar und vom installierten
 Interpreter importierbar sein.
 
 \begin{enumerate}
@@ -1595,7 +1606,15 @@ Parameter & Filter & Erklärung \\ \hline
 {\lstinline!--showdepth!} & {\lstinline!RgbDepthFilter!} & Anzeige des vorverarbeiteten Tiefenbilder
 \end{tabular}
 
+\subsection{Beitrag zum OpenKinect Projekt}
 
+
+Bei der Beschäftigung mit dem Python Modul des OpenKinect Projekts 
+\cite{libfreenect} haben wir fälscherlicherweise im Projektordner befindliche 
+kompilierte Binärdateien entdeckt und im offiziellen libfreenect Repository einen 
+Bugreport eröffnet, was zu einer Lösung des Problems führte.
+
+Das mittlerweile geschlossene Github Issue: \url{https://github.com/OpenKinect/libfreenect/issues/326}.
 
 \newpage
 \phantomsection
@@ -1690,7 +1709,7 @@ Frequently Asked Questions - WAAS\\
 
 \bibitem{egnos}
 European Space Agency\\
-What is EGNOS?
+What is EGNOS?\\
 \url{http://www.esa.int/Our_Activities/Navigation/The_present_-_EGNOS/What_is_EGNOS} (accessed on 2014-06-26).
 
 \bibitem{numpy}
@@ -1729,6 +1748,17 @@ Microsoft\\
 Open Source Initiative Open Source Initiative,\\
 \emph{The MIT License (MIT)}.\\
 \url{http://opensource.org/licenses/MIT} (Stand 30.06.2014).
+
+\bibitem{github-source}
+Florian Letsch, Rolf Boomgaarden, Thiemo Gries,\\
+\emph{Git Repository unseres Projekts},\\
+\url{https://github.com/florianletsch/kinect-juggling}.
+
+\bibitem{github-bugreport}
+Github Repository des OpenKinect Projekt,\\
+\emph{Von uns eröffneter Bug Report}.\\
+\url{https://github.com/OpenKinect/libfreenect/issues/326}
+
 \end{thebibliography}
 
 \end{document}
