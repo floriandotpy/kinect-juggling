@@ -1568,33 +1568,97 @@ Code Basis helfen können.
 
 \subsection{Verfügbarkeit des Quellcodes}
 
-github
+Der im Rahmen des Projekts entwickelte Quellcode ist online verfügbar unter 
+\url{https://github.com/florianletsch/kinect-juggling}. Zusätzlich enthält
+das Repository auch die Präsentationsmaterialien der Zwischenstandspräsentationen
+sowie die LaTeX-Quellen dieses Projektberichtes.
 
-Open Source License
+Der Python-Quellcode sowie die begleitende Dokumentation ist unter einer Open Source License,
+der MIT License \cite{mit-license}, veröffentlicht.
 
 \subsection{Installation und Einrichten der Software}
 
-Libraries installieren
+Die entwickelte Anwendung ist in Python geschrieben, in der Entwicklung haben wir Python 2.7.6 verwendet.
+
+Es muss die Bibliothek \textit{libfreenect} des OpenKinect Projekts \cite{openkinect} inklusive der Python Bindings eingerichtet sein. Insgesamt müssen folgende Python module verfügbar und vom installierten
+Interpreter importierbar sein.
+
+\begin{enumerate}
+    \item \lstinline{freenect} (The OpenKinect library)
+    \item \lstinline{numpy} (The numerical Python library)
+    \item \lstinline{cv}, \lstinline{cv2} (OpenCV)
+\end{enumerate}
+
+Für die Analyse der Live-Daten muss eine Kinect angeschlossen sein. Alternativ können vorher aufgezeichnete 
+Demo-Daten verwendet werden, wenn die Anwendung im Dummy-Modus gestartet wird.
+
 
 \subsection{Benutzung des Programmes}
 
-Aufruf Kommandozeile (Verweis auf nächsten Abschnitt)
+Die Software kann von der Kommandozeile mit einem Aufruf des installierten Python Interpreters auf der \lstinline{main.py} gestartet werden. 
 
-Tastenkürzel P, SPACE, ESC
+\begin{lstlisting}[language=bash]
+python main.py
+\end{lstlisting}
+
+Standardgemäß wird hier das RGB-Signal der Kinect angezeigt, sowie eine Filterkombination gewählt, die 
+die Ballerkennung unserer finalen Lösung durchführt und visualisiert. Möchte man diese Filterkombination
+auf zuvor aufgenommenen Demodaten ausführen, kann dies mit dem Parameter \lstinline{--dummymode} geschehen.
+
+\begin{lstlisting}[language=bash]
+python main.py --dummymode
+\end{lstlisting}
+
+Sobald mehr als dieser eine Parameter angehängt wird, wird die standardgemäße Filterkombination
+nicht initialisiert, sondern stattdessen jeder Filter so initialisiert, wie es manuell durch die 
+Kommandozeilenparameter festgelegt wird. Eine komplette Auflistung der verfügbaren Parameter folgt im
+nächsten Abschnitt \label{sec:parameter}.
+
+Nach Start des Programms stehen während der Laufzeit einige Tastaturkürzel zur Verfügung.
+
+\begin{tabular}{p{5cm}p{10cm}}
+\hline
+{\lstinline!P!} & Livestream am aktuellen Frame pausieren\\ 
+{\lstinline!SPACE!} & Screenshot des aktuellen Frames aufnehmen, wird gespeichert im {\lstinline!/snapshots!} Verzeichnis\\
+Beliebige andere Taste & Programm beenden\\ \hline
+\end{tabular}
+
+Wie erwähnt, kann die Anwendung auch auf Testdaten arbeiten, wenn zum Beispiel gerade keine Kinect zur 
+Verfügung steht, oder man während des Programmierens auf Videodaten eines Jongleurs zugreifen möchte.
+
+\label{sec:record}
+Um diese Daten aufzuzeichnen, ist zuerst ein leerer Ordner \lstinline{/frames} anzulegen. Die Software ist 
+dann im Aufnahmemodus zu starten.
+
+\begin{lstlisting}[language=bash]
+python main.py --record
+\end{lstlisting}
+
+So lange die Anwendung läuft, werden nun sowohl die RGB- als auch die Tiefendaten in \lstinline{/frames} 
+gespeichert. Jeder Frame nimmt dabei etwa 1,5 MB Speicherplatz ein, pro Sekunde fallen also 45 MB an Daten
+an. Lange Aufnahmen sollten also nur bewusst durchgeführt werden, da hier schnell eine große Datenmenge 
+entsteht.
+
 
 \subsection{Kommandozeilenparameter}
 \label{sec:parameter}
 
 \begin{tabular}{llp{8cm}}
-Parameter & Aktivierter Filter & Erklärung \\ \hline
+Parameter & Filter & Erklärung \\ \hline
 {\lstinline!--dummymode!} & - & Verwendung von Testdaten statt einer angeschlossenen Kinect \\
+{\lstinline!--record!} & - & Starten der Kinect im Aufnahmemodus, Verwendung siehe \ref{sec:record}\\
 {\lstinline!--cutoff!} & {\lstinline!CutOffFilter!} & Tiefenbild an Hand eines festen Schwellwertes binarisieren \\
 {\lstinline!--detectball!} & {\lstinline!RectsFilter!} & Vorverarbeitung für die Ballerkennung: Regionen im Tiefenbild segmentieren \\
 {\lstinline!--handtracking!} & {\lstinline!HandTrackingFilter!} & Erkennen der Hände vor der Ballerkennung \\
-{\lstinline!--simplehand!} & {\lstinline!SimpleHandBallFilter!} & Ballerkennung mit simpler Zuordnung von Bällen zu Ballpositionen
+{\lstinline!--simplehand!} & {\lstinline!SimpleHandBallFilter!} & Ballerkennung mit simpler Zuordnung von Bällen zu Ballpositionen\\
+{\lstinline!--withholes!} & Ohne {\lstinline!DepthHolesFilter!} & Kein Füllen von Löchern im Tiefenbild \\
+{\lstinline!--minimal!} & {\lstinline!MinimalBallFilter!} &  Zufällige Zuordnung von Bällen zueinander\\
+{\lstinline!--trajectory!} & {\lstinline!TrajectoryBallFilter!} &  Simulieren von Flugbahnen der Jonglierbälle\\
+{\lstinline!--temporal!} & {\lstinline!TemporalFilter!} & Temporales Filtern zur Objekterkennung\\
+{\lstinline!--slowmotion!} & {\lstinline!SlowmotionFilter!} &  Slowmotion zum besseren Analysieren der gelieferten Daten\\
+{\lstinline!--showdepth!} & {\lstinline!RgbDepthFilter!} & Anzeige des vorverarbeiteten Tiefenbilder
 \end{tabular}
 
-{\color{red} FIXME: Parameter hinzufügen}
 
 
 \newpage
@@ -1739,6 +1803,11 @@ Wikipedia: Kinect\\
 \bibitem{vigra}
 The VIGRA Computer Vision Library\\
 \url{http://ukoethe.github.io/vigra/} (Stand 29.06.2014).
+
+\bibitem{mit-license}
+Open Source Initiative Open Source Initiative,
+\emph{The MIT License (MIT)}.
+\url{http://opensource.org/licenses/MIT}
 
 \end{thebibliography}
 
