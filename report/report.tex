@@ -100,7 +100,7 @@
 
 \section{Einleitung}
 
-Seit Markteinführung der Microsoft Kinect im November 2010\cite{kinect:wiki} steht in vielen
+Seit Markteinführung der Microsoft Kinect steht in vielen
 Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der
 Verfügbarkeit des Unterhaltungsgerätes steht auch für an
 wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zur Verfügung,
@@ -261,13 +261,12 @@ Szenenbeleuchtung neu berechnet werden kann.\cite{rgbzvideos}
 \end{figure}
 
 \subsubsection{Stand 2014: Kinect for Xbox One}
-Während der Projektzeit wurde {\color{red} FIXME\\}
-Am 22. November 2013 ist in den USA und Europa die Xbox One und damit auch die Kinect for Xbox One, oder auch Kinect 2.0, erschienen.\cite{kinect2:wikikinect} Die neue Kinect bringt viel neue Hardware mit, die sie deutlich von der ersten Kinect hervorhebt. Auch softwaretechnisch wurden viele Features implementiert, wie beispielsweise eine große Anzahl Möglichkeiten an Gesten- und Sprachsteuerung der Konsole.\cite{kinect2:gesturevoice} In einer Reihe von Online-Technology-Magazinen hat die neue Kinect viele Bewertungen von 7 bis 9 von 10 Punkten bekommen.\cite{kinect2:wikikinect}
+Während der Projektzeit, im November 2013, ist die Xbox One und damit auch die Kinect for Xbox One, oder auch Kinect 2.0, erschienen.\cite{kinect2:verge} Die neue Kinect beinhaltet bessere Hardware und auch softwaretechnisch wurden viele Features implementiert, wie beispielsweise eine große Anzahl Möglichkeiten an Gesten- und Sprachsteuerung der Konsole.\cite{kinect2:gesturevoice} Wir haben sie aus verschiedenen Gründen nicht genutzt, stellen sie aber kurz vor.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=1]{img/kinect2.jpg}
-    \caption{Die Kinect for Xbox One. Ohne weiteres ist von außen nur die RGB-Kamera zu erkennen. ({\em Bildquelle: Wikipedia: Kinect for Xbox One\cite{kinect2:wikikinect}})}
+    \caption{Die Kinect for Xbox One. Äußerlich ist nur die RGB-Kamera zu erkennen. ({\em Bildquelle: Ifixit.com Xbox One Kinect Teardown\cite{kinect2:teardown})}}
 \end{figure}
 
 Die Hardware beinhaltet under anderem:
@@ -275,7 +274,6 @@ Die Hardware beinhaltet under anderem:
 \item Eine 1080p HD Weitwinkelkamera.\cite{kinect2:teardown}
 \item Drei Infrarot-Strahler.\cite{kinect2:infrared}
 \item Eine Infrarot-Kamera.\cite{kinect2:teardown}
-\item Ein Multi-Mikrofon Array mit Rauschentfernung und Sprachsteuerung.\cite{kinect2:teardown}
 \end{itemize}
 
 \begin{figure}[H]
@@ -283,10 +281,6 @@ Die Hardware beinhaltet under anderem:
     \includegraphics[scale=0.7]{img/kinect2_components.jpg}
     \caption{Unter der Haube der Kinect 2.0. Hier wird sichtbar, dass hinter der Verkleidung mittig die drei Infrarot-Strahler sitzen und daneben die Infrarot-Kamera. ({\em Bildquelle: Xbox One Kinect Teardown\cite{kinect2:teardown}})}
 \end{figure}
-
-Mit noch verbauten 1 GB RAM kann die Kinect 2.0 bis zu 2 Gigabit an Informationen pro Sekunde verarbeiten. Laut Microsoft soll die neue Kinect sehr feiner aufnehmen, und kann sehr feine Gesten erkennen.\\
-Zusätzlich bietet Microsoft ein Projekt, Kinect for Windows, an, bei dem sich eine begrenzte Anzahl Entwickler anmelden und mit einem von Microsoft bereit gestellten SDK in 2014 an der Kinect entwickeln können.\cite{kinect2:forwindows}
-% FIXME: "in" 2014?
 
 Eine spannende Änderung zur ersten Kinect ist die Einsetzung der Infrarot-Technologie. Wie in Abschnitt \ref{sec:kinect} zu lesen, strahlt die erste Kinect ein feines bekanntes Punktemuster aus, und durch das Erkennen von Veränderungen dieses Musters kann ein Räumliches Bild berechnet werden. Die neue Kinect strahlt aber mit seinen drei Strahlern ein großflächiges Infrarot-Lichtfeld aus. In einem Artikel wird mit Hilfe des Patents der Kinect for Xbox One vermutet, dass dieses Lichtfeld sehr schnell pulsiert, und dass die Kinect mit dem Infrarot-Sensor das reflektierte Licht in ein dreidimensionales Bild umrechnen kann.\cite{kinect2:infrared}
 
@@ -380,8 +374,7 @@ einzelnen Bilder werden dann kombiniert.
     \label{ourpipeline}
 \end{figure}
 
-Wie sich im Laufe des Projektes heraus gestellt hat, ist diese Vorstellung der Arbeit
-auf den Echtzeitdaten in einigen Schritten zu idealisiert und in anderen unnötig
+Wie sich im Laufe des Projektes heraus gestellt hat, ist dieses Konzept in einigen Schritten zu idealisiert und in anderen unnötig
 kompliziert. Bevor wir aber in späteren Abschnitten auf diese nicht funktionierenden
 Ansätze eingehen, wollen wir zuerst unsere finale Umsetzung vorstellen.
 
@@ -1773,13 +1766,9 @@ The Complete List of Kinect Gesture and Voice Commands For Your Referencing Plea
 news.xbox.com\\
 \url{http://news.xbox.com/2013/11/xbox-one-kinect-gesture-and-voice-guide} (Stand 29.06.2014).
 
-\bibitem{kinect2:wikikinect}
-Wikipedia: Kinect for Xbox One\\
-\url{http://en.wikipedia.org/wiki/Kinect_for_Xbox_One} (Stand 29.06.2014).
-
-\bibitem{kinect2:wikixbox}
-Wikipedia: Xbox One, Kinect\\
-\url{http://en.wikipedia.org/wiki/Xbox_One#Kinect} (Stand 29.06.2014).
+\bibitem{kinect2:verge}
+The Verge: XBox One Release\\
+\url{http://www.theverge.com/2013/6/10/4415186/xbox-one-pricing-release-date} (Stand 30.06.2014).
 
 \bibitem{kinect2:teardown}
 Xbox One Kinect Teardown\\
@@ -1790,14 +1779,6 @@ www.ifixit.com\\
 Our First Look at the Xbox One Kinect IR Field\\
 www.ifixit.org\\
 \url{http://ifixit.org/blog/5684/our-first-look-at-the-xbox-one-kinect-ir-field/} (Stand 29.06.2014).
-
-\bibitem{kinect2:forwindows}
-Kinect for Windows v2 Developer Preview Program\\
-\url{http://www.microsoft.com/en-us/kinectforwindowsdev/newdevkit.aspx} (Stand 29.06.2014).
-
-\bibitem{kinect:wiki}
-Wikipedia: Kinect\\
-\url{http://en.wikipedia.org/wiki/Kinect} (Stand 29.06.2014).
 
 \bibitem{vigra}
 The VIGRA Computer Vision Library\\
