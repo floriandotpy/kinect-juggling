@@ -147,13 +147,13 @@ Daten zu generieren.
 Der Einfachheit halber setzen wir uns zu Beginn mit dem Grundmuster des Jonglierens,
 der Kaskade\cite{libraryjuggling} auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch
 haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Durch diese
-Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
+Grund\-annahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
 erhofft. Im Laufe der Arbeit hat sich dann herausgestellt, dass diese starre Annahme
 uns zu einer nur wenig robusten Lösung führte. In der finalen Software ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
 und das System bestimmt an Hand der berechneten Daten sogar die Gesamtzahl der
 im Jongliermuster befindlichen Objekte.
 
-Zunächt aber betrachten wir unser ursprüngliches Modell. In der ersten
+Zunächst aber betrachten wir unser ursprüngliches Modell. In der ersten
 Grundüberlegung wird deutlich, dass ein Jongleur Jonglierbälle
 in einem Muster wirft, das möglichst gleichmäßig ist.
 So ist der Höhepunkt der Flugbahn idealerweise konstant auf einer Höhe.
@@ -198,7 +198,7 @@ das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbe
 als Bibliothek für Python verwendet wird.\cite{openkinect}\cite{libfreenect}
 
 Die Videoquelle der Kinect liefert standardmäßig 30 Bilder pro Sekunde mit einer
-Auflösung von 640x480 und 8 bit Farbtiefe. Tatsächlich kann sie mit
+Auflösung von 640x480 und 8 Bit Farbtiefe. Tatsächlich kann sie mit
 einer Auflösung von 640x512 aufnehmen (oder sogar 1280x1024 und 10 fps), aber die
 Auflösung wird an die der Tiefenkamera angepasst, so dass die reduzierte Auflösung
 ausgegeben wird. Die Tiefendaten stammen von einer
@@ -236,7 +236,7 @@ Die IR-Kamera der Kinect hat einen Infrarot-Pass-Filter, der nur Licht im Bereic
 hindurch lässt, um nicht durch anderes Licht (wie beispielsweise Fernbedienungen) geblendet zu
 werden. Dennoch gibt es Lichtquellen, wie das Sonnenlicht, welches genügend Licht mit einer
 Wellenlänge von 830 nm  beinhaltet, um die Kinect überblenden zu können. So kann bei starkem
-Tageslicht oder im Freien mit Fehlverhalten bis hin zur Unnutzbarkeit der Kinect gerechnet werden.
+Tageslicht oder im Freien mit Fehlverhalten bis hin zur Unbenutzbarkeit der Kinect gerechnet werden.
 
 \subsubsection{Beispielprojekte mit der Kinect}
 
@@ -369,7 +369,7 @@ Beim Starten des Programms über die Konsole wird zunächst die Kinect initialis
 Im Normalfall ist eine Kinect angeschlossen, welche dann mit Hilfe der freenect Bibliothek \cite{libfreenect} angesteuert wird. Diese liefert dann die Bild- und Tiefendaten der Kinect Kamera bzw. des Tiefensensors. Wenn keine reale Kinect zur Verfügung steht, kann alternativ auch eine Dummy-Kinect-Instanz die RGB- und Tiefenbilder bereitstellen. In diesem Fall werden zuvor aufgenommene Bildsequenzen in einer Schleife zurückgegeben um so den Datenfluss einer echten Kinect zu simulieren.
 Im Anschluss daran werden sämtliche Filter initialisiert, die in der Verarbeitungsphase zum Einsatz kommen sollen.
 
-Welche Filter aktiviert und ob eine reale Kinect verwendet oder stattdessen simuliert werden soll, kann beim Programmaufruf über die Konsole festgelegt werden. Dazu wird eine beliebige Anzahl an Parametern an das Programm übergeben. So gehört zu jedem Filter ein entsprechender Kommandozeilen-Parameter, durch den der Filter aktiviert werden kann (für eine vollständige Auflistung der verfügbaren Kommandozeilenparameter  siehe Anhang \ref{sec:parameter}). Dies ermöglicht es, verschiedene Filter je nach Bedarf miteinander zu kombinieren. Gleichzeitig können leicht auch nachträglich noch neue Filter hinzugefügt werden. Zudem gibt es Parameter um die Kinect zu simulieren oder Daten von einer echten Kinect aufzunehmen um diese zu einem späteren Zeitpunkt von der simulierten Kinect wiedegeben lassen zu können. Die Reihenfolge der Parameter hat hierbei keine Bedeutung und wirkt sich nicht auf die Ausführungsreihenfolge der Filter aus.
+Welche Filter aktiviert und ob eine reale Kinect verwendet oder stattdessen simuliert werden soll, kann beim Programmaufruf über die Konsole festgelegt werden. Dazu wird eine beliebige Anzahl an Parametern an das Programm übergeben. So gehört zu jedem Filter ein entsprechender Kommandozeilen-Parameter, durch den der Filter aktiviert werden kann (für eine vollständige Auflistung der verfügbaren Kommandozeilenparameter  siehe Anhang \ref{sec:parameter}). Dies ermöglicht es, verschiedene Filter je nach Bedarf miteinander zu kombinieren. Gleichzeitig können leicht auch nachträglich noch neue Filter hinzugefügt werden. Zudem gibt es Parameter um die Kinect zu simulieren oder Daten von einer echten Kinect aufzunehmen um diese zu einem späteren Zeitpunkt von der simulierten Kinect wiedergeben lassen zu können. Die Reihenfolge der Parameter hat hierbei keine Bedeutung und wirkt sich nicht auf die Ausführungsreihenfolge der Filter aus.
 
 Der Aufruf für die optimale Filterkombination unseres Endergebnisses erfolgt durch \lstinline{python main.py --detectball --cutoff  --dummymode --handtracking --simplehand}
 
@@ -386,7 +386,7 @@ Eine vollständige Auflistung der verfügbaren Kommandozeilenparameter folgt im 
 
 Nach der Initialisierungsphase beginnt die oben angesprochene Programmschleife.
 In jedem Schleifendurchlauf wird zunächst auf Benutzereingaben reagiert.
-Ein simples Abfragen aktueller Tasteneingebaben ermöglicht es dem Benutzer einen Screenshot des momentanen Frames inklusive der eingezeichneten Visualisierung zu speichern (Leertaste), das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
+Ein simples Abfragen aktueller Tasteneingaben ermöglicht es dem Benutzer einen Screenshot des momentanen Frames inklusive der eingezeichneten Visualisierung zu speichern (Leertaste), das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
 
 Im nächsten Schritt wird nun entweder von einer realen oder simulierten Kinect ein RGB- und ein Tiefenbild abgefragt. Zudem wird eine leere Liste erzeugt, in der später die Ballpositionen gespeichert werden.
 
@@ -411,7 +411,7 @@ class DummyFilter(object):
         return rgb, depth, balls
 \end{lstlisting}
 
-Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Umsetzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen). Die Strukturierung in fünf Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
+Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Um\-setzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen). Die Strukturierung in fünf Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
 
 \begin{tabular}{ll}
 \textbf{Package} & \textbf{Inhalt} \vspace{0.1cm} \\
@@ -440,7 +440,7 @@ Die einzelnen Arbeitsschritte werden im Folgenden noch detaillierter betrachtet.
 
 \subsubsection{Schritt 1: Tiefendaten vorverarbeiten}\label{sec:preprocess}
 
-Die Kinect liefert Tiefenwerte im Bereich von 0 bis 4095 (11 bit), wobei ein höherer Wert
+Die Kinect liefert Tiefenwerte im Bereich von 0 bis 4095 (11 Bit), wobei ein höherer Wert
 einen größeren Abstand bedeutet. Die 0 steht hierbei für einen Pixel, in dem keine
 Tiefeninformation vorliegt.
 
