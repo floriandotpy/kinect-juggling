@@ -100,37 +100,37 @@
 
 \section{Einleitung}
 
-Seit Markteinführung der Microsoft Kinect steht in vielen
-Haushalten ein ausgereiftes bildverarbeitendes System im Wohnzimmer. Seit der
-Verfügbarkeit des Unterhaltungsgerätes steht auch für an
-wissenschaftlich Interessierte ein finanziell erschwingliches Gerät zur Verfügung,
-das für vielfältige Aufgaben im Bereich der Bildverarbeitung verwendet werden kann.
 
-Mit den technischen Möglichkeiten dieses Tiefen- und Bilddaten liefernden Systems
-soll in dieser Arbeit versucht werden, das Wurfmuster eines mit Bällen jonglierenden
-Akteurs zu erfassen und zu analysieren. % analysieren??
+Die Microsoft Kinect ist ein Unterhaltungsgerät, das auch auch als 
+Tiefendaten lieferndes System für wissenschaftliche Anwendungen verwendet werden 
+kann. Im Rahmen des Masterprojekts \textit{Bildverarbeitung} haben wir genau das 
+getan und uns mit der Untersuchung eines Jongliermusters beschäftigt.
 
-Im Rahmen des Masterprojekts Bildverarbeitung haben wir uns zwei Semester lang mit
-der Kinect beschäftigt und in einem von Erfolgen und Fehlschlägen gefüllten Prozess
-versucht, die fliegenden Bälle eines jonglierenden Akteurs in Echtzeit zu verfolgen.
+Dieser Projektbericht dokumentiert unsere Beschäftigung mit der Kinect und die
+Entwicklung einer Software, die das Wurfmuster eines mit Bällen jonglierenden
+Akteurs erfasst und in Echtzeit analysiert.
 
-Ein funktionierendes Endergebnis wurde erzielt, das wir in dieser Arbeit vorstellen.
-Zugleich dokumentieren wir unsere Herangehensweise und umreißen relevante Arbeiten
-auf dem Gebiet, die uns Anregung gegeben haben. Ausgehend von einer grundsätzlichen
-Lösungsidee betrachten wir unseren ersten Ansatz, beschreiben die dabei aufgetretenen
-Probleme und führen so nach und nach auf das Endergebnis. Hierbei werden wir auch
-über die Implementierung sprechen, die von uns gewählte Softwarearchitektur
-erläutern und dokumentieren.
+Wir beschreiben unsere Recherche zu Beginn des Projekts und erarbeiten daraus die 
+Lösungsidee, von der wir zu Beginn ausgehen. Im Vergleich zu dieser 
+Lösungsidee präsentieren wir dann unser Endergebnis, das anders implementiert ist,
+als wir ursprünglich geplant hatten. Hierbei sprechen wir über verwendete
+Algorithmen und erläutern die von uns gewählte Softwarearchitektur.
 
-Das Endergebnis wird dann bewertet und aus den zu Anfang genannten Zielen
-hinsichtlich des Erfolges evaluiert. % WTF schreibe ich hier?
+Darauf folgend stellen wir die Vielzahl der alternativen Ansätze und verschiedenen
+Kombinationen von Algorithmen vor, die wir im Laufe des Projekts ausprobiert haben.
+Es wird auch erläutert, warum wir diese Ansätze nicht weiter verfolgt haben und 
+auf welche Fehler wir gestoßen sind.
 
+Mögliche Anwendungen auf Grundlage unserer Software werden genannt und Weiterentwicklungen vorgeschlagen.
+
+Abschließend bewerten wir unser Ergebnis an Hand der zu Anfang gesetzten Zielen
+und evaluieren die Qualität unserer gefundenen Lösung.
 \newpage
 
 \subsection{Vorüberlegung}
 
 Bevor eine konkrete Zielsetzung getroffen wird, treffen wir ein paar Vorüberlegungen,
-die uns zu Projektbeginn begegneten. In der Ideenfindungsphase des Projektes kam uns
+die uns zu Projektbeginn begegnet sind. In der Ideenfindungsphase des Projektes kam uns
 sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu
 verbinden.
 
