@@ -148,7 +148,7 @@ und in irgendeiner Form sinnvolle Informationen über die bewegten Objekte aus d
 Daten generiert.
 
 Der Einfachheit halber setzen wir uns zu Beginn mit dem Grundmuster des Jonglierens,
-der Kaskade auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch
+der Kaskade\cite{libraryjuggling} auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch
 haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Aus dieser
 Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
 erhofft. Im Laufe der Arbeit hat sich dann heraus gestellt, dass diese starre Annahme
@@ -1026,10 +1026,10 @@ Unter berücksichtigung eines Maximalwertes für den Radius tut man dies für al
 Dieses kann man für beliebige Formen anwenden, die durch eine Parameterdarstellung definiert werden können, aber je mehr Parameter vorhanden sind, desto aufwändiger wird auch die Berechnung werden.
 
 Dieses Verfahren sollte genutzt werden, um die genauen Ballpositionen im Tiefen- oder auch RGB-Bild zu bestimmen. Wenn möglich, sollte nach dem Filtern nach Regions of Interest im Tiefenbild auf diesen gefundenen Regionen die Hough-Transformation durchgeführt werden, um Kreise bzw. Bälle zu finden, oder auch Regionen ohne Bälle ausschließen zu können.\\
-Genutzt haben wir die Implementation der Hough-Transformation in der OpenCV\cite{opencv}-Bibliothek. Hierbei wurde festgestellt, dass durch Einstellen der Parameter der Funktion die Kreiserkennung sehr fein bestimmt werden kann. Da, wie in Abbildungen \ref{rects-1} bis \ref{rects-4} zu sehen ist, die Bälle fast nie als saubere Kreise mit scharfen Kanten aufgenommen werden, war das Feintuning der Parameter unmöglich. Entweder wurde sehr grob eingestellt, so dass alle Bälle zwar erkannt wurden, dabei aber noch viel mehr False-Positives entstanden, oder es wurde so fein eingestellt, dass nur sehr sauber aufgenomme Bälle erkannt wurden. Bei letzterem wurden insgesamt aber viel zu wenige Bälle gefunden, so dass durch Einsetzen dieses Verfahren in unserem Fall kein Vorteil, sondern nur Nachteile entstanden.\\
+Genutzt haben wir die Implementation der Hough-Transformation in der OpenCV\cite{opencv}-Bibliothek. Hierbei wurde festgestellt, dass durch Einstellen der Parameter der Funktion die Kreiserkennung sehr fein bestimmt werden kann. Da, wie in Abbildung \ref{bewegungsunschaerfe} zu sehen ist, die Bälle fast nie als saubere Kreise mit scharfen Kanten aufgenommen werden, war das Feintuning der Parameter unmöglich. Entweder wurde sehr grob eingestellt, so dass alle Bälle zwar erkannt wurden, dabei aber noch viel mehr False-Positives entstanden, oder es wurde so fein eingestellt, dass nur sehr sauber aufgenomme Bälle erkannt wurden. Bei letzterem wurden insgesamt aber viel zu wenige Bälle gefunden, so dass durch Einsetzen dieses Verfahren in unserem Fall kein Vorteil, sondern nur Nachteile entstanden.\\
 Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beansprucht und durch viel Kreisdetektion die ausgegebene Frame-Rate sank.
 
-Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B. mit Cython, dieser Leistungsverlust ausgeglichen werden könnte. Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, wurde dagegen entschieden. Durch geschicktes filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
+Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B. mit Cython\cite{cython}, dieser Leistungsverlust ausgeglichen werden könnte. Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, wurde dagegen entschieden. Durch geschicktes filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
 
 \subsubsection{Local Maxima}
 Mit Local Maxima werden lokale Maxima, also positive extreme Datenpunkte in einer lokal begrenzten Umgebung, bezeichnet.\\
@@ -1089,6 +1089,7 @@ stützen.
   \centering
       \includegraphics[scale=0.8]{img/rgb-blur.png}
   \caption{Verdeutlichung der abweichenden Bewegungsunschärfe in den RGB-Daten. Die Positionen der Bälle sind hier mit roten Markierungen hervorgehoben (nachträglich per Hand eingefügt)}
+  \label{bewegungsunschaerfe}
 \end{figure}
 
 
@@ -1382,9 +1383,11 @@ Als Bedingung für unsere Software wurde genannt, dass Bälle, die von der Kinec
 \end{figure}
 \end{itemize}
 
-{\color{red}FIXME Effizienz. Speedup-Möglichkeiten?}
+Insgesamt macht die Software einen guten Eindruck, wenn der Spieler in einem wohl definierten Abstand zur Kinect steht und möglichst keine Objekte sich vor ihm befinden. Zudem sollten die Lichtverhältnisse zu der Infrarot-Technologie der Kinect stimmig sowie das Material der Bälle von der Kinect erkennbar sein. Ist auch nur eine dieser Faktoren nicht angemessen, kann dies zu Verlusten in der Robustheit der Ballerkennung, der Handerkennung oder anderen Aspekten der Software führen.
 
-{\color{red}FIXME Anwendungsrelevanz.}
+Anfängliche Sorgen, der Code würde den Effizienzanforderungen nicht gerecht werden, sind nicht eingetreten. Die Software läuft in Echtzeit. Falls aber auf dieser Software aufbauend weitere, evtl. komplexere Funktionen implementiert werden, kann dieses Thema wieder wichtig werden. Hierfür kann beispielsweise Cython\cite{cython} oder CFFI for Python\cite{cffi} verwendet werden, um bestimmte bildverarbeitende Algorithmen, die sehr rechenintensiv sind, zu beschleunigen.
+
+{\color{red}FIXME ANYONE Anwendungsrelevanz.}
 
 \section{Anwendungsmöglichkeiten}
 
@@ -1804,11 +1807,22 @@ Wikipedia: Kinect\\
 The VIGRA Computer Vision Library\\
 \url{http://ukoethe.github.io/vigra/} (Stand 29.06.2014).
 
+\bibitem{cython}
+Cython: Python C-Extensions for Python.\\
+\url{http://cython.org/} (Stand 30.06.2014).
+
+\bibitem{cffi}
+CFFI for Python\\
+\url{https://cffi.readthedocs.org/en/release-0.8/} (Stand 30.06.2014).
+
+\bibitem{libraryjuggling}
+Library of Juggling: Cascade\\
+\url{http://www.libraryofjuggling.com/Tricks/3balltricks/Cascade.html} (Stand 30.06.2014).
+
 \bibitem{mit-license}
 Open Source Initiative Open Source Initiative,
 \emph{The MIT License (MIT)}.
 \url{http://opensource.org/licenses/MIT}
-
 \end{thebibliography}
 
 \end{document}
