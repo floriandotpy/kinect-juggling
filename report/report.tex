@@ -602,6 +602,7 @@ für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich
     \label{rects-1}
 \end{figure}
 
+\begin{comment}
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/rects-2.png}
@@ -625,6 +626,7 @@ für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich
     \caption{FIXME}
     \label{rects-4}
 \end{figure}
+\end{comment}
 
 Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiellen
 Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames
@@ -700,30 +702,30 @@ ist es dann entscheidend, dass sich in der Liste nur noch Positionen von fliegen
 Bällen befinden.
 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.45]{img/handtracking-1.png}
-    \vspace{-0.5cm}
-    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
-    \label{rects-1}
-\end{figure}
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[scale=0.45]{img/handtracking-1.png}
+%    \vspace{-0.5cm}
+%    \caption{Von \lstinline{HandTrackingFilter} identifizierte Hände, als gelbe Kreise eingezeichnet. Die in %jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+%    \label{rects-1}
+%\end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.45]{img/handtracking-2.png}
     \vspace{-0.5cm}
-    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+    \caption{Von \lstinline{HandTrackingFilter} identifizierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
     \label{rects-1}
 \end{figure}
 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.45]{img/handtracking-3.png}
-    \vspace{-0.5cm}
-    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
-    \label{rects-1}
-\end{figure}
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[scale=0.45]{img/handtracking-3.png}
+%    \vspace{-0.5cm}
+%    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in %jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
+%    \label{rects-1}
+%\end{figure}
 
 
 
@@ -1207,6 +1209,7 @@ class TrajectoryBall(object):
 \end{lstlisting}
 Dieser Ansatz brachte leichte Verbesserungen ein, jedoch wurden viele der Wurfbahnen trotzdem noch in unseren Augen willkürlich eingezeichnet, so dass Würfe, die in eine Richtung gehen, gerne mal spiegelverkehrt oder gänzlich aus dem Bild fliegend eingezeichnet wurden.
 
+\begin{comment}
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/trajectory-1.png}
@@ -1215,21 +1218,22 @@ Dieser Ansatz brachte leichte Verbesserungen ein, jedoch wurden viele der Wurfba
     \label{ballcount-1}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{img/trajectory-2.png}
-    \vspace{-0.5cm}
-    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition.}
-    \label{ballcount-1}
-\end{figure}
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[scale=0.5]{img/trajectory-2.png}
+%    \vspace{-0.5cm}
+%    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition.}
+%    \label{ballcount-1}
+%\end{figure}
+%\end{comment}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{img/trajectory-3.png}
-    \vspace{-0.5cm}
-    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition.}
-    \label{ballcount-1}
-\end{figure}
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[scale=0.5]{img/trajectory-3.png}
+%    \vspace{-0.5cm}
+%    \caption{Simulierte Flugbahnen zur Vorhersage tatsächlicher Ballposition.}
+%    \label{ballcount-1}
+%\end{figure}
 
 
 
@@ -1582,6 +1586,17 @@ Tastenkürzel P, SPACE, ESC
 
 \subsection{Kommandozeilenparameter}
 \label{sec:parameter}
+
+\begin{tabular}{llp{8cm}}
+Parameter & Aktivierter Filter & Erklärung \\ \hline
+{\lstinline!--dummymode!} & - & Verwendung von Testdaten statt einer angeschlossenen Kinect \\
+{\lstinline!--cutoff!} & {\lstinline!CutOffFilter!} & Tiefenbild an Hand eines festen Schwellwertes binarisieren \\
+{\lstinline!--detectball!} & {\lstinline!RectsFilter!} & Vorverarbeitung für die Ballerkennung: Regionen im Tiefenbild segmentieren \\
+{\lstinline!--handtracking!} & {\lstinline!HandTrackingFilter!} & Erkennen der Hände vor der Ballerkennung \\
+{\lstinline!--simplehand!} & {\lstinline!SimpleHandBallFilter!} & Ballerkennung mit simpler Zuordnung von Bällen zu Ballpositionen
+\end{tabular}
+
+{\color{red} FIXME: Parameter hinzufügen}
 
 
 \newpage
