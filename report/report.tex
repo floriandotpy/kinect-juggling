@@ -1331,48 +1331,54 @@ Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_nahe.jpg}
-    \caption{\color{red}FIXME}
+    \caption{Keine vernünftige Ballerkennung, wenn der Spieler zu nahe an der Kinect steht, da die Software die Bälle an einer bestimmten Tiefe erwartet.}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_rand.jpg}
-    \caption{\color{red}FIXME}
+    \caption{Funktionierende Ballerkennung mit dem Spieler an verschiedenen Positionen im Bildausschnitt.}
 \end{figure}
 \item {\em Jongliermuster}\\
 In den Testversuchen haben wir immer ein Grundmuster jongliert, die Innenkaskade. So testeten wir am Ende einige andere Muster und stellten fest, dass solange die Bälle und Hände sichtbar sind und mehr als zwei Bälle verwendet werden, diese ebenfalls verfolgt werden können.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_muster.jpg}
-    \caption{\color{red}FIXME}
+    \caption{Links: Die Außenkaskade mit drei Bällen (zwei Bälle werden hier gerade gehalten). Rechts: Drei Bälle und ein Wurf unter dem Bein durch.}
 \end{figure}
-\item {\em Objekte im Bild (bewegt/unbewegt)}\\
-{\color{red}FIXME}
+\item {\em Objekte im Bild (unbewegte und bewegte)}\\
+Befinden sich Objekte im Bild, die in der Tiefenebene zwischen Spieler und Kinect stehen, so kann die Robustheit unter Umständen leiden. So entstehen teilweise Schwierigkeiten, wenn Objekte vor dem Spieler stehen, wie im linken Bild von Abbildung \ref{objects} zu sehen ist. Im rechten Bild wurde ein Arm vor dem Spieler hin- und hergeschwenkt. Hierbei hat die Balldetektion erstaunlich gut geklappt und die Bälle wurden immer gefunden, sobald sie sichtbar wurden.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_objekt.jpg}
-    \caption{\color{red}FIXME}
+    \caption{Links: Ein Stuhl steht vor dem Spieler im Bild. Rechts: Eine Hand wird durch das Bild geschwenkt.}
+    \label{objects}
 \end{figure}
-\item {\em zwei Bälle vs vier/fünf Bälle}\\
-{\color{red}FIXME}
+\item {\em Variierende Ballanzahl}\\
+In Tests funktionierte die Ballerkennung mit drei, vier und fünf Bällen. Bei der Jonglage mit zwei Bällen in einer Hand entsteht das Problem, dass die Software immer nach zwei Händen sucht. Bei der Einhandjonglage aber kann sich die zweite Hand dicht am Körper befinden, so dass sie nicht von der Software erkannt wird. Nun wird die nächste gefundene Position als Hand interpretiert, welche aber sehr wahrscheinlich ein Ball ist, so dass keine korrekte Ballerkennung stattfindet.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_vier.jpg}
-    \caption{\color{red}FIXME}
+    \caption{Jonglage mit vier Bällen (es befindet sich jeweils ein Ball in der rechten Hand).}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_fuenf.jpg}
+    \caption{Jonglage mit fünf Bällen (es befindet sich ein Ball in der linken Hand).}
 \end{figure}
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_zwei.jpg}
-    \caption{\color{red}FIXME}
+    \caption{Jonglage mit zwei Bällen in einer Hand. Die Software muss zwei Hände zuweisen, da sich aber die linke Hand des Spielers hinter dem zu erkennenden Tiefenbereich befindet, wird fälschlicherweise einer der beiden jonglierten Bälle als Hand behandelt.}
+    \label{twohands}
 \end{figure}
-\item {\em Hände nicht immer korrekt}\\
-siehe oben
-{\color{red}FIXME}
-\item {\em unsichtbare Bälle}\\
-{\color{red}FIXME}
+\item {\em Handerkennung}\\
+Wie auch in Abbildung \ref{twohands} zu sehen ist, werden in bestimmten Situationen die Hände nicht, bzw. an falscher Stelle erkannt. Dies kann passieren, wenn sich nicht beide Hände in dem erwarteten Bereich befinden, oder wenn andere Objekte unterhalb der Hände auf der selben Tiefe, oder näher an der Kinect, vorhanden sind. Auch während der Jonglage werden, auch unter Beachten und Vermeidung der eben genannten Faktoren, in einzelnen Frames die Hände mal auf eine Falte in der Hose o.ä. gemappt.
+\item {\em Unsichtbare Bälle}\\
+Als Bedingung für unsere Software wurde genannt, dass Bälle, die von der Kinect wahrgenommen werden, zu benutzen sind. Falls die Bälle zu glänzend bzw. reflektierend sind, kann es passieren, dass die Kinect an diesen Stellen keine Tiefeninformationen empfängt und solche Bälle nicht erkennt. So hatten wir in einem Test glänzende Bälle verschiedener Farbe, grün, blau, orange und gelb. Hier war festzustellen, dass die grünen und blauen Bälle erkannt, aber die orangefarbenen und gelben Bälle nicht erkannt wurden.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_unsichtbar.jpg}
-    \caption{\color{red}FIXME}
+    \caption{Glänzende Bälle in orange und gelb werden von der Infrarot-Technologie der Kinect nicht wahrgenommen.}
 \end{figure}
 \end{itemize}
 
