@@ -4,7 +4,7 @@ import numpy as np
 class KinectDummy(object):
     """Offers access to recorded dummy data the same way the Kinect would return it"""
     def __init__(self):
-        self.path = "frames_new"
+        self.path = "frames"
         (_, _, files) = os.walk(self.path).next()
         self.frames_rgb = []
         self.frames_depth = []
@@ -20,7 +20,6 @@ class KinectDummy(object):
         self.total = len(self.frames_rgb)
 
     def get_frame(self, record=False):
-        # print self.frames_rgb[self.current]
         rgb = np.load(os.path.join(self.path,self.frames_rgb[self.current]))
         depth = np.load(os.path.join(self.path,self.frames_depth[self.current]))
         self.current = (self.current + 1) % self.total

@@ -16,7 +16,7 @@ class Kinect(object):
         return (rgb, depth)
 
     def snapshot(self, rgb, depth):
-        filename = "frames_new/frame-%d" % int(time.time()*1000)
+        filename = "frames/frame-%d" % int(time.time()*1000)
         filename_rgb = filename + "-rgb"
         filename_depth = filename + "-depth"
         np.save(filename_rgb, rgb)
