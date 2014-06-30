@@ -348,8 +348,9 @@ einzelnen Bilder werden dann kombiniert.
 \end{figure}
 
 Wie sich im Laufe des Projektes heraus gestellt hat, ist dieses Konzept in einigen Schritten zu idealisiert und in anderen unnötig
-kompliziert. Bevor wir aber in späteren Abschnitten auf diese nicht funktionierenden
-Ansätze eingehen, wollen wir zuerst unsere finale Umsetzung vorstellen.
+kompliziert. 
+
+Zuerst wollen wir nun unsere finale Umsetzung vorstellen, bevor wir in späteren Abschnitten auf die nicht funktionierenden Ansätze eingehen.
 
 \section{Finale Umsetzung}
 \label{sec:final}
@@ -789,24 +790,24 @@ gewünschtem Zweck.
 
 
 Nun möchten wir je nach betrachtetem Arbeitsschritt aber verschiedene
-Verarbeitungsstufen ausführen oder ausklammern, so dass wir irgendwie eine
+Verarbeitungsstufen ausführen oder ausklammern, so dass wir eine Möglichkeit der
 Parametrisierung finden mussten. Wir haben uns für ein Konzept von Filtern
 entschieden, wobei zu Programmstart eine Liste mit gewünschten Filtern erstellt
-wird und diese in der Hauptschleife nacheinander ausgeführt werden (die Originaldaten
+wird und diese in einer Hauptschleife nacheinander ausgeführt werden. Die Originaldaten
 werden also in den ersten Filter gegeben, das Ergebnis dieses Filters wird als
 Eingabe für den zweiten Filter verwendet und das Ergebnis des letzten Filters
 in der Liste wird dann als Gesamtausgabe visuell dargestellt.
 
-Die RGB- und Tiefendaten werden vom freenect Modul als numpy Arrays zurückgegeben.
+Die RGB- und Tiefendaten werden vom \lstinline{freenect} Modul als \lstinline{numpy} Arrays zurückgegeben.
 Die Ausgabe erfolgt über ein von OpenCV erzeugtes Fenster, welches Daten für
-OpenCV erwartet. Die numpy Arrays müssen also an einer Stelle umgewandelt werden.
+OpenCV erwartet. Die \lstinline{numpy} Arrays müssen also an einer Stelle umgewandelt werden.
 Zusätzlich haben wir schnell festgestellt, dass einige gewünschte Operationen
-entweder nur in numpy oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches
+entweder nur in \lstinline{numpy} oder nur in OpenCV zur Verfügung stehen. Ein mehrfaches
 Umwandeln von einem Format in das jeweils andere ist aus Performanz-Gründen
 natürlich zu vermeiden. Um in der Entwicklung nicht immer darauf achten zu müssen,
 welcher Filter welche Eingabe erwartet und welche Ausgabe liefert, haben wir uns dazu
-entschieden, jeden Filter als Eingabe Daten in numpy Darstellung zu liefern und auch
-für die Ausgabe numpy zu erwarten. Dies erlaubt uns eine von außen identische
+entschieden, jeden Filter als Eingabe Daten in \lstinline{numpy} Darstellung zu liefern und auch
+für die Ausgabe \lstinline{numpy} zu erwarten. Dies erlaubt uns eine von außen identische
 Betrachtung der Filter, auch wenn einige Filter intern eine Umwandlung durchführen
 müssen. Bei etwaigen Problemen wollten wir die Performanz unserer Lösung getrennt
 betrachten, um zu Beginn lediglich über eine funktionierende Lösung nachdenken
@@ -824,19 +825,22 @@ als implizite Vorbedingung, dass andere Filter bereits ausgeführt wurden, dies 
 wir der Einfachheit halber aber nicht expliziert formuliert, im Zweifelsfall wird
 beim ersten Ausführen einer nicht korrekten Filterkombination oder -reihenfolge ein
 Laufzeitfehler geworfen, da Informationen in dem übergebenen Objekt noch nicht
-vorhanden sind. Dieses Objekt ist ein schlichtes Python dictionary.
+vorhanden sind. Dieses Objekt ist ein schlichtes Python Dictionary.
+
+
+\begin{lstlisting}[language=Python,caption={Grundstruktur eines Filters zur Verdeutlichung der Schnittstelle.}]
+class DummyFilter(object):
+
+    def filter(self, rgb, depth, balls, args = {}):
+
+        # this filter does nothing
+
+        return rgb, depth, balls
+\end{lstlisting}
 
 
 {\color{red} FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)}
 
-{\color{red} FIXME: bisschen Python Listing um diese Filter-Konzepte und das args dictionary zu zeigen}
-
-Genau diese Problematik, dass die Abhängigkeiten von Filtern nur implizit festgelegt
-ist und zur Laufzeit Fehler auftreten, weil eine benötigte Information im
-\lstinline{args} dictionary nicht vorhanden ist, hat uns aber noch nicht zufrieden
-gestellt. Daher haben wir das Filterkonzept weiter angepasst.
-
-FIXME: Pointer finale Umsetzung
 
 \subsection{Weitere Ansätze und Bildverarbeitungsverfahren}
 
@@ -852,14 +856,14 @@ Nur dort, wo sich Objekte in dem Zeitfenster zwischen den Aufnahmezeitpunkten de
 unterscheiden sich die Tiefendaten. Betrachtet man nur die Unterschiede, werden ausschließlich bewegte Objekte gefunden und sämtliche starre Objekte werden automatisch nicht mehr erfasst.
 Zudem geschieht dies unabhängig von der Entfernung der Objekte zum Sensor.
 
-Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem verrauschten Differenz-Bild führt. Zudem bewegt sich auch der Körper des Jongleurs leicht beim jonglieren. Das Verfahren hierbei muss also geeignete Maßnahmen implementieren, die diese Störeinflüsse kompensieren.
+Dabei gilt es aber zu bedenken, dass das Rauschen in den Tiefenbildern zu einem verrauschten Differenz-Bild führt. Zudem bewegt sich auch der Körper des Jongleurs leicht beim Jonglieren. Das Verfahren hierbei muss also geeignete Maßnahmen implementieren, die diese Störeinflüsse kompensieren.
 
 Da dieser Ansatz verschiedene Tiefenbilder miteinander vergleicht, muss dem Filter Zugriff auf Daten aus der Vergangenheit ermöglicht werden.
 Zu diesem Zweck sammelt der Filter die Tiefenbilder intern in einem Buffer.
-Nachdem zum ersten mal ein Bild im Buffer gespeichert wurde, kann im nächsten Filterdurchgang das momentane Tiefenbild mit dem vorherigen verglichen werden.
+Nachdem zum ersten Mal ein Bild im Buffer gespeichert wurde, kann im nächsten Filterdurchgang das momentane Tiefenbild mit dem vorherigen verglichen werden.
 Bei der Implementation des Filters wird hierbei ein Differenzbild in Form eines Binärbildes erzeugt.
-Für jeden Pixel wird überprüft, ob der Tiefenwert im alten Tiefenbild größer ist, als der entsprechende Pixel im aktuellen Tiefenbild.
-Jenachdem wird entweder eine 1 oder eine 0 im Binärbild gespeichert.
+Für jeden Pixel wird überprüft, ob der Tiefenwert im alten Tiefenbild größer ist als der entsprechende Pixel im aktuellen Tiefenbild.
+Je nachdem wird entweder eine 1 oder eine 0 im Binärbild gespeichert.
 Da bei dieser Betrachtung jeder Pixel unabhängig von den Werten in seiner unmittelbaren Umgebung verarbeitet wird, macht sich hierbei etwaiges Rauschen in den Tiefendaten besonders bemerkbar.
 
 \begin{figure}[H]
@@ -869,21 +873,21 @@ Da bei dieser Betrachtung jeder Pixel unabhängig von den Werten in seiner unmit
     \label{temporal_rauschen}
 \end{figure}
 
-Um diese Fehlerhaften Pixel zu entfernen und falsch positive Ballpositionen zu verhindern, wird das Binärbild zunächst durch Erosion und anschließende Dilatation geglättet.
+Um diese fehlerhaften Pixel zu entfernen und falsch positive Ballpositionen zu verhindern, wird das Binärbild zunächst durch Erosion und anschließende Dilatation geglättet.
 Die Bälle im Tiefenbild sind großflächig genug, so dass sie von diesem Vorgang nur bedingt beeinflusst werden.
-Die Chance, durch die Erosion einen Ball komplett zu löschen ist daher nur sehr gering.
+Die Chance, durch die Erosion einen Ball komplett zu löschen, ist daher nur sehr gering.
 Im Gegensatz dazu verschwindet ein Großteil der verrauschten Pixel.
 Diese bilden selten zusammenhängende Flächen und wenn, dann sind diese nur wenige Pixel groß.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.7]{img/rauschfrei.png}
-    \caption{Die Erosion und Dilatation het ein Großteil des Rauschens unterdrückt. Die Hand- und Ballbewegungen sind deutlich erkennbar.}
+    \caption{Die Erosion und Dilatation hat einen Großteil des Rauschens unterdrückt. Die Hand- und Ballbewegungen sind deutlich erkennbar.}
     \label{temporal_rauschfrei}
 \end{figure}
 
 Als Nebeneffekt werden hierbei auch einige Bereiche geglättet, in denen Körperbewegungen zu einer temporalen Veränderung im Tiefenbild geführt haben. Da sich der Körper im Vergleich zu den fliegenden Bällen nur mit einer sehr geringen Geschwindigkeit bewegt, entstehen hier auch nur schmalere Bewegungsschatten im Binärbild.
-Nach dieser ersten Glättung des Differenzbildes, werden zusammenhängende Bereiche extrahiert.
+Nach dieser ersten Glättung des Differenzbildes werden zusammenhängende Bereiche extrahiert.
 Unter der Annahme, dass die Bälle im Binärbild eine Fläche bilden, die eine Mindestanzahl an Pixeln nicht unterschreitet, findet anschließend eine erneute Überprüfung statt. Alle zusammenhängende Bereiche, die in der Summe zu wenig Pixel haben, werden ignoriert.
 Nur die Bereiche, die groß genug sind, werden gesammelt und als potientelle Bälle in einer Liste gespeichert.
 Diese Liste wird anschließend in der Filterkette weitergerreicht und bildet somit das Ergebnis des temporalen Ballerkennnugsfilters.
@@ -896,9 +900,8 @@ Diese Liste wird anschließend in der Filterkette weitergerreicht und bildet som
 \end{figure}
 
 Große Auswirkung auf die Güte der Ballpositionen hat hierbei der zeitliche Abstand der beiden Tiefenbilder, die zu Beginn verglichen werden. Wenn die Bilder zeitlich so nah beieinander liegen, dass sich die Ballflächen in den beiden Frames teilweise überschneiden, entstehen halbmondförmige Flächen im Binärbild.
-Diese werden dann aber unter Umständen von dem Erosions-Prozess vernichtet.
-Oder aber in der Pixelsumme so stark reduziert, dass sie in der anschließenden Überprüfung aussortiert werden.
-Gleiches kann auch im Scheitepunkt der Wurfparabel auftreten. Auch bei größeren zeitlichen Abständen besitzen die Bälle an dieser Stelle eine zu geringe vertikale Geschwindigkeit um sich in aufeinander folgenden Bildern nicht zu überschneiden.
+Diese werden dann aber unter Umständen von dem Erosions-Prozess vernichtet, oder aber in der Pixelsumme so stark reduziert, dass sie in der anschließenden Überprüfung aussortiert werden.
+Gleiches kann auch im Scheitelpunkt der Wurfparabel auftreten. Auch bei größeren zeitlichen Abständen haben die Bälle an dieser Stelle eine zu geringe vertikale Geschwindigkeit und überschneiden sich daher in aufeinander folgenden Bildern.
 
 \begin{figure}[H]
     \centering
@@ -954,7 +957,7 @@ In den ersten Implementationen dieses Ansatzes hatten wir einen Bug verbaut, wel
 \subsubsection{Hough-Transformation}
 \label{sec:hough}
 {\color{red} FIXME ROLF Python Code-Beispiel}
-Die Hough-Transform wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
+Die Hough-Transformtion wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
 Ursprünglich wurde das Verfahren zum Finden von geraden Linien von Hough patentiert, jedoch dann von Duda und Hart verbessert und auch das Finden von Kreisen bzw. Kurven ermöglicht.
 
 Das Finden von Geraden wird so erreicht, dass für jeden Kantenpunkt (die vorher mit einem Kantendetektor, wie z.B. dem Canny-Algorithmus, gefunden werden) alle möglichen Geraden, die durch diesen Punkt gehen, aufgestellt werden, und von diesen die Parameter im Parameterraum abgebildet werden.\\
@@ -965,42 +968,42 @@ Anfangs wurden die Steigung und der y-Achsenabschnitt verwendet, doch da sich Pr
       \includegraphics[scale=1.1]{img/Hough1.png}
   \caption{Anstatt Steigung und y-Achsenabschnitt werden als Parameter $\alpha$ und d genommen.}
 \end{figure}
-Wenn dies nun für alle vorhandene Kantenpunkte gemacht wird, werden im Parameterraum eine dementsprechende Anzahl von Kurven (oder Geraden) abgebildet, die einen exakten, oder ungefähren Schnittpunkt besitzen sollten. Die Parameter, die an diesem Punkt abgelesen werden, stellen die Parameter für unsere Kante im Bild durch die Kantenpunkte dar.\\\\
+Wenn dies nun für alle vorhandene Kantenpunkte gemacht wird, werden im Parameterraum eine dementsprechende Anzahl von Kurven (oder Geraden) abgebildet, die im Idealfall genau einen gemeinsamen Schnittpunkt besitzen. Die Parameter, die an diesem Punkt abgelesen werden, stellen die Parameter für unsere Kante im Bild durch die Kantenpunkte dar.\\\\
 \begin{figure}[H]
   \centering
       \includegraphics[scale=1.1]{img/Hough2.png}
   \caption{Überschneidung der Kurven im Parameterraum geben an, welche Parameter für die gesuchte Gerade zu nutzen sind.}
 \end{figure}
+
 Möchte man nun einen Kreis im Bild finden, werden von den Kantenpunkten alle möglichen Kreisgleichungen aufgestellt, dementsprechend als Parameter der Radius und der Mittelpunkt $(x,y)$ gewählt, womit wir einen dreidimensionalen Parameterraum haben.\\
-Unter berücksichtigung eines Maximalwertes für den Radius tut man dies für alle Kantenpunkte, und anschließend lässt sich im Parameterraum wieder ein Schnittpunkt ablesen, an der sich die Parameter des gesuchten Kreises befinden.\\\\
+Unter Berücksichtigung eines Maximalwertes für den Radius führt man dies für alle Kantenpunkte durch. Anschließend lässt sich im Parameterraum wieder ein Schnittpunkt ablesen, an dem sich die Parameter des gesuchten Kreises befinden.\\\\
+
 \begin{figure}[H]
   \centering
       \includegraphics[scale=1.1]{img/Hough3.png}
   \caption{Es entstehen Kegeln, an denen sich wieder ein Schnittpunkt bildet.}
 \end{figure}
-Dieses kann man für beliebige Formen anwenden, die durch eine Parameterdarstellung definiert werden können, aber je mehr Parameter vorhanden sind, desto aufwändiger wird auch die Berechnung werden.
+Dieses kann man für beliebige Formen anwenden, die durch eine Parameterdarstellung definiert werden können, aber je mehr Parameter vorhanden sind, desto aufwändiger wird auch die Berechnung.
 
 Dieses Verfahren sollte genutzt werden, um die genauen Ballpositionen im Tiefen- oder auch RGB-Bild zu bestimmen. Wenn möglich, sollte nach dem Filtern nach Regions of Interest im Tiefenbild auf diesen gefundenen Regionen die Hough-Transformation durchgeführt werden, um Kreise bzw. Bälle zu finden, oder auch Regionen ohne Bälle ausschließen zu können.\\
-Genutzt haben wir die Implementation der Hough-Transformation in der OpenCV\cite{opencv}-Bibliothek. Hierbei wurde festgestellt, dass durch Einstellen der Parameter der Funktion die Kreiserkennung sehr fein bestimmt werden kann. Da, wie in Abbildung \ref{bewegungsunschaerfe} zu sehen ist, die Bälle fast nie als saubere Kreise mit scharfen Kanten aufgenommen werden, war das Feintuning der Parameter unmöglich. Entweder wurde sehr grob eingestellt, so dass alle Bälle zwar erkannt wurden, dabei aber noch viel mehr False-Positives entstanden, oder es wurde so fein eingestellt, dass nur sehr sauber aufgenomme Bälle erkannt wurden. Bei letzterem wurden insgesamt aber viel zu wenige Bälle gefunden, so dass durch Einsetzen dieses Verfahren in unserem Fall kein Vorteil, sondern nur Nachteile entstanden.\\
-Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beansprucht und durch viel Kreisdetektion die ausgegebene Frame-Rate sank.
+Genutzt haben wir die Implementation der Hough-Transformation in der OpenCV-Bibliothek \cite{opencv}. Hierbei wurde festgestellt, dass durch Einstellen der Parameter der Funktion die Kreiserkennung sehr fein bestimmt werden kann. Wie in Abbildung \ref{bewegungsunschaerfe} zu sehen, werden die Bälle aber fast nie als saubere Kreise mit scharfen Kanten aufgenommen. Daher war uns das Feintuning der Parameter nicht möglich. Entweder wurden diese sehr grob eingestellt, so dass alle Bälle zwar erkannt wurden, dabei aber auch viele False-Positives entstanden, oder es wurde so fein eingestellt, dass nur sehr sauber aufgenommene Bälle erkannt wurden. Bei letzterem wurden insgesamt aber viel zu wenige Bälle gefunden, so dass durch Einsetzen dieses Verfahren in unserem Fall kein Vorteil, sondern nur Nachteile entstanden.\\
+Zudem wurde festgestellt, dass dieser Algorithmus viel Rechenleistung beansprucht und durch die Kreisdetektion die ausgegebene Frame-Rate sank.
 
-Die Überlegung war, dass durch eine Einbindung des Algorithmus als C-Code, z.B. mit Cython\cite{cython}, dieser Leistungsverlust ausgeglichen werden könnte. Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, wurde dagegen entschieden. Durch geschicktes filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
+Durch eine eigene Implementation hätte die Ballerkennung evtl. auch verbessert werden können, so dass nicht nach Kreisen gesucht wird, sondern nach Ellipsen (in bestimmter Ausrichtung). Da aber die ersten Versuche nicht sonderlich erfolgreich waren und der Aufwand nicht lohnenswert erschien, haben wir uns dagegen entschieden. Durch geschicktes Filtern nach unseren Regions of Interest konnten diese auch soweit verkleinert werden, dass eine zusätzliche Beschränkung dieser nicht notwendig wurde. Auch das Entfernen von False-Positives in den Regions of Interest wurde auf anderem Wege gelöst.
 
 \subsubsection{Local Maxima}
 Mit Local Maxima werden lokale Maxima, also positive extreme Datenpunkte in einer lokal begrenzten Umgebung, bezeichnet.\\
-Anfangs hatten wir die Idee, über lokale Maxima die Bälle im Tiefenbild zu finden. Dies würde bedeuten, dass im Tiefenbild nach allen Datenpunktanhäufungen gesucht wird, die möglichst nahe der Kamera sind, dabei aber innerhalb eines gegebenen Radius bleiben. Diese sollen zusätzlich von Datenpunkten umgeben sein, die einen deutlichen Abstand nach hinten zu diesen Datenpunktanhäufungen besitzen.\\
-Umgangssprachlich würden wir also alle Objekte bestimmter Größe suchen, die sich in einem bestimmten Abstand zu ihrem Hintergrund befinden. Damit ließe sich ein flexibler Abstand von Jongleur zu Kinect bewerkstelligen, es könnte damit sogar eine Ortsveränderung des Spielers während der Jonglage verarbeiten.
+Anfangs entstand die Idee, über lokale Maxima die Bälle im Tiefenbild zu finden. Dies würde bedeuten, dass im Tiefenbild nach allen Datenpunktanhäufungen gesucht wird, die näher an der Kamera sind als ihre unmittelbare Umgebung und dabei aber innerhalb eines gegebenen Radius bleiben.\\
+Wir würden also nach alle Objekte bestimmter Größe suchen, die sich in einem bestimmten Abstand zu ihrem Hintergrund befinden. Damit ließe sich ein flexibler Abstand von Jongleur zu Kinect bewerkstelligen. Das System könnte damit sogar eine Ortsveränderung des Spielers während der Jonglage tolerieren.
 
-In unserem Projekt werden die Tiefendaten zumeist als Numpy-Arrays verarbeitet und von Filter zu Filter gereicht. So war hier die Idee, einen weiteren Filter zu erstellen, in dem im Numpy-Array nach lokalen Maxima bestimmter Größe gesucht wird, um eine Vorauswahl von Regions of Interest zu bekommen. In diesen sollten in weiteren Schritten False Positives ausgeschlossen werden, um am Ende nur Regionen mit Bällen zu erhalten, in denen mit z.B. der Hough-Transformation (zu diesem Zeitpunkt wollten wir diese noch nutzen) die Bälle extrahiert werden sollten.
+In unserem Projekt werden die Tiefendaten als Numpy-Arrays verarbeitet und von Filter zu Filter gereicht. So war hier die Idee, einen weiteren Filter zu erstellen, in dem im Numpy-Array nach lokalen Maxima bestimmter Größe gesucht wird, um eine Vorauswahl von Regions of Interest zu bekommen. In diesen sollte in weiteren Schritten False Positives ausgeschlossen werden (z.B. mit Hilfer der Hough-Transformation), um am Ende alle Regionen mit Bällen zu erhalten.
 
 Für das Finden von Maxima im Numpy-Array werden die Python Module Numpy\cite{numpy} und Scipy\cite{scipy} genutzt, welche eine große Auswahl an wissenschaftliche Funktionen besitzen. Besonders für mehrdimensionale Matrixberechnungen und weitere Bildverarbeitungsoperationen eignen sich diese Module sehr gut, da ihre Funktionen auf diese Probleme optimiert sind und meist schneller als eine eigene Implementierung sind.
 
 Speziell mit den Funktionen {\tt scipy.ndimage.filters.maximum\_filter} und\\ {\tt scipy.ndimage.filters.minimum\_filter} wurden auf einem Tiefenbild die Maxima und Minima bis zu einem festgelegten Durchmesser gesucht. Durch Abziehen der Minima von den Maxima konnte auf dem daraus resultierenden Array mit einem Schwellwert, welcher den Abstand eines Maxima zu seiner Umgebung beschreibt, lokale Maxima bestimmter Größe gefunden werden.
 
-Dieses Verfahren, welches bei Testbildern, welche rauscharm mit einem gleichmäßigen Hintergrund sind, auf dem deutlich hellere Punkte verteilt sind, funktioniert gut. In unserem Falle aber bestand das Problem, dass bei verschiedenen Einstellungen der Parameter entweder zu viele Maxima, wie beispielsweise jede sich hervorhebende Falte in der Bekleidung des Spielers gefunden wird, oder aber zu wenige, so dass sich nicht alle Bälle immer in den Regions of Interest befinden würden.\\
-So haben wir uns entschieden, keinen flexiblen Abstand des Spielers zur Kinect zuzulassen, sondern diesen festzulegen. Anfangs als Nachteil empfunden, stellten wir aber fest, dass dies schnell akzeptiert werden konnte und den Spielspaß nicht mindert.
-
-Unsere finale Umsetzung zum Finden von Regions of Interest wird in Abschnitt \ref{sec:roi} beschrieben.
+Dieses Verfahren funktioniert gut bei rauscharmen Testbildern mit einem gleichmäßigen Hintergrund, auf dem deutliche Maxima verteilt sind. In unserem Fall aber bestand das Problem, dass bei verschiedenen Einstellungen der Parameter entweder zu viele Maxima, wie beispielsweise jede sich hervorhebende Falte in der Bekleidung des Spielers gefunden wurden, oder aber zu wenige, so dass sich nicht alle Bälle in den Regions of Interest befanden.\\
+So haben wir uns entschieden, auf diesen Ansatz zu verzichten, also keinen flexiblen Abstand des Spielers zur Kinect zuzulassen, sondern diesen festzulegen. 
 
 \subsection{Ballerkennung}
 
@@ -1009,9 +1012,9 @@ der Weg zu beschreiben, auf dem wir zum Endergebnis gekommen sind. Das Endergebn
 ist dabei tatsächlich simpel, relativ robust und in
 wenig Codezeilen implementiert.
 
-Den entscheidenden Fortschritt haben wir erzielt, als wir endlich bemerkt haben,
-dass das simple Erkennen der Hände und das Entfernen der Handpositionen aus der
-Liste der zu analysierenden potentiellen Ballpositionen die Aufgabe sehr
+Den entscheidenden Fortschritt haben wir erzielt, als wir endlich bemerkt hatten,
+dass allein das simple Erkennen der Hände und das Entfernen der Handpositionen aus 
+der Liste der zu analysierenden potentiellen Ballpositionen die Aufgabe sehr
 vereinfacht.
 
 Bis wir diesen Schritt aber gegangen sind, haben wir etliche immer komplexere
@@ -1019,31 +1022,29 @@ Ansätze über die Vorhersage möglicher Ballpositionen durch Simulation des
 physikalischen Verhaltens eines Jonglierballs während des Wurfes verfolgt.
 
 Bevor wir also die Handerkennung als Teil der Ballerkennung betrachtet haben,
-haben wir etliche Fehlerquellen mehr gehabt, die die Aufgabe der Ballerkennung
-frustrierend schwer gemacht haben. Die folgenden Seiten berichten von unseren
-Ansätzen und unbefriedigenden Ansätzen in dieser Projektphase.
+hatten wir etliche zusätzliche Fehlerquellen, die die Aufgabe der Ballerkennung
+frustrierend schwer gestalteten. Die folgenden Seiten berichten von unseren
+unbefriedigenden Ansätzen in dieser Projektphase.
 
 \subsubsection{Fehlerquellen}
 
 Als erste Idee, um falsche Positionen auszuschließen, dachten wir an eine
-Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die die
+Ballerkennung auf den RGB-Daten im Umfeld der Position. Naheliegend war die
 Implementierung einer Hough-Transformation (siehe Abschnitt \ref{sec:hough}), mit der wir auch begonnen haben.
 
 Erste Testläufe auf den RGB-Daten der Kinect zeigten aber, dass je nach Wahl der
-Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele false-positives
+Parameter entweder die Bälle nicht erkannt, oder aber viel zu viele False-Positives
 erkannt wurden. Dies lag vor allem an den sehr verwischten Aufnahmen der Bälle
 während des Fluges. Bei Betrachtung der Beispielaufnahmen (siehe oben) wird auch
 deutlich, dass eine vermutete Position teilweise deutlich von der tatsächlichen
-Position in den Bilddaten abwich. Somit konnten wir durch diesen Ansatz keinen Gewinn
-ziehen, so dass wir uns auch durch die Abweichungen zwischen Ballposition in RGB- und
-Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu
-stützen.
+Position in den Bilddaten abwich. Somit hat uns dieser Ansatz nicht voran
+gebracht, so dass wir uns auch bedingt durch die Abweichungen zwischen Ballposition in RGB- und Tiefendaten dazu entschlossen, uns alleine auf eine Untersuchung der Tiefendaten zu stützen.
 
 
 \begin{figure}[H]
   \centering
       \includegraphics[scale=0.8]{img/rgb-blur.png}
-  \caption{Verdeutlichung der abweichenden Bewegungsunschärfe in den RGB-Daten. Die Positionen der Bälle sind hier mit roten Markierungen hervorgehoben (nachträglich per Hand eingefügt)}
+  \caption{Verdeutlichung der abweichenden Bewegungsunschärfe in den RGB-Daten. Die Bälle sind hier mit roten Markierungen hervorgehoben (nachträglich per Hand eingefügt)}
   \label{bewegungsunschaerfe}
 \end{figure}
 
@@ -1053,11 +1054,11 @@ Projektablaufes mehrere Problemquellen identifizieren können, die die verschied
 Ansätze unterschiedlich stark beeinflussen:
 
 \begin{itemize}
- \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten. Dass dies die entscheidende Fehlerquelle ist, die wir mit einem simplem Verfahren ausschließen können (siehe FIXME), ist uns wie oben beschrieben erst spät aufgefallen.
- \item Die Bälle fliegen sehr nahe beieinander und teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes Rechteck zu sehen ist und als eine mögliche Ballposition untersucht wird.
+ \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten. Dass dies die entscheidende Fehlerquelle ist, die wir mit einem simplem Verfahren ausschließen können, ist uns - wie oben bereits beschrieben - erst spät aufgefallen.
+ \item Die Bälle fliegen sehr nahe beieinander und teilweise überschneiden sich die Umrisse zweier Bälle, so dass nur ein großes Rechteck zu sehen ist und als nur eine mögliche Ballposition untersucht wird.
  \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück.
- \item Der Mindestabstand zur Kinect resultiert in einem kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
- \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon. Diese "Lücken" in der Flugbahn haben bei unseren ersten Ansätze große Probleme bereitet, da plötzlich nicht mehr genug potentielle Ballpositionen für unsere bereits instantiierten Ballobjekte zur Verfügung stehen. Im finalen Ansatz haben wir solche Ballobjekte dann verworfen und
+ \item Der Mindestabstand zur Kinect resultiert in einem insgesamt kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
+ \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon. Diese \textit{Lücken} in der Flugbahn haben bei unseren ersten Ansätze große Probleme bereitet, da plötzlich nicht mehr genug potentielle Ballpositionen für unsere bereits instantiierten Ballobjekte zur Verfügung stehen. Im finalen Ansatz haben wir solche Ballobjekte dann verworfen und
  bei Bedarf dynamisch neue Bälle erzeugt.
 \end{itemize}
 
@@ -1065,13 +1066,13 @@ Ansätze unterschiedlich stark beeinflussen:
 
 Die genannten Problemquellen wirken sich unterschiedlich stark auf die Eignung der von
 uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
-in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
-festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
+in zwei Gruppen unterteilen: In eine Gruppe, bei der von vornherein von einer
+festen Ballanzahl ausgegangen wird und in eine Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
 
 Ursprünglich sind wir davon ausgegangen, dass die Grundannahme, dass genau drei
-Bälle in der Jonglage vorhanden sind, uns bei der Analyse hilft, da wir besser
+Bälle in der Jonglage vorhanden sind, uns bei der Analyse hilft, da wir so möglicherweise besser
 ausschließen können, welche Position kein Ball sein kann. Dies stellte sich als
-Fehlannahme heraus und ist in der finalen Version so auch nicht mehr in der
+Fehlannahme heraus und ist in der finalen Version in der Form auch nicht mehr in der
 Ballerkennung implementiert.
 
 Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
@@ -1080,19 +1081,19 @@ auszuwählen, welche als neue Position des Balls festgelegt wird. Da im Allgemei
 zwei Bälle an der gleichen Position sein können, wird dieses Rechteck dann für die weiteren Ballinstanzen nicht mehr betrachtet.
 
  \begin{enumerate}
- \item Die zwei sich am nächsten Punkte in zwei aufeinander folgenden Frames werden als der identische Ball aufgefasst. Nicht so zuverlässig, vor allem wegen schneller Ballbewegungen und nahe aneinander passierender Bälle. Schwierig auch, wenn ein erkannter Ball fehlt $\rightarrow$ Beachtung von ``springenden'' Bällen.
- \item Verbesserungsansatz: Die erwartete Ballposition wird mit der vorherigen Bewegung (linearer Bewegungsvektor) approximiert. Dies ist teilweise besser, aber trotzdem noch schwierig, die initiale Bewegung zu Erkennen. Hierbei verbleiben auch weiterhin Probleme mit Lücken in den Informationen.
- \item Weitere Verbesserung: Keinen linearen Bewegungsvektor nutzen, sondern die Flugbahn vorberechnen. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. In unseren Tests hat dies aber auch nur zu einer geringfügigen Verbesserung beigetragen.
+ \item Die zwei Punkte, die sich in zwei aufeinander folgenden Frames am nächsten sind, werden als identischer Ball aufgefasst. Dies ist nicht so zuverlässig, vor allem wegen schneller Ballbewegungen und nahe aneinander passierender Bälle. Zudem ist eine weitere Schwierigkeit bei diesem Ansatz, dass es in dem Daten manchmal zu fehlender Erkennung in einem Frame kam, und daher nicht immer für alle Bälle Positionen erkannt wurden.
+  \item Als Verbesserungsansatz wird die erwartete Ballposition mit der vorherigen Bewegung approximiert, indem ein einfacher linearer Bewegungsvektor zu Grunde gelegt wird. Dies ist eine Verbesserung zum vorherigen Ansatz, aber eine Schwierigkeit besteht darin, die initiale Bewegung zu erkennen. Hierbei verbleiben auch weiterhin Probleme mit Lücken in den Informationen.
+ \item Als weitere Verbesserung wird statt Benutzung des linearen Bewegungsvektor die erwartete Flugbahn vorberechnet. Der lineare Bewegungsvektor wird als Tangente an der Steigung der Wurfparabel zu Grunde gelegt. In unseren Tests hat dies aber auch nur zu einer geringfügigen Verbesserung beigetragen. Wie sich erst ganz zum Schluss des Projektes heraus stellte lag dies aber in einem reinen Fehler in der Programmierung. Eine Verfolgung des Ansatz zur weiteren Verbesserung unserer Lösung wäre also vielversprechend.
  \end{enumerate}
 
-Im Gegensatz dazu sind die folgenden Ansätze zu sehen, bei denen wir auch eine variable Ballanzahl erlauben. Hierbei werden nicht wie im vorigen Ansatz mögliche Ballpositionen nach einer Zuweisung entfernt.
+Im Gegensatz dazu erlauben die folgenden Ansätze eine variable Ballanzahl. Hierbei werden mögliche Ballpositionen nach einer Zuweisung nicht entfernt, wie es im vorigen Ansatz geschehen ist.
 
 \begin{enumerate}
-	\item Wenn eine langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird: als Beginn eines Wurfes auffassen und an dieser Stelle einen Ball mit identischer Geschwindigkeit starten und dessen Flugbahn ab dort schrittweise simulieren. In jedem Schritt mit aktuell vorhandenen Bällen abgleichen und Wurfparameter anpassen. (hier schrittweise Bilder zeigen: Feuerwerk etc)
-	\item Wie der Ansatz davor, allerdings wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames mit \lstinline{np.polyfit} berechnet.
+	\item Wenn eine langsame Aufwärtsbewegung in aufeinander folgenden Frames erkannt wird, wird dies als Beginn eines Wurfes aufgefasst. An dieser Stelle wird einen Ball mit identischer Geschwindigkeit gestartet und dessen Flugbahn ab dort schrittweise simulier. In jedem Schritt wird die simulierte mit aktuell vorhandenen Bällen abgeglichen und die Wurfparameter angepasst.
+	\item In Erweiterung des vorherigen Ansatz wird die Parabel nicht approximiert, sondern	aus den letzten 3 Frames berechnet, indem aus drei Positionspunkten mit \lstinline{np.polyfit} eine Wurfparabel berechnet wird.
 \end{enumerate}
 
-Für diese Ballzuweisung wird es notwendig, mindestens den nächsten Abschnitt der Flugbahn eines Balles, optimalerweise aber auch die gesamte Flugbahn eines Balles zu approximieren.\\
+Für diese Ballzuweisung ist es notwendig, mindestens den nächsten Abschnitt der Flugbahn eines Balles, optimalerweise aber auch die gesamte Flugbahn eines Balles zu approximieren.\\
 In den ersten Versuchen, den Wurf zu modellieren, wurde die Idee von Kalman aufgegriffen und auf sehr einfache Weise versucht, diese umzusetzen. Dazu wurde erst einmal die Bewegung des Balls als eine Wurfparabel festgelegt, dessen mathematische Formel wie folgend ist:
 \begin{align}
 x& = v_{x}t \label{eq:wurf1}\\
