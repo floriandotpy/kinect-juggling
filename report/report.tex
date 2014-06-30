@@ -129,10 +129,7 @@ und evaluieren die Qualität unserer gefundenen Lösung.
 
 \subsection{Vorüberlegung}
 
-Bevor eine konkrete Zielsetzung getroffen wird, treffen wir ein paar Vorüberlegungen,
-die uns zu Projektbeginn begegnet sind. In der Ideenfindungsphase des Projektes kam uns
-sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu
-verbinden.
+In der Ideenfindungsphase des Projektes kam uns sehr schnell die Idee, \textit{irgendwie} die Kinect mit \text{Jonglieren} zu verbinden.
 
 Dieses \textit{``irgendwie''} war schwer zu greifen und zu definieren, da keiner von
 uns Erfahrung im Bereich der Tiefendatenverarbeitung hatte und mögliche
@@ -140,7 +137,7 @@ Schwierigkeiten schwer vorauszusehen und abzuschätzen waren.
 
 Die Idee zu einer interaktiven Anwendung zum Trainieren des Jonglierens kam uns
 relativ schnell, doch sobald wir anfingen, eine tatsächliche Anwendung konkret zu
-umreißen, wurde uns die Komplexität eines solchen Unterfangens bewusst. Um aber
+planen, wurde uns die Komplexität eines solchen Unterfangens bewusst. Um aber
 an der uns zusagenden Grundidee weiter zu arbeiten, wollten wir uns im Rahmen des
 Projektes mit den bildverarbeitenden Grundkomponenten beschäftigen, die aus
 den Bild- und Tiefendaten der Kinect heraus die Jonglierbälle erkennt und verfolgt,
@@ -150,14 +147,13 @@ Daten zu generieren.
 Der Einfachheit halber setzen wir uns zu Beginn mit dem Grundmuster des Jonglierens,
 der Kaskade\cite{libraryjuggling} auseinander. Diese entspricht anschaulich einer liegenden Acht. Auch
 haben wir uns auf die Anzahl von exakt drei Jonglierbällen festgelegt. Durch diese
-Grundannahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
+Grund\-annahme haben wir uns eine Vereinfachung beim Erkennen und Verfolgen der Bälle
 erhofft. Im Laufe der Arbeit hat sich dann herausgestellt, dass diese starre Annahme
-uns zu einer nur wenig robusten Lösung führte. In der am Ende des Projektes
-stehenden Lösung ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
+uns zu einer nur wenig robusten Lösung führte. In der finalen Software ist dann die Anzahl der jonglierten Objekte tatsächlich unerheblich
 und das System bestimmt an Hand der berechneten Daten sogar die Gesamtzahl der
 im Jongliermuster befindlichen Objekte.
 
-Zunächt aber betrachten wir unser ursprüngliches Modell. In der ersten
+Zunächst aber betrachten wir unser ursprüngliches Modell. In der ersten
 Grundüberlegung wird deutlich, dass ein Jongleur Jonglierbälle
 in einem Muster wirft, das möglichst gleichmäßig ist.
 So ist der Höhepunkt der Flugbahn idealerweise konstant auf einer Höhe.
@@ -202,7 +198,7 @@ das für Linux, Windows und MacOS zur Verfügung steht und im Rahmen dieser Arbe
 als Bibliothek für Python verwendet wird.\cite{openkinect}\cite{libfreenect}
 
 Die Videoquelle der Kinect liefert standardmäßig 30 Bilder pro Sekunde mit einer
-Auflösung von 640x480 und 8 bit Farbtiefe. Tatsächlich kann sie mit
+Auflösung von 640x480 und 8 Bit Farbtiefe. Tatsächlich kann sie mit
 einer Auflösung von 640x512 aufnehmen (oder sogar 1280x1024 und 10 fps), aber die
 Auflösung wird an die der Tiefenkamera angepasst, so dass die reduzierte Auflösung
 ausgegeben wird. Die Tiefendaten stammen von einer
@@ -240,7 +236,7 @@ Die IR-Kamera der Kinect hat einen Infrarot-Pass-Filter, der nur Licht im Bereic
 hindurch lässt, um nicht durch anderes Licht (wie beispielsweise Fernbedienungen) geblendet zu
 werden. Dennoch gibt es Lichtquellen, wie das Sonnenlicht, welches genügend Licht mit einer
 Wellenlänge von 830 nm  beinhaltet, um die Kinect überblenden zu können. So kann bei starkem
-Tageslicht oder im Freien mit Fehlverhalten bis hin zur Unnutzbarkeit der Kinect gerechnet werden.
+Tageslicht oder im Freien mit Fehlverhalten bis hin zur Unbenutzbarkeit der Kinect gerechnet werden.
 
 \subsubsection{Beispielprojekte mit der Kinect}
 
@@ -348,7 +344,7 @@ einzelnen Bilder werden dann kombiniert.
 \end{figure}
 
 Wie sich im Laufe des Projektes heraus gestellt hat, ist dieses Konzept in einigen Schritten zu idealisiert und in anderen unnötig
-kompliziert. 
+kompliziert.
 
 Zuerst wollen wir nun unsere finale Umsetzung vorstellen, bevor wir in späteren Abschnitten auf die nicht funktionierenden Ansätze eingehen.
 
@@ -373,7 +369,7 @@ Beim Starten des Programms über die Konsole wird zunächst die Kinect initialis
 Im Normalfall ist eine Kinect angeschlossen, welche dann mit Hilfe der freenect Bibliothek \cite{libfreenect} angesteuert wird. Diese liefert dann die Bild- und Tiefendaten der Kinect Kamera bzw. des Tiefensensors. Wenn keine reale Kinect zur Verfügung steht, kann alternativ auch eine Dummy-Kinect-Instanz die RGB- und Tiefenbilder bereitstellen. In diesem Fall werden zuvor aufgenommene Bildsequenzen in einer Schleife zurückgegeben um so den Datenfluss einer echten Kinect zu simulieren.
 Im Anschluss daran werden sämtliche Filter initialisiert, die in der Verarbeitungsphase zum Einsatz kommen sollen.
 
-Welche Filter aktiviert und ob eine reale Kinect verwendet oder stattdessen simuliert werden soll, kann beim Programmaufruf über die Konsole festgelegt werden. Dazu wird eine beliebige Anzahl an Parametern an das Programm übergeben. So gehört zu jedem Filter ein entsprechender Kommandozeilen-Parameter, durch den der Filter aktiviert werden kann (für eine vollständige Auflistung der verfügbaren Kommandozeilenparameter  siehe Anhang \ref{sec:parameter}). Dies ermöglicht es, verschiedene Filter je nach Bedarf miteinander zu kombinieren. Gleichzeitig können leicht auch nachträglich noch neue Filter hinzugefügt werden. Zudem gibt es Parameter um die Kinect zu simulieren oder Daten von einer echten Kinect aufzunehmen um diese zu einem späteren Zeitpunkt von der simulierten Kinect wiedegeben lassen zu können. Die Reihenfolge der Parameter hat hierbei keine Bedeutung und wirkt sich nicht auf die Ausführungsreihenfolge der Filter aus.
+Welche Filter aktiviert und ob eine reale Kinect verwendet oder stattdessen simuliert werden soll, kann beim Programmaufruf über die Konsole festgelegt werden. Dazu wird eine beliebige Anzahl an Parametern an das Programm übergeben. So gehört zu jedem Filter ein entsprechender Kommandozeilen-Parameter, durch den der Filter aktiviert werden kann (für eine vollständige Auflistung der verfügbaren Kommandozeilenparameter  siehe Anhang \ref{sec:parameter}). Dies ermöglicht es, verschiedene Filter je nach Bedarf miteinander zu kombinieren. Gleichzeitig können leicht auch nachträglich noch neue Filter hinzugefügt werden. Zudem gibt es Parameter um die Kinect zu simulieren oder Daten von einer echten Kinect aufzunehmen um diese zu einem späteren Zeitpunkt von der simulierten Kinect wiedergeben lassen zu können. Die Reihenfolge der Parameter hat hierbei keine Bedeutung und wirkt sich nicht auf die Ausführungsreihenfolge der Filter aus.
 
 Der Aufruf für die optimale Filterkombination unseres Endergebnisses erfolgt durch \lstinline{python main.py --detectball --cutoff  --dummymode --handtracking --simplehand}
 
@@ -390,7 +386,7 @@ Eine vollständige Auflistung der verfügbaren Kommandozeilenparameter folgt im 
 
 Nach der Initialisierungsphase beginnt die oben angesprochene Programmschleife.
 In jedem Schleifendurchlauf wird zunächst auf Benutzereingaben reagiert.
-Ein simples Abfragen aktueller Tasteneingebaben ermöglicht es dem Benutzer einen Screenshot des momentanen Frames inklusive der eingezeichneten Visualisierung zu speichern (Leertaste), das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
+Ein simples Abfragen aktueller Tasteneingaben ermöglicht es dem Benutzer einen Screenshot des momentanen Frames inklusive der eingezeichneten Visualisierung zu speichern (Leertaste), das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
 
 Im nächsten Schritt wird nun entweder von einer realen oder simulierten Kinect ein RGB- und ein Tiefenbild abgefragt. Zudem wird eine leere Liste erzeugt, in der später die Ballpositionen gespeichert werden.
 
@@ -398,7 +394,7 @@ Der Kern und gleichzeitig komplexeste Teil der Anwendung ist die Verarbeitung de
 Hierzu werden der Reihe nach sämtliche aktiven Filter auf das RGB- und Tiefenbild sowie die Ballpositionen angewandt.
 
 Dazu verfügt jeder Filter nun über eine \lstinline{filter} Methode mit drei zwingenden und einem optionalen
-Parameter. Der optionale Parameter \lstinline{args} ist ein Python Dictionary und wird etwa für das 
+Parameter. Der optionale Parameter \lstinline{args} ist ein Python Dictionary und wird etwa für das
 Ablegen von Meta-Informationen verwendet, wie etwa Zusatzinfos zur späteren Visualisierung.
 
 Als Ergebnis von jedem Filter wird analog zum Filteraufruf ein Drei-Tupel zurückgegeben, bestehend aus RGB- und Tiefenbild sowie der Liste von Ballpositionen. Die so erhaltenen Daten dienen wiederum dem nächsten Filter als Eingabe-Parameter. Somit können die Filter nach und nach die Rohdaten manipulieren und verarbeiten.
@@ -415,7 +411,7 @@ class DummyFilter(object):
         return rgb, depth, balls
 \end{lstlisting}
 
-Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Umsetzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen). Die Strukturierung in fünf Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
+Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Um\-setzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen). Die Strukturierung in fünf Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
 
 \begin{tabular}{ll}
 \textbf{Package} & \textbf{Inhalt} \vspace{0.1cm} \\
@@ -444,7 +440,7 @@ Die einzelnen Arbeitsschritte werden im Folgenden noch detaillierter betrachtet.
 
 \subsubsection{Schritt 1: Tiefendaten vorverarbeiten}\label{sec:preprocess}
 
-Die Kinect liefert Tiefenwerte im Bereich von 0 bis 4095 (11 bit), wobei ein höherer Wert
+Die Kinect liefert Tiefenwerte im Bereich von 0 bis 4095 (11 Bit), wobei ein höherer Wert
 einen größeren Abstand bedeutet. Die 0 steht hierbei für einen Pixel, in dem keine
 Tiefeninformation vorliegt.
 
@@ -463,8 +459,6 @@ doch diesen festen Wert belassen. Bei der tatsächlichen Anwendung in Echtzeit
 positioniert man sich also an einen festgelegten Punkt im Raum. Dies ist tatsächlich
 auch nicht störend. Da direktes visuelles Feedback von unserer Anwendung deutlich
 macht, wann man richtig steht, ist auch keine feste Bodenmarkierung nötig.
-
-{\color{red}FIXME: Bild Tiefendaten -> Binarisiertes Bild}
 
 Auf Grund der Funktionsweise der Kinect mit dem RGB-Sensor und dem knapp daneben
 befindlichen Infrarotsensor sind die RGB- und Tiefendaten leicht gegeneinander
@@ -714,15 +708,15 @@ def filter(self, rgb, depth, ball_positions, args={}):
 \end{lstlisting}
 
 
-Ein Ballobjekt wird also in der Liste \lstinline{balls} von Filter zu Filter 
-gereicht um anschließend visualisiert zu werden (dies erledigt \lstinline{DrawBallsFilter}). 
+Ein Ballobjekt wird also in der Liste \lstinline{balls} von Filter zu Filter
+gereicht um anschließend visualisiert zu werden (dies erledigt \lstinline{DrawBallsFilter}).
 
 Jedes Ballobjekt trägt dabei die Information über die eigene momentane Position und
-- zu Visualisierungszwecken - auch eine Farbe und einen Radius-Wert. 
+- zu Visualisierungszwecken - auch eine Farbe und einen Radius-Wert.
 
 Bei jedem Aufruf von \lstinline{updatePosition} zum Aktualisieren der Position
 an einer \lstinline{Ball} wird die bisherige Position in einer Liste gespeichert.
-Jeder Ball trägt daher Information über seine bisherige Information, die in 
+Jeder Ball trägt daher Information über seine bisherige Information, die in
 der Visualisierung auch als eine Folge von Linien hinter dem Ball dargestellt wird.
 
 \begin{lstlisting}[language=Python,caption={\lstinline{Ball.py}, Ausschnitt}]
@@ -838,10 +832,6 @@ class DummyFilter(object):
         return rgb, depth, balls
 \end{lstlisting}
 
-
-{\color{red} FIXME: Diagramm Programmstruktur (so cool skizziert, nicht ganz formell UML)}
-
-
 \subsection{Weitere Ansätze und Bildverarbeitungsverfahren}
 
 \subsubsection{Temporale Ballerkennung}
@@ -918,7 +908,7 @@ Dennoch machen sich die zusätzlichen Berechnungen in der Framerate bemerkbar un
 bedingt durch die Selbst-Überdeckung der Bälle in den langsameren Teilen der Wurfbewegung, wurde dieser Ansatz letztendlich für die endgültige Lösung verworfen und dementsprechend auch nicht weiter ausgearbeitet.
 
 \subsubsection{Kalman Filter}
-
+\label{kalman}
 Der Kalman Filter ist ein in 1960 von Rudolf E. Kálmán vorgestellter Algorithmus, welcher aus mehreren ungenauen Messungen versucht, die tatsächlichen Daten, die diesen Messungen zu Grunde liegen, zu schätzen.\cite{kalman} Ungenauigkeiten können durch die Messsensoren entstehen, wenn diese aus verschiedenen Gründen nicht präzise genug aufnehmen können, oder auch durch ein Rauschen der Aufnahmequelle. Mit dem Kalman-Filter können so über einen bestimmten Zeitraum aufgenommene Daten mit möglichst vielem Wissen über potentielle Messabweichungen genauer bestimmt werden, als mit nur einzelnen Messungen.
 
 Dieser Algorithmus wird heutzutage in vielen Bereichen eingesetzt, sehr oft zum Beispiel in der Navigationstechnologie von Fahrzeugen aller Art. Die Position eines Fahrzeuges wird beispielsweise über GPS empfangen. Diese Technologie kann die Position nur auf ca. 5-20m genau bestimmen. Selbst mit einer zusätzlichen Korrektur (WAAS/EGNOS-Korrektursignale mit Hilfe von Bodenstationen\cite{waas}\cite{egnos}) erreicht die Genauigkeit nur etwa 1-3m. Unter umständen wird eine exaktere Positionsbestimmung nötig, zum Beispiel bei Fortbewegungsmittel, die ein automatisches Fahrsystem verbaut haben.
@@ -952,11 +942,10 @@ Ursprünglich sollte der Kalman-Filter bzw. eine Vereinfachung dessen in diesem 
 
 So ist in diesem Projekt das bewegte Objekt ein Ball und die Art der Bewegung eine Wurfparabel. Der Einfachkeit halber und da in diesen Zeiten vorkommende Abweichungen klein wären, außerdem eine Genauigkeit auf Pixelebene nicht notwendig ist, sind keine Störfaktoren einberechnet worden.
 
-In den ersten Implementationen dieses Ansatzes hatten wir einen Bug verbaut, welcher erst sehr viel später bemerkt wurde. Durch diesen funktionierte die Schätzung der Ballposition in nachfolgenden Frames nicht, da die zwei Startpositionen eines Balles, mit dem der weitere Wurf geschätzt wurde, aus demselben Frame genommen wurden. Auf der Suche nach dem Fehler schrieben wir die Handerkennung, um die Handpositionen aus den möglichen Ballpositionen herauszunehmen. Im Zuge dessen wurde der Bug unbemerkt korrigiert, wodurch der darauf folgende Erfolg dem Entfernen der Handpositionen und einer einfacheren Schätzung zugeschrieben wurde, in der Ballpositionen in aufeinander folgenden Frames durch eine möglichst kurze Entfernung zugeordnet werden. Da dieser vereinfachte Ansatz 
+In den ersten Implementationen dieses Ansatzes wurde ein Bug verbaut, welcher erst sehr viel später bemerkt wurde. Durch diesen funktionierte die Schätzung der Ballposition in nachfolgenden Frames nicht, da die zwei Startpositionen eines Balles, mit dem der weitere Wurf geschätzt wurde, aus demselben Frame genommen wurden. Auf der Suche nach dem Fehler schrieben wir die Handerkennung, um die Handpositionen aus den möglichen Ballpositionen herauszunehmen. Im Zuge dessen wurde der Bug unbemerkt korrigiert, wodurch der darauf folgende Erfolg dem Entfernen der Handpositionen und einer einfacheren Schätzung zugeschrieben wurde, in der Ballpositionen in aufeinander folgenden Frames durch eine möglichst kurze Entfernung zugeordnet werden. Da dieser vereinfachte Ansatz schon gut funktionierte, wurde er übernommen. Theoretisch lässt sich der Kalman-Filter wieder einbringen, womit die Zuordnung der Bälle noch zuverlässiger funktionieren sollte.
 
 \subsubsection{Hough-Transformation}
 \label{sec:hough}
-{\color{red} FIXME ROLF Python Code-Beispiel}
 Die Hough-Transformtion wurde in ihrer heutigen Form 1972 von Richard O. Duda und Peter E. Hart\cite{hough} vorgestellt.\\
 Ursprünglich wurde das Verfahren zum Finden von geraden Linien von Hough patentiert, jedoch dann von Duda und Hart verbessert und auch das Finden von Kreisen bzw. Kurven ermöglicht.
 
@@ -1003,7 +992,7 @@ Für das Finden von Maxima im Numpy-Array werden die Python Module Numpy\cite{nu
 Speziell mit den Funktionen {\tt scipy.ndimage.filters.maximum\_filter} und\\ {\tt scipy.ndimage.filters.minimum\_filter} wurden auf einem Tiefenbild die Maxima und Minima bis zu einem festgelegten Durchmesser gesucht. Durch Abziehen der Minima von den Maxima konnte auf dem daraus resultierenden Array mit einem Schwellwert, welcher den Abstand eines Maxima zu seiner Umgebung beschreibt, lokale Maxima bestimmter Größe gefunden werden.
 
 Dieses Verfahren funktioniert gut bei rauscharmen Testbildern mit einem gleichmäßigen Hintergrund, auf dem deutliche Maxima verteilt sind. In unserem Fall aber bestand das Problem, dass bei verschiedenen Einstellungen der Parameter entweder zu viele Maxima, wie beispielsweise jede sich hervorhebende Falte in der Bekleidung des Spielers gefunden wurden, oder aber zu wenige, so dass sich nicht alle Bälle in den Regions of Interest befanden.\\
-So haben wir uns entschieden, auf diesen Ansatz zu verzichten, also keinen flexiblen Abstand des Spielers zur Kinect zuzulassen, sondern diesen festzulegen. 
+So haben wir uns entschieden, auf diesen Ansatz zu verzichten, also keinen flexiblen Abstand des Spielers zur Kinect zuzulassen, sondern diesen festzulegen.
 
 \subsection{Ballerkennung}
 
@@ -1013,7 +1002,7 @@ ist dabei tatsächlich simpel, relativ robust und in
 wenig Codezeilen implementiert.
 
 Den entscheidenden Fortschritt haben wir erzielt, als wir endlich bemerkt hatten,
-dass allein das simple Erkennen der Hände und das Entfernen der Handpositionen aus 
+dass allein das simple Erkennen der Hände und das Entfernen der Handpositionen aus
 der Liste der zu analysierenden potentiellen Ballpositionen die Aufgabe sehr
 vereinfacht.
 
@@ -1131,7 +1120,7 @@ class SimpleKalmanFilter(object):
 \end{lstlisting}
 Hierbei wird durch Aufruf von {\tt SimpleKalmanFilter.filter} für zwei aufeinanderfolgenden Ballpositionen in einer Schleife für 10 Zeiteinheiten eine voraussichtliche Wurfbahn berechnet und zurückgegeben.
 
-In der Theorie sollte dieser Ansatz funktionieren, aber in für uns unerklärbarer Weise wurden im Praxisversuch die Wurfbahnen teils wie erwartet, teils aber ganz anders eingezeichnet. So haben wir in weiteren Versuchen die Berechnung vereinfacht, und uns an Formeln \ref{eq:wurf1} und \ref{eq:wurf2} gehalten:
+In der Theorie sollte dieser Ansatz funktionieren, aber wie am Ende von Abschnitt \ref{kalman} beschrieben, funktionierte dieses durch einen unbemerkten Bug nicht. In weiteren Versuchen wurde die Berechnung vereinfacht, in der die Formeln \ref{eq:wurf1} und \ref{eq:wurf2} verwendet wurden:
 
 \begin{lstlisting}[language=Python]
 class TrajectoryBall(object):
@@ -1164,7 +1153,7 @@ class TrajectoryBall(object):
 
         return int(x), int(y)
 \end{lstlisting}
-Dieser Ansatz brachte leichte Verbesserungen ein, jedoch wurden viele der Wurfbahnen trotzdem noch in unseren Augen willkürlich eingezeichnet, so dass Würfe, die in eine Richtung gehen, gerne mal spiegelverkehrt oder gänzlich aus dem Bild fliegend eingezeichnet wurden.
+Da der Bug hierdurch nicht korrigiert wurde, war keine Verbesserung der Schätzung in der Ausgabe festzustellen. In der Theorie sollten jedoch beide Ansätze funktionieren, und würde jetzt auf sie zurückgegriffen werden, erwarten wir eine Verbesserung in der Zuordnung der Bälle von Frame zu Frame.
 
 \begin{comment}
 \begin{figure}[H]
@@ -1233,25 +1222,25 @@ Seitdem wir also aber die Hände mit in die Betrachtung einbezogen haben, war da
 
 \section{Herausforderungen}
 
-Zusätzlich zu den oben beschriebenen Fehlerquellen gehen wir im Folgenden auf 
-weitere technische Herausforderungen und Schwierigkeiten in unserer 
+Zusätzlich zu den oben beschriebenen Fehlerquellen gehen wir im Folgenden auf
+weitere technische Herausforderungen und Schwierigkeiten in unserer
 Projektorganisation ein.
 
 Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere erst nach mehreren Versuchen vervollständigt. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht hinreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt zu bringen, weswegen sie letzten Endes nicht im Programm genutzt werden.
 
 \subsection{Technische Herausforderungen}
 
-Im Laufe des gesamten Projektes haben wir drei Projektteilnehmer verteilt auf drei
+Im Laufe des gesamten Projektes haben wir zu dritt verteilt auf drei
 Betriebssystemen gearbeitet (Mac OS, Windows, Ubuntu). Da wir gerade dank
 unseres flexiblen Filterkonzeptes gut arbeitsteilig arbeiten konnten, haben wir
-nicht von Anfang an auf die Integrierbarkeit unserer Komponenten geachtet.
+nicht von Anfang an auf die Integrierbarkeit unserer Komponenten auf den unterschiedlichen Plattformen geachtet.
 
-Der funktionierende Temporalfilter (siehe \ref{sec:temporal}) etwa wurde mit Hilfe
+Der Temporalfilter (siehe \ref{sec:temporal}) etwa wurde mit Hilfe
 der Bildverarbeitungsbibliothek VIGRA\cite{vigra} implementiert. Die
 Python-Bindings hierfür liegen nicht auf allen Systemen in gleich guter Verfügbarkeit
 vor (zumindest war es uns auf Mac OS nicht möglich, diese ohne Mac Ports zum Laufen
 zu bekommen, da die per \lstinline{pip install} verfügbare Version veraltet ist und
-scheinbar nicht mehr gepflegt wird. (FIXME source)
+scheinbar nicht mehr gepflegt wird).
 
 Da der Temporalfilter zum einen der einzige Filter mit VIGRA Abhängigkeit war, und
 der Filter zudem nicht die gewünschten Vorteile geliefert hat, die wir uns erhofft
@@ -1265,27 +1254,25 @@ Projekten einen großen Lerneffekt hat und auch die zahlreichen Fehlversuche mit
 wiederkehrenden frustrierenden Ergebnissen dazugehören, um schließlich zu einer
 funktionierenden und robusten Implementierung zu gelangen. Um bei ähnlichen
 Projekten in Zukunft schneller zu einem Ergebnis zu kommen, wird es aber nötig
-sein, dass wir uns von Anfang an selbst klarere Ziele stecken und den Fortschritt
-besser zu verfolgen um ihn auch sicher stellen zu können.
-{\color{red}FIXME: das klingt etwas negativer. Vielleicht also nicht im Fazit nennen sondern davor noch einen Abschnitt über unsere Arbeitsweise während des Projekts?}
+sein, dass wir uns von Anfang an selbst klarere Ziele vorgeben und den Fortschritt
+besser verfolgen.
 
 \section{Bewertung des Endergebnisses}
 
-In der am Anfang gesetzten Zielsetzung waren folgende Ziele aufgeführt:
+In der am Anfang gesetzten Zielsetzung führten wir folgende Ziele auf:
 
 \begin{itemize}
 \item Daten über die Flugbahnen von (drei) jonglierten Bällen gewinnen, wobei der Spieler in einem wohl definierten Abstand zur Kinect steht.
-\item Es ist ausreichend, wenn Bälle verfolgt werden können, die von der Infrarot-Technologie erfasst werden können.
 \item Die Daten sollen ausreichend sein, um auf Grundlage dessen weitere Anwendungen schreiben zu können.
 \end{itemize}
 
-Diese drei wichtigsten Ziele sind erfüllt worden. Der Spieler muss in einem bestimmten Abstand zur Kinect stehen und aus dieser Position heraus können bei einem Jongliermuster mit mindestens drei Bällen diese Bälle erkannt und zumeist gut verfolgt werden. Bälle, die zu stark reflektieren, können von der Infrarot-Technologie nicht erfasst werden. Da wir aber gerade mit den Tiefendaten, gewonnen aus der Infrarot-Strahlung, arbeiten, haben wir als Voraussetzung gegeben, dass Bälle genutzt werden sollen, die von der Kinect erfasst werden können. Die Daten, die nun intern zur Verfügung stehen, beinhalten Informationen zur Anzahl der gerade jonglierten Bälle und ihrer Wurfbahn. Zusätzlich haben wir Informationen zu den Positionen der Hände. Diese Daten sollten genügend, um auf Grundlage dessen weitere Anwendungen, die Jongliermuster analysieren oder spielerisch darstellen, schreiben zu können.
+Diese Ziele sind erfüllt worden. Der Spieler muss in einem bestimmten Abstand zur Kinect stehen und aus dieser Position heraus können bei einem beidhändigen Jongliermuster Bälle erkannt und zumeist gut verfolgt werden. Da die Bälle mit dem Infrarot-Sensor verfolgt werden, wird vorausgesetzt, dass nur vom Infrarot-Sensor erkennbare Bälle genutzt werden. Die Daten, die nun intern zur Verfügung stehen, beinhalten Informationen zur Anzahl der gerade jonglierten Bälle und ihrer Wurfbahn. Zusätzlich haben wir Informationen zu den Positionen der Hände. Diese Daten sollten genügend, um auf Grundlage dessen weitere Anwendungen schreiben zu können, die Jongliermuster analysieren oder spielerisch darstellen.
 
-Diese Software ist dennoch noch nicht perfektioniert, und es sind Einschränkungen, sei es durch die Hardware, oder auch unsere Software, gegeben, aber auch Features, auf deren Implementation wir stolz sind. Nachfolgend werden verschiedene Aspekte aufgeführt und zum Teil bewertet:
+Nachfolgend werden verschiedene Aspekte aufgeführt und bewertet:
 
 \begin{itemize}
 \item {\em Position des Spielers:}\\
-Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit entfernt, wird er gar nicht erfasst, steht er zu nah dran, wird zu viel erfasst. Jedoch kann er auf dieser Linie mittig im Bild sein, oder auch am Rand des Bildausschnitts stehen, ohne dass eine erkennbare Beeinflussung der Ballerkennung entsteht.
+Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit entfernt, wird er gar nicht erfasst, steht er zu nah dran, wird zu viel erfasst. Jedoch kann er sich mittig im Bild befinden, oder auch am Rand des Bildausschnitts stehen, ohne dass eine erkennbare Beeinflussung der Ballerkennung entsteht.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_nahe.jpg}
@@ -1296,15 +1283,8 @@ Der Spieler muss in einem bestimmten Abstand zur Kinect stehen. Steht er zu weit
     \includegraphics[scale=0.5]{img/bewertung_rand.jpg}
     \caption{Funktionierende Ballerkennung mit dem Spieler an verschiedenen Positionen im Bildausschnitt.}
 \end{figure}
-\item {\em Jongliermuster}\\
-In den Testversuchen haben wir immer ein Grundmuster jongliert, die Innenkaskade. So testeten wir am Ende einige andere Muster und stellten fest, dass solange die Bälle und Hände sichtbar sind und mehr als zwei Bälle verwendet werden, diese ebenfalls verfolgt werden können.
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.5]{img/bewertung_muster.jpg}
-    \caption{Links: Die Außenkaskade mit drei Bällen (zwei Bälle werden hier gerade gehalten). Rechts: Drei Bälle und ein Wurf unter dem Bein durch.}
-\end{figure}
 \item {\em Objekte im Bild (unbewegte und bewegte)}\\
-Befinden sich Objekte im Bild, die in der Tiefenebene zwischen Spieler und Kinect stehen, so kann die Robustheit unter Umständen leiden. So entstehen teilweise Schwierigkeiten, wenn Objekte vor dem Spieler stehen, wie im linken Bild von Abbildung \ref{objects} zu sehen ist. Im rechten Bild wurde ein Arm vor dem Spieler hin- und hergeschwenkt. Hierbei hat die Balldetektion erstaunlich gut geklappt und die Bälle wurden immer gefunden, sobald sie sichtbar wurden.
+Befinden sich Objekte im Bild, die in der Tiefenebene zwischen Spieler und Kinect stehen, so kann die Robustheit unter Umständen leiden. So entstehen teilweise Schwierigkeiten, wenn Objekte vor dem Spieler stehen, wie im linken Bild von Abbildung \ref{objects} zu sehen ist. Im rechten Bild wurde ein Arm vor dem Spieler hin- und hergeschwenkt. Hierbei hat die Balldetektion gut geklappt und die Bälle wurden gefunden, solange sie sichtbar waren.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_objekt.jpg}
@@ -1329,10 +1309,18 @@ In Tests funktionierte die Ballerkennung mit drei, vier und fünf Bällen. Bei d
     \caption{Jonglage mit zwei Bällen in einer Hand. Die Software muss zwei Hände zuweisen, da sich aber die linke Hand des Spielers hinter dem zu erkennenden Tiefenbereich befindet, wird fälschlicherweise einer der beiden jonglierten Bälle als Hand behandelt.}
     \label{twohands}
 \end{figure}
+\item {\em Jongliermuster}\\
+In den Testversuchen haben wir immer ein Grundmuster jongliert, die Innenkaskade. Tests ergaben, dass solange die Bälle und Hände sichtbar sind, verschiedene zweihändige Jongliermuster verfolgt werden können.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{img/bewertung_muster.jpg}
+    \caption{Links: Die Außenkaskade mit drei Bällen (zwei Bälle werden hier gerade gehalten). Rechts: Drei Bälle und ein Wurf unter dem Bein durch.}
+\end{figure}
 \item {\em Handerkennung}\\
-Wie auch in Abbildung \ref{twohands} zu sehen ist, werden in bestimmten Situationen die Hände nicht, bzw. an falscher Stelle erkannt. Dies kann passieren, wenn sich nicht beide Hände in dem erwarteten Bereich befinden, oder wenn andere Objekte unterhalb der Hände auf der selben Tiefe, oder näher an der Kinect, vorhanden sind. Auch während der Jonglage werden, auch unter Beachten und Vermeidung der eben genannten Faktoren, in einzelnen Frames die Hände mal auf eine Falte in der Hose o.ä. gemappt.
+Wie auch in Abbildung \ref{twohands} zu sehen ist, werden in bestimmten Situationen die Hände nicht, bzw. an falscher Stelle erkannt. Dies kann passieren, wenn sich nicht beide Hände in dem erwarteten Bereich befinden.
+Oder wenn andere Objekte unterhalb der Hände oder näher an der Kinect vorhanden sind. Unabhängig davon kann es auch während der Jonglage in vereinzelzen Frames dazu kommen, dass Falten in der Hose o.ä. als Hände interpretiert werden.
 \item {\em Unsichtbare Bälle}\\
-Als Bedingung für unsere Software wurde genannt, dass Bälle, die von der Kinect wahrgenommen werden, zu benutzen sind. Falls die Bälle zu glänzend bzw. reflektierend sind, kann es passieren, dass die Kinect an diesen Stellen keine Tiefeninformationen empfängt und solche Bälle nicht erkennt. So hatten wir in einem Test glänzende Bälle verschiedener Farbe, grün, blau, orange und gelb. Hier war festzustellen, dass die grünen und blauen Bälle erkannt, aber die orangefarbenen und gelben Bälle nicht erkannt wurden.
+Der Tiefensensor der Kinect muss in der Lage sein, die verwendeten Jonglierbälle zu erkennen. Falls die Bälle zu glänzend bzw. reflektierend sind, kann es passieren, dass die Kinect an diesen Stellen keine Tiefeninformationen empfängt. So hatten wir in einem Test glänzende Bälle verschiedener Farbe, grün, blau, orange und gelb. Hier war festzustellen, dass zwar die grünen und blauen Bälle erkannt wurden, der Tiefensensor aber die orangefarbenen und gelben Bälle nicht erfassen konnte.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/bewertung_unsichtbar.jpg}
@@ -1340,25 +1328,18 @@ Als Bedingung für unsere Software wurde genannt, dass Bälle, die von der Kinec
 \end{figure}
 \end{itemize}
 
-Insgesamt macht die Software einen guten Eindruck, wenn der Spieler in einem wohl definierten Abstand zur Kinect steht und möglichst keine Objekte sich vor ihm befinden. Zudem sollten die Lichtverhältnisse zu der Infrarot-Technologie der Kinect stimmig sowie das Material der Bälle von der Kinect erkennbar sein. Ist auch nur eine dieser Faktoren nicht angemessen, kann dies zu Verlusten in der Robustheit der Ballerkennung, der Handerkennung oder anderen Aspekten der Software führen.
-
-Anfängliche Sorgen, der Code würde den Effizienzanforderungen nicht gerecht werden, sind nicht eingetreten. Die Software läuft in Echtzeit. Falls aber auf dieser Software aufbauend weitere, evtl. komplexere Funktionen implementiert werden, kann dieses Thema wieder wichtig werden. Hierfür kann beispielsweise Cython\cite{cython} oder CFFI for Python\cite{cffi} verwendet werden, um bestimmte bildverarbeitende Algorithmen, die sehr rechenintensiv sind, zu beschleunigen.
-
-{\color{red}FIXME ANYONE Anwendungsrelevanz.}
+Anfängliche Sorgen, der Code würde den Effizienzanforderungen nicht gerecht werden, sind nicht eingetreten. Die Software läuft in unserer Testumgebung in Echtzeit. Falls aber auf dieser Software aufbauend weitere, evtl. komplexere Funktionen implementiert werden, kann dieses Thema wieder wichtig werden. Hierfür kann beispielsweise Cython\cite{cython} oder CFFI for Python\cite{cffi} verwendet werden, um Teile der verwendeten Algorithmen, die sehr rechenintensiv sind, zu beschleunigen.
 
 \section{Anwendungsmöglichkeiten}
 
-Die Grundidee des Projektes bestand in der Erstellung eines Systems zum Erkennen und
-Verfolgen von Jonglierbällen in Echtzeit. Als Ziel hinter dieser Idee ist die
-Möglichkeit gesehen, mit den gewonnenen Informationen verschiedene Anwendungen zu
-ermöglichen. Das Projekt kann im aktuellen Zustand als Grundlage genommen werden
-für einfache Programme und Spiele.
+Der Grundgedanke des Projektes ist die Erstellung eines Systems zum Erkennen und
+Verfolgen von Jonglierbällen in Echtzeit. Zusätzlich soll das Projekt als Grundlage für weitere einfache Programme und Spiele dienen. Diese bauen auf der Anwendung auf und können mit Hilfe der gewonnenen Informationen auch komplexere Mechaniken implementieren.
 
 \subsection{Idee: Ein interaktiver Jongliertrainer}
 
-Als denkbare Anwendung auf Basis der von uns erstellten Vorverarbeitung ist ein
-interaktiver Jongliertrainer zu nennen. Ein solches Programm würde automatisch die
-Qualität und Güte eines Jongliermusters erkennen und so über die Zeit den Fortschritt
+Denkbare Anwendung auf Basis der von uns erstellten Vorverarbeitung ist ein
+interaktiver Jongliertrainer. Ein solches Programm könnte beispielsweise automatisch die
+Qualität und Güte eines Jongliermusters bewerten und so über die Zeit den Fortschritt
 der jonglierenden Person aufzeichnen.
 
 Hierzu sind mehrere Grundaufgaben zu lösen, dessen Implementierung wir teilweise
@@ -1369,10 +1350,10 @@ bereits in unser Projekt aufgenommen haben.
 Mit den erkannten momentan fliegenden Objekten haben wir als erste Anwendung einen
 einfachen Zähler geschrieben, der die tatsächliche Anzahl der im Muster befindlichen Objekte zu bestimmen versucht.
 
-Denke wäre eine Verfolgung der Objekte über einen längeren Zeitraum, um auch
+Denkbar wäre eine Verfolgung der Objekte über einen längeren Zeitraum, um auch
 unabhängig voneinander erkannte Objekte in ihrer Identität zu bestimmen. Tatsächlich
-ist ein deutlich simplerer Ansatz aber bereits sehr effektiv, indem über eine
-längere Anzahl Frames geschaut wird, wie viele Objekte in der Luft sind. Es wird der
+ist ein deutlich simplerer Ansatz aber bereits sehr effektiv, bei dem über eine
+längere Anzahl an Frames geschaut wird, wie viele Objekte in der Luft sind. Es wird der
 Durchschnitt dieser Werte gebildet und aufgerundet. Auf diesen Wert wird dann noch
 $1$ addiert, um zur tatsächlichen Anzahl zu gelangen. Dies ist der Tatsache
 geschuldet, dass beim normalen Jongliermuster zu jeder Zeit mindestens ein Objekt in der Hand ruht, es kann also davon ausgegangen werden, dass maximal $n - 1$ Objekte
@@ -1432,12 +1413,7 @@ Wurfparabel zu erkennen und den Zwischenschritt zu interpolieren, um die gesamte
 Wurfbahn als einen einzelnen Wurf aufzufassen.
 
 Wird die zeitliche Verteilung der Würfe aufgezeichnet, lässt sich auch analysieren,
-wie gleichmäßig der Jonglier-Rhythmus ist. Auch dies ist ein wichtiger Faktor
-
-\subsubsection{Wurfhöhen messen}
-
-Ein gutes Jongliermuster zeichnet sich durch seiner Gleichmäßigkeit aus. Dies trifft
-sowohl auf
+wie gleichmäßig der Jonglier-Rhythmus ist. Auch dies ist ein wichtiger Faktor beim Jonglieren.
 
 \subsection{Idee: Siteswaps erkennen}
 
@@ -1450,13 +1426,13 @@ Zeit in der Hand landen.
 
 Eine Notation zur Aufzeichnung solche Muster ist die \textit{Siteswap-Notation}, ein
 entsprechend jongliertes Muster wird verkürzt als \textit{Siteswap} bezeichnet.
-Vereinfacht gesagt sind Siteswaps für das Jonglieren so etwas wie Noten für Musiker.
+Vereinfacht gesagt entsprechen Siteswaps beim Jonglieren in etwa den Noten für einen Musiker.
 Die Notation besteht hierbei grundlegend aus Zahlenreihen, wobei jede Stelle der
 Reihe einem Wurf entspricht, der Wert an der Stelle bestimmt die Höhe des Wurfes.
 
 Der Siteswap \textit{531} etwa besteht aus drei Würfen. Die \textit{5} entspricht
 einem Wurf der Höhe von einer regulären 5-Ball-Jonglage, die \textit{3} entsprechend
-der Höhe einer 3-Ball-Jonglage. Da laut offizieller Regelung (FIXME source) eine
+der Höhe einer 3-Ball-Jonglage. Da laut offizieller Regelung eine
 Jonglage erst dann als Jonglieren zählt, wenn mehr Objekte als Hände beteiligt sind,
 haben die Werte Zwei, Eins und Null eine Sonderbedeutung. Die Null im Siteswap
 bezeichnet eine leere Position zu diesem Takt, die Eins ist ein Übergeben des
@@ -1528,7 +1504,7 @@ Code Basis helfen können.
 
 \subsection{Verfügbarkeit des Quellcodes}
 
-Der im Rahmen des Projekts entwickelte Quellcode ist online verfügbar unter 
+Der im Rahmen des Projekts entwickelte Quellcode ist online verfügbar unter
 \url{https://github.com/florianletsch/kinect-juggling}. Zusätzlich enthält
 das Repository auch die Präsentationsmaterialien der Zwischenstandspräsentationen
 sowie die LaTeX-Quellen dieses Projektberichtes.
@@ -1549,19 +1525,19 @@ Interpreter importierbar sein.
     \item \lstinline{cv}, \lstinline{cv2} (OpenCV)
 \end{enumerate}
 
-Für die Analyse der Live-Daten muss eine Kinect angeschlossen sein. Alternativ können vorher aufgezeichnete 
+Für die Analyse der Live-Daten muss eine Kinect angeschlossen sein. Alternativ können vorher aufgezeichnete
 Demo-Daten verwendet werden, wenn die Anwendung im Dummy-Modus gestartet wird.
 
 
 \subsection{Benutzung des Programmes}
 
-Die Software kann von der Kommandozeile mit einem Aufruf des installierten Python Interpreters auf der \lstinline{main.py} gestartet werden. 
+Die Software kann von der Kommandozeile mit einem Aufruf des installierten Python Interpreters auf der \lstinline{main.py} gestartet werden.
 
 \begin{lstlisting}[language=bash]
 python main.py
 \end{lstlisting}
 
-Standardgemäß wird hier das RGB-Signal der Kinect angezeigt, sowie eine Filterkombination gewählt, die 
+Standardgemäß wird hier das RGB-Signal der Kinect angezeigt, sowie eine Filterkombination gewählt, die
 die Ballerkennung unserer finalen Lösung durchführt und visualisiert. Möchte man diese Filterkombination
 auf zuvor aufgenommenen Demodaten ausführen, kann dies mit dem Parameter \lstinline{--dummymode} geschehen.
 
@@ -1570,7 +1546,7 @@ python main.py --dummymode
 \end{lstlisting}
 
 Sobald mehr als dieser eine Parameter angehängt wird, wird die standardgemäße Filterkombination
-nicht initialisiert, sondern stattdessen jeder Filter so initialisiert, wie es manuell durch die 
+nicht initialisiert, sondern stattdessen jeder Filter so initialisiert, wie es manuell durch die
 Kommandozeilenparameter festgelegt wird. Eine komplette Auflistung der verfügbaren Parameter folgt im
 nächsten Abschnitt \label{sec:parameter}.
 
@@ -1578,25 +1554,25 @@ Nach Start des Programms stehen während der Laufzeit einige Tastaturkürzel zur
 
 \begin{tabular}{p{5cm}p{10cm}}
 \hline
-{\lstinline!P!} & Livestream am aktuellen Frame pausieren\\ 
+{\lstinline!P!} & Livestream am aktuellen Frame pausieren\\
 {\lstinline!SPACE!} & Screenshot des aktuellen Frames aufnehmen, wird gespeichert im {\lstinline!/snapshots!} Verzeichnis\\
 Beliebige andere Taste & Programm beenden\\ \hline
 \end{tabular}
 
-Wie erwähnt, kann die Anwendung auch auf Testdaten arbeiten, wenn zum Beispiel gerade keine Kinect zur 
+Wie erwähnt, kann die Anwendung auch auf Testdaten arbeiten, wenn zum Beispiel gerade keine Kinect zur
 Verfügung steht, oder man während des Programmierens auf Videodaten eines Jongleurs zugreifen möchte.
 
 \label{sec:record}
-Um diese Daten aufzuzeichnen, ist zuerst ein leerer Ordner \lstinline{/frames} anzulegen. Die Software ist 
+Um diese Daten aufzuzeichnen, ist zuerst ein leerer Ordner \lstinline{/frames} anzulegen. Die Software ist
 dann im Aufnahmemodus zu starten.
 
 \begin{lstlisting}[language=bash]
 python main.py --record
 \end{lstlisting}
 
-So lange die Anwendung läuft, werden nun sowohl die RGB- als auch die Tiefendaten in \lstinline{/frames} 
+So lange die Anwendung läuft, werden nun sowohl die RGB- als auch die Tiefendaten in \lstinline{/frames}
 gespeichert. Jeder Frame nimmt dabei etwa 1,5 MB Speicherplatz ein, pro Sekunde fallen also 45 MB an Daten
-an. Lange Aufnahmen sollten also nur bewusst durchgeführt werden, da hier schnell eine große Datenmenge 
+an. Lange Aufnahmen sollten also nur bewusst durchgeführt werden, da hier schnell eine große Datenmenge
 entsteht.
 
 
@@ -1627,10 +1603,6 @@ Parameter & Filter & Erklärung \\ \hline
 \renewcommand{\refname}{Quellen}
 \bibliographystyle{plain}
 \begin{thebibliography}{99}
-
-{\color{red}
-\bibitem{FIXME}
-FIXME Bibliothek evtl. etwas sortieren oder so}
 
 %\cite{hacking}
 \bibitem{hacking}
