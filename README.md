@@ -1,10 +1,15 @@
 kinect-juggling
 ================
 
-Realtime tracking of juggling objects using the depth information of the Microsoft Kinect. This is the Result - well, work in progress - of a university project in computer graphics and image processing. 
+Realtime tracking of juggling objects using the depth information of the Microsoft Kinect. This is the result - well, work in progress - of a university project in computer vision. 
 
-Requirements
-===
+## Demo and current state
+
+Ball detection and tracking works pretty well.
+
+[Demo video](http://quick.as/aygwtl9a).
+
+## Requirements
 
 * libfreenect
 * python modules:
@@ -13,28 +18,20 @@ Requirements
     * numpy
 * And you'll need to have a kinect wired up to your machine
 
-Run it
-===
+## Run it
 
 * If you want to use the dummymode, set a symlink to captured frames like so: `ln -s ~/Dropbox/Uni\ 2013/Bildverarbeitung/frames frames`
 * Then just run `python <script>` for whatever script you like. Well, right now there's just one.
 * By default, you'll want to `python main.py --detectball --cutoff  --dummymode --handtracking --simplehand`
 
-Current state
-===
-
-Ball detection and tracking works pretty well.
-
-TODO / Ideas
-===
+## TODO / Ideas
 
 * be more robust about the position of the juggler (in particular with regards to distance from the Kinect)
 * use the tracking data for more information: count objects, analyse tossing height, detect actual juggling pattern (siteswaps?)
 
-Licensed under MIT License (MIT)
-===
+## Licensed under MIT License (MIT)
 
-## The MIT License (MIT)
+**The MIT License (MIT)**
 
 Copyright (c) 2014 Florian Letsch, Rolf Boomgaarden, Thiemo Gries
 
