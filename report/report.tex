@@ -1200,7 +1200,7 @@ Schlecht: Viele simulierte Positionen mit Teils großen Abweichungen. Automatisi
 \end{tabular}
 
 
-Wie sich herausstellte, waren die Handpositionen, die immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Wurden die Hände erst einmal separat erkannt und aus den potentiellen Ballpositionen entfernt, fallen bereits viele der fälschlich simulierten Flugbahnen heraus.
+Wie sich herausstellte, waren die Handpositionen, die immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Werden die Hände zuerst separat erkannt und aus den potentiellen Ballpositionen entfernt, fallen bereits viele der fälschlich simulierten Flugbahnen heraus.
 
 \begin{figure}[H]
     \centering
@@ -1226,17 +1226,18 @@ Wie sich herausstellte, waren die Handpositionen, die immer in den potentiellen 
     \label{ballcount-1}
 \end{figure}
 
-Sobald wir aber die Hände mit in die Betrachtung eingezogen haben, war das Simulieren der Flugbahnen gar nicht mehr nötig. Der ganze Vorgang der Zuordnung von bereits initiierten Ballobjekten zu potentiellen Positionen konnte nochmals vereinfacht werden und und läuft im finalen Ergebnis sehr gut, wie in Abschnitt \ref{sec:ballzuordnung} beschrieben.
+Seitdem wir also aber die Hände mit in die Betrachtung einbezogen haben, war das Simulieren der Flugbahnen gar nicht mehr nötig. Der ganze Vorgang der Zuordnung von bereits initiierten Ballobjekten zu potentiellen Positionen konnte nochmals vereinfacht werden und und läuft im finalen Ergebnis sehr gut, wie in Abschnitt \ref{sec:ballzuordnung} beschrieben.
 
 
 
 
 \section{Herausforderungen}
-Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere nach mehreren Versuchen nutzbar gemacht. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht ausreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt hineinzubringen, weswegen sie letzten Endes nicht in der Software genutzt werden.
 
-Einige dieser Ansätze, die uns Schwierigkeiten bereitet haben, werden hier kurz vorgestellt, das Problem der Idee aufgezeigt, und wie wir sie letzten Endes doch implementiert haben - oder warum sie es nicht in die Software schafften.\\
-Leider machten wir während des Projektes wenige Aufzeichnungen über unsere Arbeitsschritte, sondern programmierten wild darauf los, und was nicht funktionierte, wurde überschrieben. Deswegen ein Reminder, vor allem an uns: Mehr Kommentieren und Fortschritt sowie Missglücktes notieren!
+Zusätzlich zu den oben beschriebenen Fehlerquellen gehen wir im Folgenden auf 
+weitere technische Herausforderungen und Schwierigkeiten in unserer 
+Projektorganisation ein.
 
+Während dieses Projektes wurden viele Ideen eingebracht, einige sofort implementiert, andere erst nach mehreren Versuchen vervollständigt. Aber einige Ansätze konnten auch nach wiederholten Versuchen nicht hinreichend umgesetzt werden, oder schienen nach mehrmaligem Testen nicht den erhofften Fortschritt zu bringen, weswegen sie letzten Endes nicht im Programm genutzt werden.
 
 \subsection{Technische Herausforderungen}
 
