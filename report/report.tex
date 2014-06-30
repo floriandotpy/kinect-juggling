@@ -416,7 +416,7 @@ Eine vollständige Auflistung der verfügbaren Kommandozeilenparameter folgt im 
 
 Nach der Initialisierungsphase beginnt die oben angesprochene Programmschleife.
 In jedem Schleifendurchlauf wird zunächst auf Benutzereingaben reagiert.
-Ein simples Abfragen aktueller Tasteneingebaben ermöglicht es dem Benutzer einen Screenshot des momentanen RGB- und Tiefenbild zu erzeugen (Leertaste) oder das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
+Ein simples Abfragen aktueller Tasteneingebaben ermöglicht es dem Benutzer einen Screenshot des momentanen Frames inklusive der eingezeichneten Visualisierung zu speichern (Leertaste), das Programm zu pausieren (p) oder ganz zu beenden (beliebige andere Taste).
 
 Im nächsten Schritt wird nun entweder von einer realen oder simulierten Kinect ein RGB- und ein Tiefenbild abgefragt. Zudem wird eine leere Liste erzeugt, in der später die Ballpositionen gespeichert werden.
 
@@ -441,7 +441,7 @@ class DummyFilter(object):
         return rgb, depth, balls
 \end{lstlisting}
 
-Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Umsetzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen. Die Strukturierung in vier Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
+Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die finale Umsetzung in Packages organisiert. Jeder Filter liegt dabei in einem eigenen Modul vor (genauso wie jede der Ballerkennungsmethoden, auf die wir später zu sprechen kommen). Die Strukturierung in fünf Packages je nach Aufgabe der einzelnen Komponenten erlaubt eine übersichtliche Codebasis und selbsterklärende \lstinline{import} Statements.
 
 \begin{tabular}{ll}
 \textbf{Package} & \textbf{Inhalt} \vspace{0.1cm} \\
@@ -452,7 +452,7 @@ Zur besseren Übersicht über die Vielzahl der Filter haben wir diese für die f
 {\lstinline!src.application!} & Beispielhafte Anwendungen auf Basis unseres Projekts
 \end{tabular}
 
-Nachdem alle Filter ausgeführt wurden, werden die resultierenden Bilder angezeigt. Beim Programmstart kann hierbei auch wieder über einen Parameter festgelegt werden, ob entweder das RGB- oder das Tiefenbild angezeigt werden soll. Damit ist ein Schleifendurchlauf beendet und der nächste Durchgang beginnt mit dem laden der nächsten Bilddaten.
+Nachdem alle Filter ausgeführt wurden, werden die resultierenden Bilder angezeigt. Beim Programmstart kann hierbei auch wieder über einen Parameter festgelegt werden, ob entweder das RGB- oder das Tiefenbild angezeigt werden soll. Damit ist ein Schleifendurchlauf beendet und der nächste Durchgang beginnt mit dem Laden der nächsten Bilddaten.
 
 \subsection{Programmfluss}
 \label{sec:programmfluss}
@@ -470,7 +470,7 @@ Die einzelnen Arbeitsschritte werden im Folgenden noch detaillierter betrachtet.
 
 \subsubsection{Schritt 1: Tiefendaten vorverarbeiten}\label{sec:preprocess}
 
-Die Kinect liefert Tiefenwerte im Bereich von 0 bis 2047, wobei ein höherer Wert
+Die Kinect liefert Tiefenwerte im Bereich von 0 bis 4095 (11 bit), wobei ein höherer Wert
 einen größeren Abstand bedeutet. Die 0 steht hierbei für einen Pixel, in dem keine
 Tiefeninformation vorliegt.
 
@@ -479,7 +479,7 @@ wir einen isoliert stehenden Jongleur an. Zwischen der Tiefenebene des Jongleurs
 und dem Sensor befinden sich laut unsere Annahme keine Objekte außer den
 Jonglierbällen. Ein erster Schritt besteht daher im Binarisieren der Tiefendaten.
 Ab einem festen Abstand zur Kinect werden alle weiter entfernt liegenden Werte auf 0
-(=schwarz) gesetzt. Alle näher am Sensor befindlichen Punkte werden auf 2047 (=weiß)
+(=schwarz) gesetzt. Alle näher am Sensor befindlichen Punkte werden auf 4095 (=weiß)
 gesetzt. Der Schwellwert, an dem diese Binarisierung getroffen wird, ist von uns
 zuerst auf 2100 gesetzt worden, da dies in den von uns aufgezeichneten Testdaten
 genau einer Grenze direkt vor dem Körper des Jongleur entsprach, so dass wir
@@ -500,56 +500,57 @@ Tiefendaten, so dass wir für die Ballerkennung diese Verschiebung ignorieren
 könnten. Für die Visualisierung überlagen wir aber die gewonnene Information mit
 den RGB-Daten, so dass wir hierfür diesen Fehler korrigieren müssen. Diese
 Korrektur ist daher auch Teil der Vorverarbeitung. Glücklicherweise unterstützt
-die \lstinline{freenect} Bibliothek in der zum Projektzeitpunkt nur als
-\lstinline{unstable} erhältlichen Version diese Fehlerkorrektur von Haus aus. Nötig
+die \lstinline{freenect} Bibliothek diese Fehlerkorrektur von Haus aus. Nötig
 ist hierzu lediglich die Angabe eines bestimmten Formats beim Anfordern eines
-Frames von Tiefendaten: \lstinline{freenect.get_depth(format=4)}
+Frames von Tiefendaten: \lstinline{freenect.get_depth(format=4)}.
 Erzeugt dieser Aufruf einen Fehler, so ist dies ein Hinweis, dass nicht die korrekte
 Version der \lstinline{freenect} Bibliothek verwendet wird.
 
-Durch die Funktionsweise der Kinect, kann keine Tiefeninformationen an Flächen gewonnen werden, die orthogonal zum Sensor der Kinekt stehen, da dort kein Infrarotlicht zum Sensor reflektiert wird.
-Das Tiefenbild besitzt an diesen Stellen dementsprechend keine verwendbaren Tiefenwerte. Stattdessen wird an diesen Positionen der Wert 0 eingefügt. Dies führt an den meisten Objekt-Kanten und insbesondere bei den Jonglierbällen zu einem um das Objekt liegenden Rahmen von Null-Werten. Durch das zuvor angesprochene Binarisieren, werden diese Werte dann im Zuge der Vorverarbeitung auf den maximalen Tiefenwert gesetzt. Aufgrunddessen schrumpfen die Objecte um wenige Pixel. Für die Bälle bedeutet dies, dass deren Durchmesser im Tiefenbild etwas kleiner ist, als der im RGB-Bild. Dies hat aber nur minimale Auswirkungen auf die spätere Erkennung und Bestimmung der Position der Jonglierbälle.
-Das füllen dieser Löcher im Tiefenbild kann alternativ auch kontext-sensitiv ausgeführt werden. Da die momentane Behandlung jedoch zufriedenstellende Ergebnisse liefert, wurde auf einen komplexeren Algorithmus verzichtet. Dieser würde die Ballerkennung wahrscheinlich nur unwesentlich verbessern und würde somit nur unnötig Rechenzeit beanspruchen.
-{\color{red}FIXME Tiefenbild eines balls vorher und nacher}
-
-{\color{red}FIXME: häh? oben hast du das bild doch schon binarisiert? außerdem ergibt der satz keinen sinn von 256 auf irgendetwas zu reduzieren damit man nur bis 255 arbeitet?! }
-Hatten wir ursprünglich noch überlegt, die Tiefenwerte von 256 bit auf einen
-niedrigeren Wert zu reduzieren, um in der Verarbeitung der Einfachheit halber nur
-mit Werten zwischen 0 und 255 arbeiten zu müssen, so haben wir uns dann doch gegen
-diese Reduzierung entschieden. Lediglich für den Fall der Visualisierung der
-Tiefendaten führen wir eine entsprechende Transformation durch, um auf Grauwerte
-zwischen 0 und 255 abzubilden.
+Durch die Funktionsweise der Kinect kann keine Tiefeninformationen an Flächen gewonnen werden, die orthogonal zum Sensor der Kinekt stehen, da dort kein Infrarotlicht zum Sensor reflektiert wird.
+Das Tiefenbild besitzt an diesen Stellen dementsprechend keine verwendbaren Tiefenwerte. Stattdessen wird an diesen Positionen der Wert 0 eingefügt. Dies führt an den meisten Objekt-Kanten und insbesondere bei den Jonglierbällen zu einem um das Objekt liegenden Rahmen von Null-Werten. Durch das zuvor angesprochene Binarisieren, werden diese Werte dann im Zuge der Vorverarbeitung auf den maximalen Tiefenwert gesetzt. Aufgrunddessen schrumpfen die Objekte um wenige Pixel. Für die Bälle bedeutet dies, dass deren Durchmesser im Tiefenbild etwas kleiner ist, als der im RGB-Bild. Dies hat aber nur minimale Auswirkungen auf die spätere Erkennung und Bestimmung der Position der Jonglierbälle.
+Das Füllen dieser Löcher im Tiefenbild kann alternativ auch kontext-sensitiv ausgeführt werden. Da die momentane Behandlung jedoch zufriedenstellende Ergebnisse liefert, wurde auf einen komplexeren Algorithmus verzichtet. Dieser würde die Ballerkennung wahrscheinlich nur unwesentlich verbessern und würde somit nur unnötig Rechenzeit beanspruchen.
 
 \subsubsection{Schritt 2: Regions Of Interest isolieren}
 \label{sec:roi}
 
-Um den Hintergrund zu entfernen und die Bälle freizustellen, wurden zwei Ansätze getestet:
+Um den Hintergrund zu entfernen und die Bälle freizustellen, wurde folgende Annahme getroffen: Es werden möglichst keine Objekte in der Tiefenebene zwischen dem Spieler und der Kinect platzieren, auch nicht am Rand. Zusätzlich wird davon ausgegangen, dass der Spieler auf einer Linie oder ähnlichem in einem festen Abstand zur Kinect steht.
 
-\begin{itemize}
-\item[A.]Möglichst keine Objekte in der Tiefenebene zwischen dem Spieler und der Kinect platzieren, auch nicht am Rand. Die Tiefenwerte
-werden nun ab einem gewissen Wert einfach abgeschnitten, so dass in diesen im optimalen Fall nur noch die Bälle sowie die Hände des
-Jongleurs verbleiben. Hier wird also die Annahme getroffen, dass der Spieler auf einer Linie oder ähnlichem in einem festen Abstand zur
-Kinect steht. Die Tiefendaten werden nun noch binarisiert.
-\item[B.]Mit einem temporalen Filter sich bewegende Regionen isolieren. Dieses erlaubt auch störende Objekte wie Stühle am Rand sowie
-einen flexiblen Abstand des Spielers zur Kinect. Nach einer Implementierung wurde aber deutlich, dass das Verfahren bei schnellen Bewegungen
-(wie dem Ballwurf) nicht zuverlässig ist. Außerdem traten vermehrt Probleme mit unscharfen Objekträndern und Rauschen auf, die aber mit Funktionen der VIGRA\cite{vigra} kompensiert werden konnten. Die Probleme mit schnellen Bewegungen verblieben aber und es kamen noch technische Hürden hinzu, wie die VIGRA\cite{vigra} als weitere Abhängigkeit.
-\end{itemize}
+Die Tiefenwerte werden daher ab einem gewissen Wert einfach abgeschnitten, so dass in diesen im optimalen Fall nur noch die Bälle sowie die Hände des
+Jongleurs verbleiben. Das so in seiner Information reduzierte Tiefenbild wird nun noch binarisiert, so dass
+es nur noch den einfarbigen Hintergrund und die davor hervorgehobenen Objekte (Hände und Bälle) enthält.
 
-Wir stellten fest, dass Ansatz A völlig ausreichend für unsere Zwecke ist. Die Einschränkung der Spielerposition ist ebenfalls nicht störend, da dies sogar interaktiv durchgeführt werden kann (so lange nach vorne gehen, bis das System vernünftige Werte liefert - kein aufwändiges Abmessen nötig). Weiterhin redgt dies sogar den Spieler an, seine Ballwürfe kontrolliert durchzuführen, ohne dass diese ihn zu Positionsveränderungen zwingen.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{img/depth-binary.png}
+    \vspace{-0.5cm}
+    \caption{Das vorverarbeitete Tiefenbild. Isoliert zu sehen: Hände und fliegende Bälle}
+    \label{rects-3}
+\end{figure}
+
+
+Ein weiterer Ansatz mit einem komplexeren temporalen Filter zum Herausfiltern von unbewegten Objekten und
+Hindernissen wird in Abschnitt \ref{sec:temporal} beschrieben. Wir stellten fest, dass der simple Ansatz
+völlig ausreichend für unsere Zwecke ist und sogar robuster funktioniert, weshalb wir bei diesem geblieben
+sind.
 
 \subsubsection{Schritt 3: Bälle in Frame-Folgen einander zuordnen}
 \label{sec:ballzuordnung}
 
-Bevor potentielle Ballpositionen konkreten Ball-Instanzen zugeordnet werden, findet eine kurze Vorverarbeitung statt, bei der Regionen im binarisierten Ergebnis des vorherigen Schrittes als Rechtecke umzeichnet werden, wofür einfach die OpenCV-Funktion \lstinline{cv.BoundingRect} verwendet wird, die genau diese Aufgabe erfüllt.
-Kleine Rechtecke und solche, die den Bildrahmen berühren, werden hierbei bereits herausgefiltert.
+Bevor potentielle Ballpositionen konkreten Ball-Instanzen zugeordnet werden, findet eine kurze Vorverarbeitung statt, bei der Regionen im binarisierten Ergebnis des vorherigen Schrittes als Rechtecke umzeichnet werden, wofür die OpenCV-Funktion \lstinline{cv.BoundingRect} verwendet wird, die genau diese Aufgabe erfüllt. Zu kleine Rechtecke und solche, die den Bildrahmen berühren, werden hierbei bereits herausgefiltert.
 
 Durch die resultierende Liste von Rechtecken wird iteriert und jeder
 Rechteckmittelpunkt als mögliche Ballposition aufgefasst (die kürzere Rechteckskante
-wird als Balldurchmesser gespeichert, vorerst aber ignoriert).
+wird als Balldurchmesser gespeichert).
 
 \vspace{0.5cm}
 \begin{lstlisting}[language=Python,caption={RectsFilter.py, Ausschnitt}]
-# ...
+    def filter(self, rgb, depth, balls, args = {}):
+
+        # We'll need open CV for this.
+        rgb_cv = cv.fromarray(np.array(rgb[:,:,::-1]))
+        depth_cv = cv.fromarray(np.array(depth[:,:], dtype=np.uint8))
 
         storage = cv.CreateMemStorage(0)
         contour = cv.FindContours(depth_cv, storage, cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
@@ -568,27 +569,26 @@ wird als Balldurchmesser gespeichert, vorerst aber ignoriert).
                 y -= 5
                 w += 10
                 h += 10
-                x, y = self._nullify(x), self._nullify(y) # why is this necessary now?
+                x, y = self._nullify(x), self._nullify(y) # make sure nothing is smaller than 0
 
                 ball_center = (x+w/2, y+h/2)
                 ball_radius = min(w/2, h/2)
                 ball_list.append(dict(position=ball_center, radius=ball_radius))
 
-                # Draw rectancle with info
-                cv.PutText(rgb_cv, '%d/%d' % (x, y), (x,y-2) , self.font, (0, 255, 0))
-                cv.Rectangle(rgb_cv, (x, y), (x+w, y+h), cv.CV_RGB(0, 255,0), 2)
 
-        args['balls'].addPositions(ball_list)
+        # and back to numpy...
+        rgb = np.copy(rgb_cv)[:,:,::-1]
+
+        return rgb, depth, ball_list
 \end{lstlisting}
 
-Es liegt nun
-für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich aus tatsächlichen Ballpositionen, Positionen in denen sich die Hände befinden sowie potentiell weiteren Hindernissen im Sichtfeld der Kinect zusammen, wobei wir diese in unseren Testdaten vermieden haben. Bei den tatsächlichen Ballpositionen ist zu beachten, dass diese etwas ungenau sind und mit mehreren Pixeln vom tatsächlichen Ballmittelpunkt abweichen können.
+Es liegt nun für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich zusammen aus tatsächlichen Ballpositionen, Positionen, in denen sich die Hände befinden, sowie potentiell weiteren Hindernissen im Sichtfeld der Kinect (wobei wir letztere in unseren Testdaten vermieden haben). Bei den tatsächlichen Ballpositionen ist zu beachten, dass diese etwas ungenau sind und mitunter mehrere Pixeln vom tatsächlichen Ballmittelpunkt abweichen können.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{img/rects-1.png}
     \vspace{-0.5cm}
-    \caption{FIXME}
+    \caption{Hervorhebung erkannter Regionen, in denen sich Bälle und Hände befinden.}
     \label{rects-1}
 \end{figure}
 
@@ -620,19 +620,17 @@ für jeden Frame eine Liste von möglichen Ballpositionen vor. Diese setzen sich
 
 Im Folgenden kommt die Hauptaufgabe dieses Schritts: Das Zuordnen der potentiellen
 Punkte zu tatsächlichen Ballinstanzen, wobei diese Zuordnung über mehrere Frames
-hinweg eine neue Position einem bestehenden Ball zuordnen soll.
+hinweg einem bestehenden Ball eine neue Position zuordnen soll.
 
-Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben. Mehr dazu im später folgenden Abschnitt zu den von uns ausprobierten Ansätzen \ref{sec:ansaetze}.
+Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben. Mehr dazu im später folgenden Abschnitt \ref{sec:ansaetze} zu den von uns ausprobierten Ansätzen.
 
 Unsere endgültige Version der Ballerkennung ist in \lstinline{SimpleHandBallFilter}
 implementiert. Robust funktioniert dieser Filter nur, wenn vorher der Filter
-\lstinline{HandTrackingFilter} angewandt wurde. \lstinline{HandTrackingFilter}  betrachtet die gefundenen potentiellen Ballpositionen und identifiziert die beiden Hände des Jongleurs. Die als Hände identifizierten Positionen werden aus der Liste entfernt, so dass \lstinline{SimpleHandBallFilter} im Folgenden auf den übrig gebliebenen Positionen arbeitet. Hierzu kann sehr viel zuverlässiger bestimmt werden, welche Position tatsächlich ein fliegender Ball ist. Bälle, die sich momentan in der Hand des Jongleur befinden, werden hierbei ignoriert bzw. nicht als Bälle erkannt.
+\lstinline{HandTrackingFilter} angewandt wurde. \lstinline{HandTrackingFilter}  betrachtet die gefundenen potentiellen Ballpositionen und identifiziert die beiden Hände des Jongleurs. Die als Hände identifizierten Positionen werden aus der Liste entfernt, so dass \lstinline{SimpleHandBallFilter} im Folgenden auf den übrig gebliebenen Positionen arbeitet. Hierdurch kann sehr viel zuverlässiger bestimmt werden, welche Position tatsächlich ein fliegender Ball ist. Bälle, die sich momentan in der Hand des Jongleur befinden, werden hierbei ignoriert bzw. nicht als Bälle erkannt.
 
 Wir wollen diese beiden Filter im Folgenden im Detail betrachten.
 
-\lstinline{HandTrackingFilter}
-
-Bei Initialisierung des Filters werden zwei \lstinline{Hand} Instanzen an beliebiger Initialposition erstellt.
+Bei Initialisierung des Filters \lstinline{HandTrackingFilter} werden zwei \lstinline{Hand} Instanzen an beliebiger Initialposition erstellt.
 
 \begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
 self.left = Hand((100, 100))
@@ -641,7 +639,7 @@ self.right = Hand((200, 200))
 
 In einem Filteraufruf wird das übergebene \lstinline{args} Dictionary dann
 verwendet, um zu markieren, dass der Filter die Handobjekte zugeordnet hat. Es
-werden außerdem Referenzen zu den Instanzen für beide gesetzt. Diese Information ist
+werden außerdem Referenzen zu den Instanzen für beide Hände gesetzt. Diese Information ist
 vor allem für die spätere Visualisierung (optionales Einzeichnen der Handpositionen)
 nötig, kann aber auch für andere Weiterverarbeitung verwendet werden.
 
@@ -665,7 +663,7 @@ else:
 args['centerX'] = centerX
 \end{lstlisting}
 
-Anhand dieses Mittelwertes werden die Positionen aufgeteilt in alle Positionen
+An Hand dieses Mittelwertes werden die Positionen aufgeteilt in alle Positionen
 rechts und alle Positionen links von diesem Wert. In jedem der beiden resultierenden
 Liste wird dann die jeweils unterste Position als Hand identifiziert.
 
@@ -685,20 +683,12 @@ for hand, filterKey in handProps:
         positions.remove(lowest)
 \end{lstlisting}
 
-Entscheidend ist das das abschließende Entfernen der identifizierten Hand aus der
-Liste \lstinline{positions}. Diese Liste vom Filter zurück gegeben und im
+Entscheidend ist das abschließende Entfernen der identifizierten Hand aus der
+Liste \lstinline{positions}. Diese Liste wird vom Filter zurück gegeben und im
 nachfolgenden Filter \lstinline{SimpleHandBallFilter} verwendet. Für diesen Filter
 ist es dann entscheidend, dass sich in der Liste nur noch Positionen von fliegenden
 Bällen befinden.
 
-
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[scale=0.45]{img/handtracking-1.png}
-%    \vspace{-0.5cm}
-%    \caption{Von \lstinline{HandTrackingFilter} identifizierte Hände, als gelbe Kreise eingezeichnet. Die in %jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
-%    \label{rects-1}
-%\end{figure}
 
 \begin{figure}[H]
     \centering
@@ -708,21 +698,8 @@ Bällen befinden.
     \label{rects-1}
 \end{figure}
 
-
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[scale=0.45]{img/handtracking-3.png}
-%    \vspace{-0.5cm}
-%    \caption{Von \lstinline{HandTrackingFilter} identifierte Hände, als gelbe Kreise eingezeichnet. Die in %jedem Frame bestimmte Mitte des Jongliermusters ist als graue Linie eingezeichnet.}
-%    \label{rects-1}
-%\end{figure}
-
-
-
-\lstinline{SimpleHandBallFilter}
-
 Sind die Hände erkannt und aus der Positionsliste entfernt, ist dann also die
-Aufgabe des folgenden Filters, bereits existierende Bälle aus dem vorherigen Frame in ihrer Position zu aktualisieren, sowie Bälle am Ende ihrer Flugbahn aus der Liste der existierenden Bälle zu entfernen, und außerdem neue noch nicht verfolgte Bälle auf ihrer Flugbahn zu initialisieren.
+Aufgabe des folgenden Filters \lstinline{SimpleHandBallFilter}, bereits existierende Bälle aus dem vorherigen Frame in ihrer Position zu aktualisieren, sowie Bälle, die am Ende ihrer Flugbahn angekommen sind, aus der Liste der existierenden Bälle zu entfernen, und außerdem neue Flugbahnen zu initialisieren für noch nicht verfolgte Bälle.
 
 Wird \lstinline{SimpleHandBallFilter} zu Programmstart initialisiert, wird zuerst eine leere Liste von Bällen angelegt, da ja noch nichts erkannt wurde.
 
@@ -730,8 +707,8 @@ Wird \lstinline{SimpleHandBallFilter} zu Programmstart initialisiert, wird zuers
  self.balls = []
 \end{lstlisting}
 
-In jedem Filteraufruf werden die bereits erkannten Bällen aus dem vorherigen Frame iteriert und versucht, sie den potentiellen Ballpositionen aus dem aktuellen Frame zuzuordnen.
-Bälle aus dem vergangenen Frame, für die keine passende Folgeposition gefunden wurde, aus der Liste der aktuell vorhandenen Bälle entfernt.
+In jedem Filteraufruf wird über die bereits erkannten Bällen aus dem vorherigen Frame iteriert und versucht, sie den potentiellen Ballpositionen aus dem aktuellen Frame zuzuordnen.
+Bälle aus dem vergangenen Frame, für die keine passende Folgeposition gefunden wurde, werden aus der Liste der aktuell vorhandenen Bälle entfernt.
 Entsprechend wird an einer Position ein
 neuer Ball initialisiert, falls die Position keinem bereits erkannten Ball zugeordnet werden konnte.
 
@@ -763,14 +740,30 @@ def filter(self, rgb, depth, ball_positions, args={}):
 \end{lstlisting}
 
 
+Ein Ballobjekt wird also in der Liste \lstinline{balls} von Filter zu Filter 
+gereicht um anschließend visualisiert zu werden (dies erledigt \lstinline{DrawBallsFilter}). 
+
+Jedes Ballobjekt trägt dabei die Information über die eigene momentane Position und
+- zu Visualisierungszwecken - auch eine Farbe und einen Radius-Wert. 
+
+Bei jedem Aufruf von \lstinline{updatePosition} zum Aktualisieren der Position
+an einer \lstinline{Ball} wird die bisherige Position in einer Liste gespeichert.
+Jeder Ball trägt daher Information über seine bisherige Information, die in 
+der Visualisierung auch als eine Folge von Linien hinter dem Ball dargestellt wird.
+
+\begin{lstlisting}[language=Python,caption={\lstinline{Ball.py}, Ausschnitt}]
+def updatePosition(self, position):
+    self.positions = self.positions[:self.max_history] # keep positions list short
+    self.positions.append(self.position)
+    self.position = position
+\end{lstlisting}
 
 
-\subsubsection{Schritt 4: Bereinigte Wurfparabel}
-
-Das fehlt uns noch. Aber aus den gelieferten Daten wollen wir dann höher-levelige Informationen abstrahieren. Objektanzahl, Wurfhöhen, Würfe zählen, etc.
-
-
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{img/single-ball-position.png}
+    \caption{Ein Ball mit den visualisierten Positionen in vergangenen Frames. Aktuelle Position: \lstinline{382/119}. Liste bisheriger Positionen: \lstinline{[(326, 206), (331, 185), (336, 172), (340, 156), (355, 120), (361, 114), (366, 110), (371, 110), (377, 114)]}}
+\end{figure}
 
 \section{Ansätze im Laufe des Projektes}
 \label{sec:ansaetze}
@@ -778,7 +771,7 @@ Das fehlt uns noch. Aber aus den gelieferten Daten wollen wir dann höher-leveli
 Im Folgenden beschreiben wir die Arbeitsschritte, wie wir sie an Hand unserer
 Grundplanung ausgeführt haben. Wir gehen dabei auf die Schwierigkeiten ein, auf die
 wir getroffen sind, wodurch dann deutlich wird, weshalb wir zu unserer endgültigen
-Umsetzung gekommen sind. Diese finale Umsetzung haben wir im Abschnitt \ref{sec:final} beschrieben.
+Umsetzung gekommen sind. Diese finale Umsetzung wurde bereits in Abschnitt \ref{sec:final} beschrieben.
 
 \subsection{Anfängliche Programmstruktur}
 
