@@ -627,9 +627,9 @@ hinweg eine neue Position einem bestehenden Ball zuordnen soll.
 
 Dies ist, wie es sich herausgestellt hat, der aufwändigste Schritt - zumindest der, mit dessen Lösung wir die meiste Zeit verbracht haben. Mehr dazu im später folgenden Abschnitt zu den von uns ausprobierten Ansätzen \ref{sec:ansaetze}.
 
-Unsere endgültige Version der Ballerkennung ist in \lstinline{SimpleHandBallFilter} 
-implementiert. Robust funktioniert dieser Filter nur, wenn vorher der Filter 
-\lstinline{HandTrackingFilter} angewandt wurde. \lstinline{HandTrackingFilter}  betrachtet die gefundenen potentiellen Ballpositionen und identifiziert die beiden Hände des Jongleurs. Die als Hände identifizierten Positionen werden aus der Liste entfernt, so dass \lstinline{SimpleHandBallFilter} im Folgenden auf den übrig gebliebenen Positionen arbeitet. Hierzu kann sehr viel zuverlässiger bestimmt werden, welche Position tatsächlich ein fliegender Ball ist. Bälle, die sich momentan in der Hand des Jongleur befinden, werden hierbei ignoriert bzw. nicht als Bälle erkannt. 
+Unsere endgültige Version der Ballerkennung ist in \lstinline{SimpleHandBallFilter}
+implementiert. Robust funktioniert dieser Filter nur, wenn vorher der Filter
+\lstinline{HandTrackingFilter} angewandt wurde. \lstinline{HandTrackingFilter}  betrachtet die gefundenen potentiellen Ballpositionen und identifiziert die beiden Hände des Jongleurs. Die als Hände identifizierten Positionen werden aus der Liste entfernt, so dass \lstinline{SimpleHandBallFilter} im Folgenden auf den übrig gebliebenen Positionen arbeitet. Hierzu kann sehr viel zuverlässiger bestimmt werden, welche Position tatsächlich ein fliegender Ball ist. Bälle, die sich momentan in der Hand des Jongleur befinden, werden hierbei ignoriert bzw. nicht als Bälle erkannt.
 
 Wir wollen diese beiden Filter im Folgenden im Detail betrachten.
 
@@ -642,9 +642,9 @@ self.left = Hand((100, 100))
 self.right = Hand((200, 200))
 \end{lstlisting}
 
-In einem Filteraufruf wird das übergebene \lstinline{args} Dictionary dann 
-verwendet, um zu markieren, dass der Filter die Handobjekte zugeordnet hat. Es 
-werden außerdem Referenzen zu den Instanzen für beide gesetzt. Diese Information ist 
+In einem Filteraufruf wird das übergebene \lstinline{args} Dictionary dann
+verwendet, um zu markieren, dass der Filter die Handobjekte zugeordnet hat. Es
+werden außerdem Referenzen zu den Instanzen für beide gesetzt. Diese Information ist
 vor allem für die spätere Visualisierung (optionales Einzeichnen der Handpositionen)
 nötig, kann aber auch für andere Weiterverarbeitung verwendet werden.
 
@@ -657,7 +657,7 @@ args['hand_right'] = self.right
 Um die Hände in der Eingabeliste \lstinline{positions} von potentiellen Ball-
 Positionen zu identifizieren, wird
 die Mitte des Jongliermusters bestimmt. Dies ist der Mittelwert aller x-Koordinaten
-der in der Liste befindlichen Positionen. 
+der in der Liste befindlichen Positionen.
 
 \begin{lstlisting}[language=Python,caption={\lstinline{HandTracking.py}, Ausschnitt}]
 # determine center of juggling pattern
@@ -668,7 +668,7 @@ else:
 args['centerX'] = centerX
 \end{lstlisting}
 
-Anhand dieses Mittelwertes werden die Positionen aufgeteilt in alle Positionen 
+Anhand dieses Mittelwertes werden die Positionen aufgeteilt in alle Positionen
 rechts und alle Positionen links von diesem Wert. In jedem der beiden resultierenden
 Liste wird dann die jeweils unterste Position als Hand identifiziert.
 
@@ -688,8 +688,8 @@ for hand, filterKey in handProps:
         positions.remove(lowest)
 \end{lstlisting}
 
-Entscheidend ist das das abschließende Entfernen der identifizierten Hand aus der 
-Liste \lstinline{positions}. Diese Liste vom Filter zurück gegeben und im 
+Entscheidend ist das das abschließende Entfernen der identifizierten Hand aus der
+Liste \lstinline{positions}. Diese Liste vom Filter zurück gegeben und im
 nachfolgenden Filter \lstinline{SimpleHandBallFilter} verwendet. Für diesen Filter
 ist es dann entscheidend, dass sich in der Liste nur noch Positionen von fliegenden
 Bällen befinden.
@@ -724,7 +724,7 @@ Bällen befinden.
 
 \lstinline{SimpleHandBallFilter}
 
-Sind die Hände erkannt und aus der Positionsliste entfernt, ist dann also die 
+Sind die Hände erkannt und aus der Positionsliste entfernt, ist dann also die
 Aufgabe des folgenden Filters, bereits existierende Bälle aus dem vorherigen Frame in ihrer Position zu aktualisieren, sowie Bälle am Ende ihrer Flugbahn aus der Liste der existierenden Bälle zu entfernen, und außerdem neue noch nicht verfolgte Bälle auf ihrer Flugbahn zu initialisieren.
 
 Wird \lstinline{SimpleHandBallFilter} zu Programmstart initialisiert, wird zuerst eine leere Liste von Bällen angelegt, da ja noch nichts erkannt wurde.
@@ -733,9 +733,9 @@ Wird \lstinline{SimpleHandBallFilter} zu Programmstart initialisiert, wird zuers
  self.balls = []
 \end{lstlisting}
 
-In jedem Filteraufruf werden die bereits erkannten Bällen aus dem vorherigen Frame iteriert und versucht, sie den potentiellen Ballpositionen aus dem aktuellen Frame zuzuordnen. 
+In jedem Filteraufruf werden die bereits erkannten Bällen aus dem vorherigen Frame iteriert und versucht, sie den potentiellen Ballpositionen aus dem aktuellen Frame zuzuordnen.
 Bälle aus dem vergangenen Frame, für die keine passende Folgeposition gefunden wurde, aus der Liste der aktuell vorhandenen Bälle entfernt.
-Entsprechend wird an einer Position ein 
+Entsprechend wird an einer Position ein
 neuer Ball initialisiert, falls die Position keinem bereits erkannten Ball zugeordnet werden konnte.
 
 \begin{lstlisting}[language=Python,caption={\lstinline{SimpleHandBall.py}, Ausschnitt}]
@@ -764,7 +764,7 @@ def filter(self, rgb, depth, ball_positions, args={}):
 
     return rgb, depth, list(self.balls)
 \end{lstlisting}
-        
+
 
 
 
@@ -898,28 +898,55 @@ Bei der Implementation des Filters wird hierbei ein Differenzbild in Form eines 
 Für jeden Pixel wird überprüft, ob der Tiefenwert im alten Tiefenbild größer ist, als der entsprechende Pixel im aktuellen Tiefenbild.
 Jenachdem wird entweder eine 1 oder eine 0 im Binärbild gespeichert.
 Da bei dieser Betrachtung jeder Pixel unabhängig von den Werten in seiner unmittelbaren Umgebung verarbeitet wird, macht sich hierbei etwaiges Rauschen in den Tiefendaten besonders bemerkbar.
-{\color{red}FIXME Verrauschtes Tiefen-Differenzbild}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{img/temporal_scene.png}
+    \caption{Die Differenz zwischen zwei Tiefenbildern in einem Binärbild dargestellt. Das Rauschen macht sich deutlich bemerkbar. Starke Differenzen treten im Bereich der Hände und der Bälle auf. Statische Objekte in der Umgebung, beispielsweise der Stuhl im Vordergrund, sind im Tiefenbild kaum erkennbar.}
+    \label{temporal_rauschen}
+\end{figure}
+
 Um diese Fehlerhaften Pixel zu entfernen und falsch positive Ballpositionen zu verhindern, wird das Binärbild zunächst durch Erosion und anschließende Dilatation geglättet.
 Die Bälle im Tiefenbild sind großflächig genug, so dass sie von diesem Vorgang nur bedingt beeinflusst werden.
 Die Chance, durch die Erosion einen Ball komplett zu löschen ist daher nur sehr gering.
 Im Gegensatz dazu verschwindet ein Großteil der verrauschten Pixel.
 Diese bilden selten zusammenhängende Flächen und wenn, dann sind diese nur wenige Pixel groß.
-{\color{red}FIXME Tiefen-Differenzbild nach Erosion + Dilatation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{img/rauschfrei.png}
+    \caption{Die Erosion und Dilatation het ein Großteil des Rauschens unterdrückt. Die Hand- und Ballbewegungen sind deutlich erkennbar.}
+    \label{temporal_rauschfrei}
+\end{figure}
+
 Als Nebeneffekt werden hierbei auch einige Bereiche geglättet, in denen Körperbewegungen zu einer temporalen Veränderung im Tiefenbild geführt haben. Da sich der Körper im Vergleich zu den fliegenden Bällen nur mit einer sehr geringen Geschwindigkeit bewegt, entstehen hier auch nur schmalere Bewegungsschatten im Binärbild.
 Nach dieser ersten Glättung des Differenzbildes, werden zusammenhängende Bereiche extrahiert.
 Unter der Annahme, dass die Bälle im Binärbild eine Fläche bilden, die eine Mindestanzahl an Pixeln nicht unterschreitet, findet anschließend eine erneute Überprüfung statt. Alle zusammenhängende Bereiche, die in der Summe zu wenig Pixel haben, werden ignoriert.
 Nur die Bereiche, die groß genug sind, werden gesammelt und als potientelle Bälle in einer Liste gespeichert.
 Diese Liste wird anschließend in der Filterkette weitergerreicht und bildet somit das Ergebnis des temporalen Ballerkennnugsfilters.
-{\color{red}FIXME Ballpositionen}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{img/temporal_final.png}
+    \caption{Ein Beispiel für vom temporalen Filter gefundene Ballpositionen.}
+    \label{temporal_final}
+\end{figure}
 
 Große Auswirkung auf die Güte der Ballpositionen hat hierbei der zeitliche Abstand der beiden Tiefenbilder, die zu Beginn verglichen werden. Wenn die Bilder zeitlich so nah beieinander liegen, dass sich die Ballflächen in den beiden Frames teilweise überschneiden, entstehen halbmondförmige Flächen im Binärbild.
 Diese werden dann aber unter Umständen von dem Erosions-Prozess vernichtet.
 Oder aber in der Pixelsumme so stark reduziert, dass sie in der anschließenden Überprüfung aussortiert werden.
 Gleiches kann auch im Scheitepunkt der Wurfparabel auftreten. Auch bei größeren zeitlichen Abständen besitzen die Bälle an dieser Stelle eine zu geringe vertikale Geschwindigkeit um sich in aufeinander folgenden Bildern nicht zu überschneiden.
-{\color{red}FIXME Halbmonde}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{img/halbmond.png}
+    \caption{In Situationen, in denen sich der Ball nicht schnell genug bewegt oder die Tiefenbilder zeitlich zu nah aufeinander folgen, löscht sich der Ball im Differenzbild teilweise selbst aus und es entstehen halbmondförmige Flächen. }
+    \label{temporal_halbmond}
+\end{figure}
+
 Auf der anderen Seite führt ein zeitlich zu großer Abstand zwischen den zwei Tiefenbildern dazu, dass auch langsame Bewegungen des Jongleurs zu großen Bewegungsschatten führen, die im Folgenden nicht mehr herausgefiltert werden können.
 
-Zur Erosion, Dilatation und zum Finden von zusammenhängenden Bereichen im Binärbild kam hierbei die Bildbearbeitungsbibliothek VIGRA {\color{red}FIXME quelle} zum Einsatz.
+Zur Erosion, Dilatation und zum Finden von zusammenhängenden Bereichen im Binärbild kam hierbei die Bildbearbeitungsbibliothek VIGRA \cite{vigra} zum Einsatz.
 Dies ermöglicht eine effiziente Durchführung der entsprechenden Operationen.
 Dennoch machen sich die zusätzlichen Berechnungen in der Framerate bemerkbar und erschweren die Echtzeitfähigkeit der Ballerkennung. Gepaart mit der teilweise fehlerhaften Ballerkennung,
 bedingt durch die Selbst-Überdeckung der Bälle in den langsameren Teilen der Wurfbewegung, wurde dieser Ansatz letztendlich für die endgültige Lösung verworfen und dementsprechend auch nicht weiter ausgearbeitet.
@@ -1020,17 +1047,17 @@ der Weg zu beschreiben, auf dem wir zum Endergebnis gekommen sind. Das Endergebn
 ist dabei tatsächlich simpel, relativ robust und in
 wenig Codezeilen implementiert.
 
-Den entscheidenden Fortschritt haben wir erzielt, als wir endlich bemerkt haben, 
+Den entscheidenden Fortschritt haben wir erzielt, als wir endlich bemerkt haben,
 dass das simple Erkennen der Hände und das Entfernen der Handpositionen aus der
-Liste der zu analysierenden potentiellen Ballpositionen die Aufgabe sehr 
+Liste der zu analysierenden potentiellen Ballpositionen die Aufgabe sehr
 vereinfacht.
 
 Bis wir diesen Schritt aber gegangen sind, haben wir etliche immer komplexere
 Ansätze über die Vorhersage möglicher Ballpositionen durch Simulation des
 physikalischen Verhaltens eines Jonglierballs während des Wurfes verfolgt.
 
-Bevor wir also die Handerkennung als Teil der Ballerkennung betrachtet haben, 
-haben wir etliche Fehlerquellen mehr gehabt, die die Aufgabe der Ballerkennung 
+Bevor wir also die Handerkennung als Teil der Ballerkennung betrachtet haben,
+haben wir etliche Fehlerquellen mehr gehabt, die die Aufgabe der Ballerkennung
 frustrierend schwer gemacht haben. Die folgenden Seiten berichten von unseren
 Ansätzen und unbefriedigenden Ansätzen in dieser Projektphase.
 
@@ -1065,7 +1092,7 @@ Ansätze unterschiedlich stark beeinflussen:
 \begin{itemize}
  \item Die Hände sind auch in den möglichen Ballpositionen als Rechtecke enthalten. Dass dies die entscheidende Fehlerquelle ist, die wir mit einem simplem Verfahren ausschließen können (siehe FIXME), ist uns wie oben beschrieben erst spät aufgefallen.
  \item Die Bälle fliegen sehr nahe beieinander und teilweise überschneiden sich die Rechtecke zweier Bälle, so dass nur ein großes Rechteck zu sehen ist und als eine mögliche Ballposition untersucht wird.
- \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück. 
+ \item Ein Ball legt in einem Frame (1/30 Sekunde) unterschiedlich lange, teilweise sehr große Strecken zurück.
  \item Der Mindestabstand zur Kinect resultiert in einem kleinen Jongliermuster, wodurch die problematischen Faktoren verstärkt werden.
  \item In aufeinander folgenden Frames wird zum Teil eine Region in einigen der Frames nicht erkannt, in anderen schon. Diese "Lücken" in der Flugbahn haben bei unseren ersten Ansätze große Probleme bereitet, da plötzlich nicht mehr genug potentielle Ballpositionen für unsere bereits instantiierten Ballobjekte zur Verfügung stehen. Im finalen Ansatz haben wir solche Ballobjekte dann verworfen und
  bei Bedarf dynamisch neue Bälle erzeugt.
@@ -1078,10 +1105,10 @@ uns im folgenden betrachteten Ansätze aus. Prinzipiell lassen sich die Ansätze
 in zwei Gruppen unterteilen: In die erste Gruppe, bei der von vorneherein von einer
 festen Ballanzahl ausgegangen wird und die zweite Gruppe, bei der auch eine dynamisch wechselnde Ballanzahl erlaubt ist.
 
-Ursprünglich sind wir davon ausgegangen, dass die Grundannahme, dass genau drei 
-Bälle in der Jonglage vorhanden sind, uns bei der Analyse hilft, da wir besser 
+Ursprünglich sind wir davon ausgegangen, dass die Grundannahme, dass genau drei
+Bälle in der Jonglage vorhanden sind, uns bei der Analyse hilft, da wir besser
 ausschließen können, welche Position kein Ball sein kann. Dies stellte sich als
-Fehlannahme heraus und ist in der finalen Version so auch nicht mehr in der 
+Fehlannahme heraus und ist in der finalen Version so auch nicht mehr in der
 Ballerkennung implementiert.
 
 Bei den Ansätzen mit fester Ballanzahl wird in jedem Verarbeitungsschritt versucht,
@@ -1207,7 +1234,7 @@ Schlecht: Viele simulierte Positionen mit Teils großen Abweichungen. Automatisi
 \end{tabular}
 
 
-Wie sich herausstellte, waren die Handpositionen, die immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Wurden die Hände erst einmal separat erkannt und aus den potentiellen Ballpositionen entfernt, fallen bereits viele der fälschlich simulierten Flugbahnen heraus. 
+Wie sich herausstellte, waren die Handpositionen, die immer in den potentiellen Ballpositionen mit aufgenommen waren, ein Hauptgrund für das fehlerhafte Verhalten. Wurden die Hände erst einmal separat erkannt und aus den potentiellen Ballpositionen entfernt, fallen bereits viele der fälschlich simulierten Flugbahnen heraus.
 
 \begin{figure}[H]
     \centering
@@ -1635,33 +1662,37 @@ Scipy\\
 \bibitem{kinect2:gesturevoice}
 The Complete List of Kinect Gesture and Voice Commands For Your Referencing Pleasure\\
 news.xbox.com\\
-\url{http://news.xbox.com/2013/11/xbox-one-kinect-gesture-and-voice-guide} (accessed on 2014-06-29).
+\url{http://news.xbox.com/2013/11/xbox-one-kinect-gesture-and-voice-guide} (Stand 29.06.2014).
 
 \bibitem{kinect2:wikikinect}
 Wikipedia: Kinect for Xbox One\\
-\url{http://en.wikipedia.org/wiki/Kinect_for_Xbox_One} (accessed on 2014-06-29).
+\url{http://en.wikipedia.org/wiki/Kinect_for_Xbox_One} (Stand 29.06.2014).
 
 \bibitem{kinect2:wikixbox}
 Wikipedia: Xbox One, Kinect\\
-\url{http://en.wikipedia.org/wiki/Xbox_One#Kinect} (accessed on 2014-06-29).
+\url{http://en.wikipedia.org/wiki/Xbox_One#Kinect} (Stand 29.06.2014).
 
 \bibitem{kinect2:teardown}
 Xbox One Kinect Teardown\\
 www.ifixit.com\\
-\url{https://www.ifixit.com/Teardown/Xbox+One+Kinect+Teardown/19725} (accessed on 2014-06-29).
+\url{https://www.ifixit.com/Teardown/Xbox+One+Kinect+Teardown/19725} (Stand 29.06.2014).
 
 \bibitem{kinect2:infrared}
 Our First Look at the Xbox One Kinect IR Field\\
 www.ifixit.org\\
-\url{http://ifixit.org/blog/5684/our-first-look-at-the-xbox-one-kinect-ir-field/} (accessed on 2014-06-29).
+\url{http://ifixit.org/blog/5684/our-first-look-at-the-xbox-one-kinect-ir-field/} (Stand 29.06.2014).
 
 \bibitem{kinect2:forwindows}
 Kinect for Windows v2 Developer Preview Program\\
-\url{http://www.microsoft.com/en-us/kinectforwindowsdev/newdevkit.aspx} (accessed on 2014-06-29).
+\url{http://www.microsoft.com/en-us/kinectforwindowsdev/newdevkit.aspx} (Stand 29.06.2014).
 
 \bibitem{kinect:wiki}
 Wikipedia: Kinect\\
-\url{http://en.wikipedia.org/wiki/Kinect} (accessed on 2014-06-29).
+\url{http://en.wikipedia.org/wiki/Kinect} (Stand 29.06.2014).
+
+\bibitem{vigra}
+The VIGRA Computer Vision Library\\
+\url{http://ukoethe.github.io/vigra/} (Stand 29.06.2014).
 
 \end{thebibliography}
 
