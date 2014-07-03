@@ -1,5 +1,5 @@
-\documentclass[12pt,a4paper,ngerman]{scrartcl}
-\usepackage[left=2.5cm,right=2.5cm,top=1cm,bottom=2cm,includeheadfoot]{geometry}
+\documentclass[a4paper,ngerman]{scrartcl}
+%\usepackage[left=2.5cm,right=2.5cm,top=1cm,bottom=2cm,includeheadfoot]{geometry}
 \usepackage{babel}
 \usepackage[T1]{fontenc}
 \usepackage{verbatim} %muss vorhanden sein für \begin{comment}
@@ -81,14 +81,14 @@
 \vspace{2 cm}
 
 \begin{flushright}
-\scshape{\large\bfseries \today}
+\scshape{\large\bfseries 30. Juni 2014}
 \end{flushright}
 
 \vfill
 
 \begin{flushright}
 
-\scshape{Unter Aufsicht von:\\ {\bfseries Prof. Dr. Leonie Dreschler-Fischer\\ Dr. Benjamin Seppke}\\}
+\scshape{Betreut von:\\ {\bfseries Prof. Dr. Leonie Dreschler-Fischer\\ Dr. Benjamin Seppke}\\}
 \scshape{\bfseries Arbeitsbereich Kognitive Systeme\\}
 \scshape{\bfseries Fachbereich Informatik, Universität Hamburg\\}
 \end{flushright}
@@ -509,6 +509,7 @@ Durch die resultierende Liste von Rechtecken wird iteriert und jeder
 Rechteckmittelpunkt als mögliche Ballposition aufgefasst (die kürzere Rechteckskante
 wird als Balldurchmesser gespeichert).
 
+\newpage
 \vspace{0.5cm}
 \begin{lstlisting}[language=Python,caption={RectsFilter.py, Ausschnitt}]
     def filter(self, rgb, depth, balls, args = {}):
