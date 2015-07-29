@@ -171,9 +171,13 @@ if __name__ == '__main__':
         args += ["cutoff", "detectball", "handtracking", "simplehand"]
 
     dummymode = "--dummymode" in sys.argv or "-d" in sys.argv
+    openni = "--openni" in sys.argv
     if dummymode:
         from src.kinect.KinectDummy import KinectDummy
         kinect = KinectDummy()
+    elif openni:
+        from src.kinect.OpenNIKinect import OpenNIKinect
+        kinect = OpenNIKinect()
     else:
         try:
             from src.kinect.Kinect import Kinect

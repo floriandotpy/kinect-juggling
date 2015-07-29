@@ -28,6 +28,7 @@ Ball detection and tracking works pretty well.
 
 * be more robust about the position of the juggler (in particular with regards to distance from the Kinect)
 * use the tracking data for more information: count objects, analyse tossing height, detect actual juggling pattern (siteswaps?)
+* read from OpenNI file (very WIP): `python main.py --cutoff  --openni --handtracking --simplehand --detectball`
 
 ## Licensed under MIT License (MIT)
 
